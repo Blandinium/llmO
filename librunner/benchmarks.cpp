@@ -15,6 +15,7 @@ constexpr std::int64_t target_wall_us = 30'000'000;
 constexpr std::int64_t min_probe_wall_us = 500'000;
 constexpr std::uint64_t min_iterations = 1;
 constexpr std::uint64_t default_max_iterations = 10'000'000;
+constexpr std::uint64_t fibonacci_max_iterations = 10'000'000'000ULL;
 
 using Clock = std::chrono::steady_clock;
 using TimePoint = std::chrono::time_point<Clock>;
@@ -119,7 +120,17 @@ CalibrationResult calibrate_iterations(
             break;
         }
 
-        std::uint64_t next_iterations = probe_iterations * 2;
+        std::uint64_t next_iterations;
+        if (probe_wall_us > 0 && probe_wall_us < min_probe_wall_us / 4) {
+            double scale = static_cast<double>(min_probe_wall_us) /
+                           static_cast<double>(probe_wall_us);
+            next_iterations = static_cast<std::uint64_t>(
+                static_cast<double>(probe_iterations) * scale * 1.2
+            );
+        } else {
+            next_iterations = probe_iterations * 2;
+        }
+
         if (probe_wall_us > 0) {
             // If we are very far from min_probe_wall_us, we can jump more aggressively
             // but let's keep it simple and safe. Doubling is fine.
@@ -269,8 +280,8 @@ void benchmark_fibonacci(const SutApi& api) {
             return c;
         },
         8,
-        default_max_iterations,
-        default_max_iterations
+        fibonacci_max_iterations,
+        fibonacci_max_iterations
     );
 
     std::uint64_t checksum = 0;
