@@ -38,6 +38,20 @@ BENCHMARK_FUNCTIONS = {
     4: "top_words_from_file",
 }
 
+# Exported C ABI symbols that every libSUT.so must provide.  This catches
+# LLM outputs that compile but accidentally omit, rename, or C++-mangle one of
+# the functions expected by librunner.
+REQUIRED_ABI_SYMBOLS = [
+    "fibonacci",
+    "format_list",
+    "free_string",
+    "repeated_sort",
+    "count_matches",
+    "top_words_from_file",
+    "free_word_counts",
+]
+
+
 # Only these source files are sent to the LLM by default. Shared support files are
 # linked in unchanged unless you override this with LLM_TARGET_FILES.
 DEFAULT_LLM_TARGET_FILES = [
@@ -142,6 +156,7 @@ class BuildMetadata:
     configure: CommandResult
     build: CommandResult
     benchmark: list[CommandResult]
+    abi_check: Optional[CommandResult]
     libsut_path: Optional[str]
     runner_path: Optional[str]
     total_duration_seconds: float
@@ -176,6 +191,7 @@ class DirectBuildMetadata:
     build_dir: str
     compile: CommandResult
     benchmark: list[CommandResult]
+    abi_check: Optional[CommandResult]
     libsut_path: Optional[str]
     runner_path: str
     total_duration_seconds: float
@@ -213,15 +229,91 @@ def find_libsut(build_dir: Path) -> Optional[Path]:
     return candidates[0] if candidates else None
 
 
+def parse_defined_symbols(nm_stdout: str) -> set[str]:
+    symbols: set[str] = set()
+    for raw_line in nm_stdout.splitlines():
+        parts = raw_line.split()
+        if not parts:
+            continue
+        symbols.add(parts[-1])
+    return symbols
+
+
+def run_abi_symbol_check(build_dir: Path, libsut_path: Path, required_symbols: Optional[list[str]] = None) -> CommandResult:
+    required = required_symbols or REQUIRED_ABI_SYMBOLS
+    stdout_file = build_dir / "abi_symbols_stdout.txt"
+    stderr_file = build_dir / "abi_symbols_stderr.txt"
+    result = run_command(["nm", "-D", "--defined-only", str(libsut_path)], build_dir, stdout_file, stderr_file)
+
+    nm_stdout = stdout_file.read_text(encoding="utf-8", errors="replace") if stdout_file.exists() else ""
+    present = parse_defined_symbols(nm_stdout)
+    missing = [symbol for symbol in required if symbol not in present]
+    metadata = {
+        "libsut_path": str(libsut_path),
+        "required_symbols": required,
+        "missing_symbols": missing,
+        "present_required_symbols": [symbol for symbol in required if symbol in present],
+        "defined_symbols": sorted(present),
+        "nm_returncode": result.returncode,
+        "success": result.returncode == 0 and not missing,
+    }
+    write_json(build_dir / "abi_symbols.json", metadata)
+
+    if missing and stderr_file.exists():
+        with stderr_file.open("a", encoding="utf-8") as err:
+            err.write("\nMissing required ABI symbols: " + ", ".join(missing) + "\n")
+
+    if result.returncode == 0 and missing:
+        return CommandResult(result.command, result.cwd, 1, result.duration_seconds, result.stdout_file, result.stderr_file)
+    return result
+
+
+def parse_scalar_value(value: str) -> Any:
+    value = value.strip()
+    lower = value.lower()
+    if lower == "true":
+        return True
+    if lower == "false":
+        return False
+    if lower in {"", "null", "none"}:
+        return None if lower in {"null", "none"} else ""
+    try:
+        if any(ch in value for ch in ".eE"):
+            return float(value)
+        return int(value, 10)
+    except ValueError:
+        return value
+
+
+def parse_key_value_lines(text: str) -> dict[str, Any]:
+    parsed: dict[str, Any] = {}
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if not key:
+            continue
+        parsed[key] = parse_scalar_value(value)
+    return parsed
+
+
 def try_write_benchmark_json(stdout_file: Path, output_json_file: Path) -> None:
-    text = stdout_file.read_text(encoding="utf-8").strip()
+    text = stdout_file.read_text(encoding="utf-8", errors="replace").strip()
     if not text:
         return
+
+    # Newer/future librunner versions may emit JSON; current librunner emits
+    # simple key=value lines. Support both so downstream analysis has stable
+    # benchmark_*.json files either way.
     try:
         parsed = json.loads(text)
     except json.JSONDecodeError:
-        return
-    write_json(output_json_file, parsed)
+        parsed = parse_key_value_lines(text)
+
+    if parsed:
+        write_json(output_json_file, parsed)
 
 
 def configured_llm_models() -> list[LlmModelConfig]:
@@ -263,13 +355,19 @@ def extract_code_block(text: str) -> str:
     first = text.find(marker)
     if first == -1:
         return text.strip() + "\n"
-    second = text.find(marker, first + len(marker))
-    if second == -1:
-        return text.strip() + "\n"
-    block = text[first + len(marker):second]
+
+    block_start = first + len(marker)
+    second = text.find(marker, block_start)
+
+    # Some models start a fenced block but never close it. In that case, strip
+    # the opening fence/language tag and keep the remainder instead of leaving
+    # ```llvm or ```cpp at the top of the generated source.
+    block = text[block_start:] if second == -1 else text[block_start:second]
     lines = block.splitlines()
-    if lines and lines[0].strip().lower() in {"cpp", "c++", "cc", "llvm", "llvm-ir", "ir", "ll"}:
-        lines = lines[1:]
+    if lines:
+        language = lines[0].strip().lower()
+        if language in {"cpp", "c++", "cc", "cxx", "llvm", "llvm-ir", "ir", "ll"}:
+            lines = lines[1:]
     return "\n".join(lines).strip() + "\n"
 
 
@@ -559,6 +657,11 @@ def maybe_fix_cpp_compile_failure(model_name: str, model_display_name: str, targ
     compile_result = compile_replacement_artifact_for_check(check_dir, target_source.name, source_file, "cpp")
     write_json(check_dir / "compile_metadata.json", asdict(compile_result))
     if compile_result.returncode == 0:
+        abi_result = run_abi_symbol_check(check_dir, check_dir / "libSUT.so")
+        if abi_result.returncode == 0:
+            return cpp_result
+        cpp_result.success = False
+        cpp_result.error = f"Optimized C++ compiled but failed ABI symbol check. See {abi_result.stderr_file}"
         return cpp_result
 
     print(f"Optimized {target_source.name} from {model_display_name} failed to compile; asking model for one fix attempt")
@@ -598,6 +701,15 @@ def maybe_fix_cpp_compile_failure(model_name: str, model_display_name: str, targ
             write_json(target_dir / "result_cpp_fix_compile.json", asdict(fix_result))
             cpp_result.success = False
             cpp_result.error = "Initial optimized C++ failed and the one allowed repair attempt also failed."
+            return cpp_result
+
+        fixed_abi_result = run_abi_symbol_check(recheck_dir, recheck_dir / "libSUT.so")
+        if fixed_abi_result.returncode != 0:
+            fix_result.success = False
+            fix_result.error = f"C++ compile-fix attempt compiled but failed ABI symbol check. See {fixed_abi_result.stderr_file}"
+            write_json(target_dir / "result_cpp_fix_compile.json", asdict(fix_result))
+            cpp_result.success = False
+            cpp_result.error = "Initial optimized C++ failed and the one allowed repair attempt failed ABI symbol validation."
             return cpp_result
 
         write_json(target_dir / "result_cpp_fix_compile.json", asdict(fix_result))
@@ -750,11 +862,14 @@ def build_and_benchmark_direct_llm_variant(variant_name: str, source_file: Path,
     command.extend(["-o", str(libsut_path)])
 
     compile_result = run_command(command, PROJECT_ROOT, build_dir / "compile_stdout.txt", build_dir / "compile_stderr.txt")
+    abi_check: Optional[CommandResult] = None
     benchmark_results: list[CommandResult] = []
     if compile_result.returncode == 0 and libsut_path.exists():
-        benchmark_results = run_benchmarks_for_lib(build_dir, libsut_path)
+        abi_check = run_abi_symbol_check(build_dir, libsut_path)
+        if abi_check.returncode == 0:
+            benchmark_results = run_benchmarks_for_lib(build_dir, libsut_path)
 
-    metadata = DirectBuildMetadata(variant_name, source_kind, target_source_name, str(source_file), str(build_dir), compile_result, benchmark_results, str(libsut_path) if libsut_path.exists() else None, str(RUNNER_EXECUTABLE_NAME), time.perf_counter() - total_start, model_name, llm_task)
+    metadata = DirectBuildMetadata(variant_name, source_kind, target_source_name, str(source_file), str(build_dir), compile_result, benchmark_results, abi_check, str(libsut_path) if libsut_path.exists() else None, str(RUNNER_EXECUTABLE_NAME), time.perf_counter() - total_start, model_name, llm_task)
     write_json(build_dir / "build_metadata.json", asdict(metadata))
     return metadata
 
@@ -782,8 +897,10 @@ def benchmark_llm_artifacts(llm_results: list[dict[str, Any]]) -> list[dict[str,
         try:
             metadata = build_and_benchmark_direct_llm_variant(variant_name, output_file, source_kind, target_source, model_name, task)
             compile_ok = metadata.compile.returncode == 0
+            abi_ok = metadata.abi_check is not None and metadata.abi_check.returncode == 0
             benchmark_ok = bool(metadata.benchmark) and all(item.returncode == 0 for item in metadata.benchmark)
             print(f"compile:   {'ok' if compile_ok else 'failed'}")
+            print(f"abi:       {'ok' if abi_ok else 'failed'}")
             print(f"benchmark: {'ok' if benchmark_ok else 'failed'}")
             print(f"folder:    {metadata.build_dir}")
             benchmark_summary.append({
@@ -793,6 +910,7 @@ def benchmark_llm_artifacts(llm_results: list[dict[str, Any]]) -> list[dict[str,
                 "target_source": target_source,
                 "failed": not benchmark_ok,
                 "compile_returncode": metadata.compile.returncode,
+                "abi_returncode": metadata.abi_check.returncode if metadata.abi_check else None,
                 "benchmark_returncodes": [item.returncode for item in metadata.benchmark],
                 "total_duration_seconds": metadata.total_duration_seconds,
                 "build_dir": metadata.build_dir,
@@ -829,6 +947,7 @@ def build_and_benchmark_variant(variant: BuildVariant) -> BuildMetadata:
 
     build_result = CommandResult([], str(PROJECT_ROOT), -1, 0.0, str(build_dir / "build_stdout.txt"), str(build_dir / "build_stderr.txt"))
     benchmark_results: list[CommandResult] = []
+    abi_check: Optional[CommandResult] = None
     libsut_path: Optional[Path] = None
     runner_path: Optional[Path] = None
 
@@ -841,9 +960,11 @@ def build_and_benchmark_variant(variant: BuildVariant) -> BuildMetadata:
     if build_result.returncode == 0:
         libsut_path = find_libsut(build_dir)
         if libsut_path is not None:
-            benchmark_results = run_benchmarks_for_lib(build_dir, libsut_path)
+            abi_check = run_abi_symbol_check(build_dir, libsut_path)
+            if abi_check.returncode == 0:
+                benchmark_results = run_benchmarks_for_lib(build_dir, libsut_path)
 
-    metadata = BuildMetadata(variant, str(PROJECT_ROOT), str(build_dir), CLANG_C_COMPILER, CLANG_CXX_COMPILER, CMAKE_GENERATOR, configure_result, build_result, benchmark_results, str(libsut_path) if libsut_path else None, str(runner_path) if runner_path else None, time.perf_counter() - total_start)
+    metadata = BuildMetadata(variant, str(PROJECT_ROOT), str(build_dir), CLANG_C_COMPILER, CLANG_CXX_COMPILER, CMAKE_GENERATOR, configure_result, build_result, benchmark_results, abi_check, str(libsut_path) if libsut_path else None, str(runner_path) if runner_path else None, time.perf_counter() - total_start)
     write_json(build_dir / "build_metadata.json", asdict(metadata))
     return metadata
 
@@ -865,9 +986,11 @@ def run_build_benchmarks() -> tuple[int, list[dict[str, Any]]]:
             continue
         configure_ok = metadata.configure.returncode == 0
         build_ok = metadata.build.returncode == 0
+        abi_ok = metadata.abi_check is not None and metadata.abi_check.returncode == 0
         benchmark_ok = bool(metadata.benchmark) and all(result.returncode == 0 for result in metadata.benchmark)
         print(f"configure: {'ok' if configure_ok else 'failed'}")
         print(f"build:     {'ok' if build_ok else 'failed'}")
+        print(f"abi:       {'ok' if abi_ok else 'failed'}")
         print(f"benchmark: {'ok' if benchmark_ok else 'failed'}")
         print(f"folder:    {metadata.build_dir}")
         summary.append({
@@ -875,6 +998,7 @@ def run_build_benchmarks() -> tuple[int, list[dict[str, Any]]]:
             "failed": not benchmark_ok,
             "configure_returncode": metadata.configure.returncode,
             "build_returncode": metadata.build.returncode,
+            "abi_returncode": metadata.abi_check.returncode if metadata.abi_check else None,
             "benchmark_returncodes": [result.returncode for result in metadata.benchmark],
             "total_duration_seconds": metadata.total_duration_seconds,
             "build_dir": metadata.build_dir,
