@@ -1,47 +1,18 @@
 #include "library.h"
+#include "sut_common.h"
 
 #include <algorithm>
-#include <string>
-#include <vector>
-#include <span>
-#include <cctype>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
-#include <iostream>
 #include <memory>
 #include <new>
-#include <unordered_map>
 #include <stdexcept>
+#include <string>
+#include <unordered_map>
 #include <utility>
-
-static char* copy_to_c_string(const std::string& value) {
-    char* copy = static_cast<char*>(std::malloc(value.size() + 1));
-    if (copy == nullptr) {
-        return nullptr;
-    }
-
-    std::memcpy(copy, value.c_str(), value.size() + 1);
-    return copy;
-}
-
-static bool contains(const std::span<const int> input, const int needle) {
-    for (std::size_t i = 0; i < input.size(); ++i) {
-        if (input[i] == needle) {
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool is_word_char(char c) {
-    return std::isalpha(static_cast<unsigned char>(c)) != 0;
-}
-
-static char normalize_char(char c) {
-    return static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-}
+#include <vector>
 
 static bool should_ignore(
     const std::vector<std::string>& ignore,
@@ -222,90 +193,6 @@ static void add_sorted(std::vector<std::pair<std::string, std::uint64_t> >::cons
 
 extern "C" {
 
-uint64_t fibonacci(uint64_t n) {
-    if (n <= 1) {
-        return n;
-    }
-    return fibonacci(n - 1) + fibonacci(n - 2);
-}
-
-char* format_list(const int* input, size_t input_length) {
-    if (input == nullptr && input_length != 0) {
-        return nullptr;
-    }
-
-    try {
-        std::string result = "[";
-        for (size_t i = 0; i < input_length; ++i) {
-            if (i > 0) result += ", ";
-            result += std::to_string(input[i]);
-        }
-        result += "]";
-
-        return copy_to_c_string(result);
-    } catch (...) {
-        return nullptr;
-    }
-}
-
-int64_t repeated_sort(const int* input, size_t input_length, int rounds) {
-    if (input == nullptr && input_length != 0) {
-        return 0;
-    }
-
-    try {
-        if (input_length == 0) {
-            return 0;
-        }
-
-        std::int64_t total = 0;
-
-        for (int r = 0; r < rounds; ++r) {
-            std::vector<int> values(input, input + input_length);
-            std::ranges::sort(values);
-
-            const size_t mid = values.size() / 2;
-            const int median = (values.size() % 2 == 0)
-                ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)
-                : values[mid];
-
-            total += median;
-            total += values[r % values.size()];
-        }
-
-        return total;
-    } catch (...) {
-        return 0;
-    }
-}
-
-size_t count_matches(
-    const int* allowed,
-    size_t allowed_length,
-    const int* queries,
-    size_t queries_length
-) {
-    if ((allowed == nullptr && allowed_length != 0) ||
-        (queries == nullptr && queries_length != 0)) {
-        return 0;
-    }
-
-    try {
-        const std::span<const int> allowed_span{allowed, allowed_length};
-        std::size_t matches = 0;
-
-        for (std::size_t i = 0; i < queries_length; ++i) {
-            if (contains(allowed_span, queries[i])) {
-                ++matches;
-            }
-        }
-
-        return matches;
-    } catch (...) {
-        return 0;
-    }
-}
-
 WordCount* top_words_from_file(
     const char* path,
     const char* const* ignore_words,
@@ -401,22 +288,6 @@ WordCount* top_words_from_file(
     } catch (...) {
         return nullptr;
     }
-}
-
-void free_string(char* value) {
-    std::free(value);
-}
-
-void free_word_counts(WordCount* values, size_t length) {
-    if (values == nullptr) {
-        return;
-    }
-
-    for (size_t i = 0; i < length; ++i) {
-        std::free(values[i].word);
-    }
-
-    std::free(values);
 }
 
 }
