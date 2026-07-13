@@ -460,47 +460,58 @@ Compiler stderr:
 
 
 def make_ir_optimization_prompt(target_source: Path, llvm_ir: str) -> str:
-    return f"""You are an expert LLVM optimizer.
+    return f"""You are an LLVM optimization pass focused on runtime performance.
 
 Task:
-Optimize the LLVM IR module below for runtime performance.
 
-Input file:
-{target_source.name}
+Rewrite the LLVM IR module below to improve runtime performance on the target described by the module.
+The input module has already been processed by LLVM -O1. Seek meaningful improvements beyond cosmetic control-flow cleanup or canonicalization that standard LLVM -O2/-O3 passes are likely to reproduce automatically.
 
-Hard requirements:
-- Return exactly one complete LLVM IR module.
-- Return raw LLVM IR only.
-- Do not include Markdown, code fences, comments outside the IR, explanations, notes, or benchmarking text.
-- The output must be accepted by llvm-as, opt -passes=verify, and clang++.
-- Preserve every externally visible function definition that exists in the input module.
-- Preserve every externally visible function signature exactly:
-  - same function name
-  - same return type
-  - same parameter types
-  - same linkage/visibility/dll/storage attributes where present
-  - same calling convention where present
-- Do not add, remove, rename, or change exported functions.
-- Do not define functions that are only declared in the input module.
-- Keep all external declarations required by the optimized module.
-- Preserve target datalayout and target triple.
-- Preserve externally observable behavior exactly.
-- Preserve ownership, allocation, deallocation, and returned-pointer conventions exactly.
-- Do not replace the implementation with benchmark-specific constants or hard-coded answers.
-- Do not rely on undefined behavior unless it was already guaranteed by the input IR.
-- Do not introduce calls to helper functions unless they are defined in the module or already declared in the input IR.
-- If an optimization is unsafe, do not perform it.
-- Prefer simple, valid, verifiable LLVM IR over clever but fragile transformations.
+Optimization policy:
 
-Optimization guidance:
-- Optimize only the function bodies defined in this module.
-- You may simplify control flow, remove redundant work, improve loops, inline local helper logic, and expose opportunities for LLVM's normal optimizer.
-- You may restructure basic blocks and SSA values as needed.
-- Every SSA value must dominate all uses.
-- Every PHI node must have exactly one incoming value for each predecessor block.
-- Keep types exactly correct.
-- Keep personality functions, landingpads, invokes, and exception-handling structure valid if present.
-- Keep attributes and metadata only if they remain correct.
+Optimize for runtime performance unless the module explicitly provides a different objective.
+You may replace function bodies and substantially restructure algorithms, loops, memory access patterns, and control flow.
+Consider vectorization, unrolling, loop versioning, specialization, branch reduction, common-subexpression elimination, reduced allocation, improved locality, and algorithmic changes when valid and plausibly profitable.
+Use target information, function attributes, metadata, constants, and profile information present in the module.
+When no profile information is available, optimize for broadly reasonable performance rather than assuming benchmark-specific input values.
+Do not restrict the result to simple or minimally changed IR merely because more substantial transformations are harder to express.
+Do not perform transformations whose correctness depends on assumptions not established by LLVM IR semantics, attributes, metadata, or control flow.
+
+Output requirements:
+
+Return exactly one complete LLVM IR module.
+Return raw LLVM IR only.
+Do not include Markdown, code fences, explanations, notes, or benchmarking text.
+The output must be accepted by llvm-as, opt -passes=verify, and clang++.
+
+ABI and module requirements:
+
+Preserve every externally visible function definition in the input module.
+Preserve every externally visible function name, signature, linkage, visibility, storage class, and calling convention exactly.
+Do not add, remove, rename, or redefine externally visible functions.
+Do not define functions that are only declared in the input module.
+Preserve target datalayout and target triple.
+Preserve externally observable functional behaviour.
+Preserve ownership and allocation conventions that are externally observable.
+Do not introduce benchmark-specific constants or hard-coded results.
+
+Permitted changes:
+
+You may add private or internal helper functions.
+You may add correctly typed LLVM intrinsic declarations.
+You may keep external declarations required by the rewritten module.
+You may remove unused declarations.
+You may add, remove, or update attributes and metadata when justified by the rewritten implementation.
+You may remove unused personality functions and exception-handling declarations when no remaining instruction requires them.
+
+IR correctness:
+
+Every SSA value must dominate all uses.
+Every PHI node must have one incoming value for each predecessor.
+All types must be correct.
+Memory accesses must remain valid for every execution allowed by the input IR.
+Vectorized or unrolled loops must handle remainders and small sizes correctly.
+Exception-handling structures must remain valid where used.
 
 LLVM IR module produced with {LLM_IR_OPTIMIZATION_LEVEL}:
 {llvm_ir}
