@@ -24,6 +24,7 @@ LLM_ARTIFACT_ROOT = BUILD_ROOT / "llm-artifacts-split-sources"
 
 CLANG_C_COMPILER = "clang"
 CLANG_CXX_COMPILER = "clang++"
+LLVM_OPT_TOOL = os.environ.get("LLVM_OPT_TOOL", "opt")
 CMAKE_GENERATOR: Optional[str] = "Ninja"
 
 OPTIMIZATION_LEVELS = ["-O0", "-O1", "-O2", "-O3", "-Ofast", "-Os", "-Oz"]
@@ -74,6 +75,11 @@ CLEAN_BEFORE_BUILD = True
 PARALLEL_BUILD_JOBS = os.cpu_count()
 RUNNER_EXECUTABLE_NAME = PROJECT_ROOT / "cmake-build-release-llvm-20/librunner/librunner"
 RUNNER_ARGS: list[str] = []
+
+# Timeouts for untrusted/generated code. Return code 124 means the command timed out.
+IR_VERIFY_TIMEOUT_SECONDS = int(os.environ.get("IR_VERIFY_TIMEOUT_SECONDS", "120"))
+LLM_COMPILE_TIMEOUT_SECONDS = int(os.environ.get("LLM_COMPILE_TIMEOUT_SECONDS", "300"))
+BENCHMARK_TIMEOUT_SECONDS = int(os.environ.get("BENCHMARK_TIMEOUT_SECONDS", "900"))
 
 # llama.cpp server configuration.
 LLAMA_SERVER_EXECUTABLE = os.environ.get("LLAMA_SERVER", "llama-server")
@@ -197,18 +203,42 @@ class DirectBuildMetadata:
     total_duration_seconds: float
     model: Optional[str] = None
     llm_task: Optional[str] = None
+    ir_verify: Optional[CommandResult] = None
 
 # =============================================================================
 # Helpers
 # =============================================================================
 
-def run_command(command: list[str], cwd: Path, stdout_file: Path, stderr_file: Path, env: Optional[dict[str, str]] = None) -> CommandResult:
+def run_command(
+    command: list[str],
+    cwd: Path,
+    stdout_file: Path,
+    stderr_file: Path,
+    env: Optional[dict[str, str]] = None,
+    timeout_seconds: Optional[int] = None,
+) -> CommandResult:
     start = time.perf_counter()
     stdout_file.parent.mkdir(parents=True, exist_ok=True)
     stderr_file.parent.mkdir(parents=True, exist_ok=True)
     with stdout_file.open("w", encoding="utf-8") as out, stderr_file.open("w", encoding="utf-8") as err:
-        completed = subprocess.run(command, cwd=str(cwd), stdout=out, stderr=err, text=True, env=env)
-    return CommandResult(command, str(cwd), completed.returncode, time.perf_counter() - start, str(stdout_file), str(stderr_file))
+        try:
+            completed = subprocess.run(
+                command,
+                cwd=str(cwd),
+                stdout=out,
+                stderr=err,
+                text=True,
+                env=env,
+                timeout=timeout_seconds,
+            )
+            returncode = completed.returncode
+        except subprocess.TimeoutExpired:
+            returncode = 124
+            err.write(f"\nCommand timed out after {timeout_seconds} seconds.\n")
+        except FileNotFoundError as exc:
+            returncode = 127
+            err.write(f"\nCommand not found: {exc}\n")
+    return CommandResult(command, str(cwd), returncode, time.perf_counter() - start, str(stdout_file), str(stderr_file))
 
 
 def write_json(path: Path, data: Any) -> None:
@@ -623,7 +653,7 @@ def compile_replacement_artifact_for_check(output_dir: Path, target_source_name:
     for source in other_sources_for_replacement(target_source_name):
         command.append(str(source))
     command.extend(["-o", str(libsut_path)])
-    return run_command(command, PROJECT_ROOT, output_dir / "compile_stdout.txt", output_dir / "compile_stderr.txt")
+    return run_command(command, PROJECT_ROOT, output_dir / "compile_stdout.txt", output_dir / "compile_stderr.txt", timeout_seconds=LLM_COMPILE_TIMEOUT_SECONDS)
 
 
 def maybe_fix_cpp_compile_failure(model_name: str, model_display_name: str, target_source: Path, cpp_result: LlmCallResult, model_dir: Path) -> LlmCallResult:
@@ -726,6 +756,18 @@ def generate_llvm_ir(output_dir: Path, source_file: Path) -> CommandResult:
     return run_command(command, PROJECT_ROOT, output_dir / "generate_ir_stdout.txt", output_dir / "generate_ir_stderr.txt")
 
 
+def verify_llvm_ir(output_dir: Path, llvm_ir_file: Path) -> CommandResult:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    command = [LLVM_OPT_TOOL, "-passes=verify", "-disable-output", str(llvm_ir_file)]
+    return run_command(
+        command,
+        PROJECT_ROOT,
+        output_dir / "verify_ir_stdout.txt",
+        output_dir / "verify_ir_stderr.txt",
+        timeout_seconds=IR_VERIFY_TIMEOUT_SECONDS,
+    )
+
+
 def run_llm_artifact_generation() -> tuple[int, list[dict[str, Any]]]:
     models = configured_llm_models()
     targets = llm_target_source_files()
@@ -823,7 +865,7 @@ def run_benchmarks_for_lib(build_dir: Path, libsut_path: Path) -> list[CommandRe
         stdout = build_dir / f"benchmark_{function_id}_{function_name}_stdout.txt"
         stderr = build_dir / f"benchmark_{function_id}_{function_name}_stderr.txt"
         command = [str(RUNNER_EXECUTABLE_NAME), str(libsut_path), str(function_id), *RUNNER_ARGS]
-        result = run_command(command, build_dir, stdout, stderr, env)
+        result = run_command(command, build_dir, stdout, stderr, env, timeout_seconds=BENCHMARK_TIMEOUT_SECONDS)
         benchmark_results.append(result)
         try_write_benchmark_json(stdout, build_dir / f"benchmark_{function_id}_{function_name}_results.json")
     return benchmark_results
@@ -842,15 +884,34 @@ def build_and_benchmark_direct_llm_variant(variant_name: str, source_file: Path,
         command.append(str(source))
     command.extend(["-o", str(libsut_path)])
 
-    compile_result = run_command(command, PROJECT_ROOT, build_dir / "compile_stdout.txt", build_dir / "compile_stderr.txt")
+    ir_verify_result: Optional[CommandResult] = None
     abi_check: Optional[CommandResult] = None
     benchmark_results: list[CommandResult] = []
-    if compile_result.returncode == 0 and libsut_path.exists():
-        abi_check = run_abi_symbol_check(build_dir, libsut_path)
-        if abi_check.returncode == 0:
-            benchmark_results = run_benchmarks_for_lib(build_dir, libsut_path)
 
-    metadata = DirectBuildMetadata(variant_name, source_kind, target_source_name, str(source_file), str(build_dir), compile_result, benchmark_results, abi_check, str(libsut_path) if libsut_path.exists() else None, str(RUNNER_EXECUTABLE_NAME), time.perf_counter() - total_start, model_name, llm_task)
+    if source_kind == "ir":
+        ir_verify_result = verify_llvm_ir(build_dir, source_file)
+
+    if ir_verify_result is not None and ir_verify_result.returncode != 0:
+        compile_result = CommandResult([], str(PROJECT_ROOT), 125, 0.0, str(build_dir / "compile_stdout.txt"), str(build_dir / "compile_stderr.txt"))
+        Path(compile_result.stdout_file).write_text("", encoding="utf-8")
+        Path(compile_result.stderr_file).write_text(
+            f"Skipping compile because opt -passes=verify failed. See {ir_verify_result.stderr_file}\n",
+            encoding="utf-8",
+        )
+    else:
+        compile_result = run_command(
+            command,
+            PROJECT_ROOT,
+            build_dir / "compile_stdout.txt",
+            build_dir / "compile_stderr.txt",
+            timeout_seconds=LLM_COMPILE_TIMEOUT_SECONDS,
+        )
+        if compile_result.returncode == 0 and libsut_path.exists():
+            abi_check = run_abi_symbol_check(build_dir, libsut_path)
+            if abi_check.returncode == 0:
+                benchmark_results = run_benchmarks_for_lib(build_dir, libsut_path)
+
+    metadata = DirectBuildMetadata(variant_name, source_kind, target_source_name, str(source_file), str(build_dir), compile_result, benchmark_results, abi_check, str(libsut_path) if libsut_path.exists() else None, str(RUNNER_EXECUTABLE_NAME), time.perf_counter() - total_start, model_name, llm_task, ir_verify_result)
     write_json(build_dir / "build_metadata.json", asdict(metadata))
     return metadata
 
@@ -891,6 +952,7 @@ def benchmark_llm_artifacts(llm_results: list[dict[str, Any]]) -> list[dict[str,
                 "target_source": target_source,
                 "failed": not benchmark_ok,
                 "compile_returncode": metadata.compile.returncode,
+                "ir_verify_returncode": metadata.ir_verify.returncode if metadata.ir_verify else None,
                 "abi_returncode": metadata.abi_check.returncode if metadata.abi_check else None,
                 "benchmark_returncodes": [item.returncode for item in metadata.benchmark],
                 "total_duration_seconds": metadata.total_duration_seconds,
