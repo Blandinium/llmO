@@ -111,14 +111,14 @@ LLM_MODELS: list[dict[str, Optional[str]]] = [
         "alias": "gemma-4-12b-it-qat-udq4xl",
     },
     {
-        "name": "llm-compiler-7b-ftd-q4km",
-        "hf_repo": "second-state/llm-compiler-7b-ftd-GGUF:Q4_K_M",
-        "alias": "llm-compiler-7b-ftd-q4km",
+        "name": "llm-compiler-7b-q4km",
+        "hf_repo": "second-state/llm-compiler-7b-GGUF:Q4_K_M",
+        "alias": "llm-compiler-7b-q4km",
     },
     {
-        "name": "llm-compiler-13b-ftd-q4km",
-        "hf_repo": "second-state/llm-compiler-13b-ftd-GGUF:Q4_K_M",
-        "alias": "llm-compiler-13b-ftd-q4km",
+        "name": "llm-compiler-13b-q4km",
+        "hf_repo": "second-state/llm-compiler-13b-GGUF:Q4_K_M",
+        "alias": "llm-compiler-13b-q4km",
     },
 ]
 
@@ -393,57 +393,9 @@ def contains_target_function_definition(source: str, target_source_name: str) ->
 # LLM prompts
 # =============================================================================
 
-def function_specific_notes(target_source: Path) -> str:
-    name = target_source.stem
-    if name == "top_words_from_file":
-        return """
-Function-specific invariants for top_words_from_file:
-- Words consist only of alphabetic characters according to std::isalpha on unsigned char.
-- Case is normalized with std::tolower on unsigned char.
-- Ignore words are normalized with the same word-character and lowercase logic.
-- Results are ordered by descending count.
-- Ties are ordered lexicographically ascending by word.
-- result_length is set to 0 before failure returns and to the returned entry count on success.
-- Return nullptr if max_results is 0 or no words remain.
-- Every returned WordCount.word must be malloc-compatible and must be released by free_word_counts.
-- Do not define free_word_counts in this file; it is provided by free_functions.cpp.
-"""
-    if name == "count_matches":
-        return """
-Function-specific invariants for count_matches:
-- Invalid pointer/length combinations return 0.
-- A query contributes exactly 1 match if its value is present at least once in allowed.
-- Duplicate values in queries are counted independently.
-- Duplicate values in allowed must not multiply the count for one query value.
-"""
-    if name == "format_list":
-        return """
-Function-specific invariants for format_list:
-- Format is exactly [1, 2, 3] with comma+space between values and no trailing comma.
-- Empty input produces [].
-- The returned char* must be malloc-compatible and freed by free_string.
-"""
-    if name == "repeated_sort":
-        return """
-Function-specific invariants for repeated_sort:
-- Invalid pointer/length combinations return 0.
-- Empty input returns 0.
-- For each round r, sort a fresh copy, add the median, then add values[r % values.size()].
-- For even length, median is integer average of the two middle values using int64_t before conversion to int.
-"""
-    if name == "fibonacci":
-        return """
-Function-specific invariants for fibonacci:
-- Preserve uint64_t wraparound behavior of the public API.
-- fibonacci(0) == 0 and fibonacci(1) == 1.
-"""
-    return ""
-
-
 def make_cpp_optimization_prompt(target_source: Path) -> str:
     headers = read_support_headers()
     source = target_source.read_text(encoding="utf-8")
-    notes = function_specific_notes(target_source)
     return f"""You are an expert C++23 performance engineer.
 
 Task: optimize only {target_source.name} for runtime performance.
@@ -459,7 +411,6 @@ Hard requirements:
 - Preserve the error-handling style: invalid pointer/length combinations and internal exceptions should not escape through extern "C" functions.
 - Do not modify library.h or sut_common.h.
 - Do not include markdown, commentary, explanations, benchmarking notes, or code fences in your answer.
-{notes}
 Headers:
 ```cpp
 {headers}
@@ -474,7 +425,6 @@ Current {target_source.name}:
 
 def make_cpp_compile_fix_prompt(target_source: Path, failed_source: str, compiler_stdout: str, compiler_stderr: str) -> str:
     headers = read_support_headers()
-    notes = function_specific_notes(target_source)
     return f"""You are an expert C++23 build-fix and performance engineer.
 
 Task: fix this optimized {target_source.name} so the whole SUT shared library compiles successfully.
@@ -487,7 +437,6 @@ Hard requirements:
 - Preserve the intended optimized behavior and runtime-performance focus as much as possible.
 - Do not modify library.h or sut_common.h.
 - Do not include markdown, commentary, explanations, benchmarking notes, or code fences in your answer.
-{notes}
 Headers:
 ```cpp
 {headers}
@@ -511,29 +460,50 @@ Compiler stderr:
 
 
 def make_ir_optimization_prompt(target_source: Path, llvm_ir: str) -> str:
-    headers = read_support_headers()
-    notes = function_specific_notes(target_source)
     return f"""You are an expert LLVM optimizer.
 
-Task: optimize the LLVM IR for {target_source.name} for runtime performance.
+Task:
+Optimize the LLVM IR module below for runtime performance.
+
+Input file:
+{target_source.name}
 
 Hard requirements:
-- Return one complete LLVM IR module that can be compiled by clang++/LLVM.
-- Preserve the exported ABI exactly as declared in library.h.
-- Do not define unrelated exported functions from library.h.
-- Preserve externally observable behavior and allocation/freeing conventions.
-- Keep any external declarations needed to link against the other SUT object files.
-- Do not include markdown, commentary, explanations, benchmarking notes, or code fences in your answer.
-{notes}
-Headers:
-```cpp
-{headers}
-```
+- Return exactly one complete LLVM IR module.
+- Return raw LLVM IR only.
+- Do not include Markdown, code fences, comments outside the IR, explanations, notes, or benchmarking text.
+- The output must be accepted by llvm-as, opt -passes=verify, and clang++.
+- Preserve every externally visible function definition that exists in the input module.
+- Preserve every externally visible function signature exactly:
+  - same function name
+  - same return type
+  - same parameter types
+  - same linkage/visibility/dll/storage attributes where present
+  - same calling convention where present
+- Do not add, remove, rename, or change exported functions.
+- Do not define functions that are only declared in the input module.
+- Keep all external declarations required by the optimized module.
+- Preserve target datalayout and target triple.
+- Preserve externally observable behavior exactly.
+- Preserve ownership, allocation, deallocation, and returned-pointer conventions exactly.
+- Do not replace the implementation with benchmark-specific constants or hard-coded answers.
+- Do not rely on undefined behavior unless it was already guaranteed by the input IR.
+- Do not introduce calls to helper functions unless they are defined in the module or already declared in the input IR.
+- If an optimization is unsafe, do not perform it.
+- Prefer simple, valid, verifiable LLVM IR over clever but fragile transformations.
 
-LLVM IR for {target_source.name}, produced with {LLM_IR_OPTIMIZATION_LEVEL}:
-```llvm
+Optimization guidance:
+- Optimize only the function bodies defined in this module.
+- You may simplify control flow, remove redundant work, improve loops, inline local helper logic, and expose opportunities for LLVM's normal optimizer.
+- You may restructure basic blocks and SSA values as needed.
+- Every SSA value must dominate all uses.
+- Every PHI node must have exactly one incoming value for each predecessor block.
+- Keep types exactly correct.
+- Keep personality functions, landingpads, invokes, and exception-handling structure valid if present.
+- Keep attributes and metadata only if they remain correct.
+
+LLVM IR module produced with {LLM_IR_OPTIMIZATION_LEVEL}:
 {llvm_ir}
-```
 """
 
 # =============================================================================
