@@ -1,0 +1,11 @@
+{
+  "duration_seconds": 783.0859988710145,
+  "error": "Output did not contain a definition for count_matches; rejecting before compile.",
+  "model": "llm-compiler-7b-ftd-q4km",
+  "output_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_ftd_q4km/count_matches_cpp/optimized_count_matches.cpp",
+  "prompt_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_ftd_q4km/count_matches_cpp/prompt_cpp_count_matches.txt",
+  "raw_response_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_ftd_q4km/count_matches_cpp/raw_response_cpp_count_matches.txt",
+  "success": false,
+  "target_source": "count_matches.cpp",
+  "task": "cpp"
+}

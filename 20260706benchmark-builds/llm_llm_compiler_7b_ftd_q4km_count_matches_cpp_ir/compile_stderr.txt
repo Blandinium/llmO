@@ -1,0 +1,4 @@
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_ftd_q4km/count_matches_cpp/optimized_count_matches.ll:1:1: error: expected top-level entity
+    1 | // library.h
+      | ^
+1 error generated.

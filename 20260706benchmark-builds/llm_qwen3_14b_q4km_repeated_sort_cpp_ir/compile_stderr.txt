@@ -1,0 +1,4 @@
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.ll:1:1: error: expected top-level entity
+    1 | ```llvm
+      | ^
+1 error generated.

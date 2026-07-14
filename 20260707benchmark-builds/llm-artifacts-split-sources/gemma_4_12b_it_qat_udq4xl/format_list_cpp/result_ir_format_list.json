@@ -1,0 +1,11 @@
+{
+  "duration_seconds": 1675.518261357909,
+  "error": null,
+  "model": "gemma-4-12b-it-qat-udq4xl",
+  "output_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/gemma_4_12b_it_qat_udq4xl/format_list_cpp/optimized_format_list.ll",
+  "prompt_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/gemma_4_12b_it_qat_udq4xl/format_list_cpp/prompt_ir_format_list.txt",
+  "raw_response_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/gemma_4_12b_it_qat_udq4xl/format_list_cpp/raw_response_ir_format_list.txt",
+  "success": true,
+  "target_source": "format_list.cpp",
+  "task": "ir"
+}

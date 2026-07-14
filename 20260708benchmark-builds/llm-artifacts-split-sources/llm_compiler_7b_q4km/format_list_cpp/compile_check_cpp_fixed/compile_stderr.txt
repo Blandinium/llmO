@@ -1,0 +1,10 @@
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/optimized_format_list.fixed.cpp:49:17: error: call to 'copy_to_c_string' is ambiguous
+   49 |          return copy_to_c_string(result);
+      |                 ^~~~~~~~~~~~~~~~
+/home/tijl/code/llmO/SUT/sut_common.h:6:7: note: candidate function
+    6 | char* copy_to_c_string(const std::string& value);
+      |       ^
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/optimized_format_list.fixed.cpp:18:7: note: candidate function
+   18 | char* copy_to_c_string(const std::string& value) {
+      |       ^
+1 error generated.

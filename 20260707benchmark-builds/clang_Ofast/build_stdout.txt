@@ -1,0 +1,30 @@
+[1/16] Building CXX object SUT/CMakeFiles/SUT.dir/fibonacci.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[2/16] Building CXX object SUT/CMakeFiles/SUT.dir/free_functions.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[3/16] Building CXX object SUT/CMakeFiles/SUT.dir/count_matches.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[4/16] Building CXX object SUT/CMakeFiles/SUT.dir/sut_common.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[5/16] Building CXX object SUT/CMakeFiles/SUT.dir/format_list.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[6/16] Building CXX object SUT/CMakeFiles/SUT.dir/repeated_sort.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[7/16] Building CXX object librunner/CMakeFiles/librunner.dir/fibonacci_tests.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[8/16] Building CXX object librunner/CMakeFiles/librunner.dir/format_list_tests.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[9/16] Building CXX object librunner/CMakeFiles/librunner.dir/main.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[10/16] Building CXX object librunner/CMakeFiles/librunner.dir/count_matches_tests.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[11/16] Building CXX object librunner/CMakeFiles/librunner.dir/repeated_sort_tests.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[12/16] Building CXX object librunner/CMakeFiles/librunner.dir/top_words_from_file_tests.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[13/16] Building CXX object SUT/CMakeFiles/SUT.dir/top_words_from_file.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[14/16] Linking CXX shared library SUT/libSUT.so
+[15/16] Building CXX object librunner/CMakeFiles/librunner.dir/benchmarks.cpp.o
+clang++: warning: argument '-Ofast' is deprecated; use '-O3 -ffast-math' for the same behavior, or '-O3' to enable only conforming optimizations [-Wdeprecated-ofast]
+[16/16] Linking CXX executable librunner/librunner

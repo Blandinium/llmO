@@ -1,0 +1,49 @@
+#include "library.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <vector>
+
+extern "C" {
+
+int64_t repeated_sort(const int* input, size_t input_length, int rounds) {
+    if (input == nullptr && input_length != 0) {
+        return 0;
+    }
+
+    if (input_length == 0) {
+        return 0;
+    }
+
+    std::int64_t total = 0;
+    const size_t size = input_length;
+    const int* input_end = input + input_length;
+
+    // Precompute values for all rounds
+    for (int r = 0; r < rounds; ++r) {
+        // Use a temporary buffer for sorting
+        std::vector<int> values(input, input_end);
+        
+        // Sort using optimized algorithm
+        std::sort(values.begin(), values.end());
+        
+        // Calculate median
+        const size_t mid = values.size() / 2;
+        int median;
+        if (values.size() % 2 == 0) {
+            // Use int64_t to avoid overflow
+            std::int64_t sum = static_cast<std::int64_t>(values[mid - 1]) + values[mid];
+            median = static_cast<int>(sum / 2);
+        } else {
+            median = values[mid];
+        }
+        
+        // Add median and value from original input
+        total += median;
+        total += input[r % size];
+    }
+
+    return total;
+}
+
+}

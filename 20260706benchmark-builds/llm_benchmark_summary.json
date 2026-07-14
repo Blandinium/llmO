@@ -1,0 +1,442 @@
+[
+  {
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_fibonacci_cpp_cpp",
+    "compile_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_fibonacci_cpp_cpp/build_metadata.json",
+    "model": "qwen3-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/fibonacci_cpp/optimized_fibonacci.cpp",
+    "target_source": "fibonacci.cpp",
+    "task": "cpp",
+    "total_duration_seconds": 127.78917274903506,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_fibonacci_cpp_ir",
+    "compile_returncode": 1,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_fibonacci_cpp_ir/build_metadata.json",
+    "model": "qwen3-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/fibonacci_cpp/optimized_fibonacci.ll",
+    "target_source": "fibonacci.cpp",
+    "task": "ir",
+    "total_duration_seconds": 2.094123043003492,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_format_list_cpp_cpp",
+    "compile_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_format_list_cpp_cpp/build_metadata.json",
+    "model": "qwen3-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/format_list_cpp/optimized_format_list.cpp",
+    "target_source": "format_list.cpp",
+    "task": "cpp",
+    "total_duration_seconds": 159.8825380509952,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_format_list_cpp_ir",
+    "compile_returncode": 1,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_format_list_cpp_ir/build_metadata.json",
+    "model": "qwen3-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/format_list_cpp/optimized_format_list.ll",
+    "target_source": "format_list.cpp",
+    "task": "ir",
+    "total_duration_seconds": 1.8689545530360192,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_repeated_sort_cpp_cpp",
+    "compile_returncode": 0,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_repeated_sort_cpp_cpp/build_metadata.json",
+    "model": "qwen3-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.cpp",
+    "target_source": "repeated_sort.cpp",
+    "task": "cpp",
+    "total_duration_seconds": 127.5384677790571,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_repeated_sort_cpp_ir",
+    "compile_returncode": 1,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_repeated_sort_cpp_ir/build_metadata.json",
+    "model": "qwen3-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.ll",
+    "target_source": "repeated_sort.cpp",
+    "task": "ir",
+    "total_duration_seconds": 1.7503633950836957,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_count_matches_cpp_cpp",
+    "compile_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_count_matches_cpp_cpp/build_metadata.json",
+    "model": "qwen3-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/count_matches_cpp/optimized_count_matches.cpp",
+    "target_source": "count_matches.cpp",
+    "task": "cpp",
+    "total_duration_seconds": 159.06489278096706,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_count_matches_cpp_ir",
+    "compile_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_count_matches_cpp_ir/build_metadata.json",
+    "model": "qwen3-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/count_matches_cpp/optimized_count_matches.ll",
+    "target_source": "count_matches.cpp",
+    "task": "ir",
+    "total_duration_seconds": 158.5793132360559,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_top_words_from_file_cpp_cpp",
+    "compile_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_top_words_from_file_cpp_cpp/build_metadata.json",
+    "model": "qwen3-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/top_words_from_file_cpp/optimized_top_words_from_file.cpp",
+    "target_source": "top_words_from_file.cpp",
+    "task": "cpp",
+    "total_duration_seconds": 159.66503505106084,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_fibonacci_cpp_cpp",
+    "compile_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_fibonacci_cpp_cpp/build_metadata.json",
+    "model": "qwen2.5-coder-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/fibonacci_cpp/optimized_fibonacci.cpp",
+    "target_source": "fibonacci.cpp",
+    "task": "cpp",
+    "total_duration_seconds": 127.61893876001704,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      -11,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_fibonacci_cpp_ir",
+    "compile_returncode": 0,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_fibonacci_cpp_ir/build_metadata.json",
+    "model": "qwen2.5-coder-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/fibonacci_cpp/optimized_fibonacci.ll",
+    "target_source": "fibonacci.cpp",
+    "task": "ir",
+    "total_duration_seconds": 127.66092985891737,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp",
+    "compile_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/build_metadata.json",
+    "model": "qwen2.5-coder-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/format_list_cpp/optimized_format_list.cpp",
+    "target_source": "format_list.cpp",
+    "task": "cpp",
+    "total_duration_seconds": 160.48881422600243,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_ir",
+    "compile_returncode": 1,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_ir/build_metadata.json",
+    "model": "qwen2.5-coder-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/format_list_cpp/optimized_format_list.ll",
+    "target_source": "format_list.cpp",
+    "task": "ir",
+    "total_duration_seconds": 1.8683076129527763,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_repeated_sort_cpp_cpp",
+    "compile_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_repeated_sort_cpp_cpp/build_metadata.json",
+    "model": "qwen2.5-coder-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.cpp",
+    "target_source": "repeated_sort.cpp",
+    "task": "cpp",
+    "total_duration_seconds": 159.012125335983,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_repeated_sort_cpp_ir",
+    "compile_returncode": 1,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_repeated_sort_cpp_ir/build_metadata.json",
+    "model": "qwen2.5-coder-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.ll",
+    "target_source": "repeated_sort.cpp",
+    "task": "ir",
+    "total_duration_seconds": 1.8222583050373942,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_count_matches_cpp_cpp",
+    "compile_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_count_matches_cpp_cpp/build_metadata.json",
+    "model": "qwen2.5-coder-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/count_matches_cpp/optimized_count_matches.cpp",
+    "target_source": "count_matches.cpp",
+    "task": "cpp",
+    "total_duration_seconds": 158.38356083002873,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_count_matches_cpp_ir",
+    "compile_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_count_matches_cpp_ir/build_metadata.json",
+    "model": "qwen2.5-coder-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/count_matches_cpp/optimized_count_matches.ll",
+    "target_source": "count_matches.cpp",
+    "task": "ir",
+    "total_duration_seconds": 158.42789623595309,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_top_words_from_file_cpp_cpp",
+    "compile_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_top_words_from_file_cpp_cpp/build_metadata.json",
+    "model": "qwen2.5-coder-14b-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/top_words_from_file_cpp/optimized_top_words_from_file.cpp",
+    "target_source": "top_words_from_file.cpp",
+    "task": "cpp",
+    "total_duration_seconds": 157.42510249803308,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_fibonacci_cpp_ir",
+    "compile_returncode": 0,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_fibonacci_cpp_ir/build_metadata.json",
+    "model": "gemma-4-12b-it-qat-udq4xl",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/gemma_4_12b_it_qat_udq4xl/fibonacci_cpp/optimized_fibonacci.ll",
+    "target_source": "fibonacci.cpp",
+    "task": "ir",
+    "total_duration_seconds": 2.153886809013784,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_format_list_cpp_ir",
+    "compile_returncode": 0,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_format_list_cpp_ir/build_metadata.json",
+    "model": "gemma-4-12b-it-qat-udq4xl",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/gemma_4_12b_it_qat_udq4xl/format_list_cpp/optimized_format_list.ll",
+    "target_source": "format_list.cpp",
+    "task": "ir",
+    "total_duration_seconds": 1.9296277589164674,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_repeated_sort_cpp_ir",
+    "compile_returncode": 0,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_repeated_sort_cpp_ir/build_metadata.json",
+    "model": "gemma-4-12b-it-qat-udq4xl",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/gemma_4_12b_it_qat_udq4xl/repeated_sort_cpp/optimized_repeated_sort.ll",
+    "target_source": "repeated_sort.cpp",
+    "task": "ir",
+    "total_duration_seconds": 1.861890266998671,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_count_matches_cpp_ir",
+    "compile_returncode": 0,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_count_matches_cpp_ir/build_metadata.json",
+    "model": "gemma-4-12b-it-qat-udq4xl",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/gemma_4_12b_it_qat_udq4xl/count_matches_cpp/optimized_count_matches.ll",
+    "target_source": "count_matches.cpp",
+    "task": "ir",
+    "total_duration_seconds": 2.057252209051512,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_llm_compiler_7b_ftd_q4km_fibonacci_cpp_ir",
+    "compile_returncode": 1,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_llm_compiler_7b_ftd_q4km_fibonacci_cpp_ir/build_metadata.json",
+    "model": "llm-compiler-7b-ftd-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_ftd_q4km/fibonacci_cpp/optimized_fibonacci.ll",
+    "target_source": "fibonacci.cpp",
+    "task": "ir",
+    "total_duration_seconds": 2.045462931971997,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_llm_compiler_7b_ftd_q4km_count_matches_cpp_ir",
+    "compile_returncode": 1,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_llm_compiler_7b_ftd_q4km_count_matches_cpp_ir/build_metadata.json",
+    "model": "llm-compiler-7b-ftd-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_ftd_q4km/count_matches_cpp/optimized_count_matches.ll",
+    "target_source": "count_matches.cpp",
+    "task": "ir",
+    "total_duration_seconds": 2.0417264900170267,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_llm_compiler_13b_ftd_q4km_fibonacci_cpp_ir",
+    "compile_returncode": 1,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_llm_compiler_13b_ftd_q4km_fibonacci_cpp_ir/build_metadata.json",
+    "model": "llm-compiler-13b-ftd-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_13b_ftd_q4km/fibonacci_cpp/optimized_fibonacci.ll",
+    "target_source": "fibonacci.cpp",
+    "task": "ir",
+    "total_duration_seconds": 2.0952019800897688,
+    "variant_type": "llm"
+  },
+  {
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_llm_compiler_13b_ftd_q4km_count_matches_cpp_ir",
+    "compile_returncode": 1,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/llm_llm_compiler_13b_ftd_q4km_count_matches_cpp_ir/build_metadata.json",
+    "model": "llm-compiler-13b-ftd-q4km",
+    "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_13b_ftd_q4km/count_matches_cpp/optimized_count_matches.ll",
+    "target_source": "count_matches.cpp",
+    "task": "ir",
+    "total_duration_seconds": 2.046307665994391,
+    "variant_type": "llm"
+  }
+]

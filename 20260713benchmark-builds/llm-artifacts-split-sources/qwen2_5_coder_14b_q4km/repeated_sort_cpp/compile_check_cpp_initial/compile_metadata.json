@@ -1,0 +1,30 @@
+{
+  "command": [
+    "clang++",
+    "-std=c++23",
+    "-O3",
+    "-DNDEBUG",
+    "-shared",
+    "-fPIC",
+    "-I",
+    "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/repeated_sort_cpp",
+    "-I",
+    "/home/tijl/code/llmO/SUT",
+    "-I",
+    "/home/tijl/code/llmO",
+    "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.cpp",
+    "/home/tijl/code/llmO/SUT/count_matches.cpp",
+    "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+    "/home/tijl/code/llmO/SUT/format_list.cpp",
+    "/home/tijl/code/llmO/SUT/free_functions.cpp",
+    "/home/tijl/code/llmO/SUT/sut_common.cpp",
+    "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+    "-o",
+    "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/repeated_sort_cpp/compile_check_cpp_initial/libSUT.so"
+  ],
+  "cwd": "/home/tijl/code/llmO",
+  "duration_seconds": 2.217433931073174,
+  "returncode": 0,
+  "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/repeated_sort_cpp/compile_check_cpp_initial/compile_stderr.txt",
+  "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/repeated_sort_cpp/compile_check_cpp_initial/compile_stdout.txt"
+}

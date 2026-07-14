@@ -1,0 +1,24 @@
+{
+  "command": [
+    "clang++",
+    "-std=c++23",
+    "-O1",
+    "-DNDEBUG",
+    "-fPIC",
+    "-S",
+    "-emit-llvm",
+    "-fno-discard-value-names",
+    "-I",
+    "/home/tijl/code/llmO/SUT",
+    "-I",
+    "/home/tijl/code/llmO",
+    "/home/tijl/code/llmO/SUT/format_list.cpp",
+    "-o",
+    "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/input/ir/format_list/format_list__O1.ll"
+  ],
+  "cwd": "/home/tijl/code/llmO",
+  "duration_seconds": 0.2608990150038153,
+  "returncode": 0,
+  "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/input/ir/format_list/generate_ir_stderr.txt",
+  "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/input/ir/format_list/generate_ir_stdout.txt"
+}

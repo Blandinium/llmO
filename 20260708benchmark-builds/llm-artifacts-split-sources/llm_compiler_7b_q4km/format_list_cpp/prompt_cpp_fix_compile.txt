@@ -1,0 +1,149 @@
+You are an expert C++23 build-fix and performance engineer.
+
+Task: fix this optimized format_list.cpp so the whole SUT shared library compiles successfully.
+
+Hard requirements:
+- Return one complete replacement for format_list.cpp.
+- Preserve the public C ABI exactly as declared in library.h.
+- Do not change any exported function name, parameter type, return type, struct layout, ownership rule, or allocation/freeing convention visible in library.h.
+- Do not add implementations for unrelated exported functions from library.h.
+- Preserve the intended optimized behavior and runtime-performance focus as much as possible.
+- Do not modify library.h or sut_common.h.
+- Do not include markdown, commentary, explanations, benchmarking notes, or code fences in your answer.
+Headers:
+```cpp
+// library.h
+#ifndef SUT_LIBRARY_H
+#define SUT_LIBRARY_H
+
+#include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct WordCount {
+    char* word;
+    uint64_t count;
+} WordCount;
+
+uint64_t fibonacci(uint64_t n);
+char* format_list(const int* input, size_t input_length);
+int64_t repeated_sort(const int* input, size_t input_length, int rounds);
+size_t count_matches(
+    const int* allowed,
+    size_t allowed_length,
+    const int* queries,
+    size_t queries_length
+);
+WordCount* top_words_from_file(
+    const char* path,
+    const char* const* ignore_words,
+    size_t ignore_words_length,
+    size_t max_results,
+    size_t* result_length
+);
+void free_string(char* value);
+void free_word_counts(WordCount* values, size_t length);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // SUT_LIBRARY_H
+
+
+// sut_common.h
+#ifndef SUT_COMMON_H
+#define SUT_COMMON_H
+
+#include <string>
+
+char* copy_to_c_string(const std::string& value);
+bool is_word_char(char c);
+char normalize_char(char c);
+
+#endif // SUT_COMMON_H
+
+```
+
+Failed format_list.cpp:
+```cpp
+#include "library.h"
+#include "sut_common.h"
+
+#include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace {
+
+char* copy_to_c_string(const std::string& value) {
+     char* result = static_cast<char*>(malloc(value.size() + 1));
+     std::strcpy(result, value.c_str());
+     return result;
+}
+
+bool is_word_char(char c) {
+     return std::isalpha(c) || std::isdigit(c) || c == '_';
+}
+
+char normalize_char(char c) {
+     return std::tolower(c);
+}
+
+} // namespace
+
+extern "C" {
+
+char* format_list(const int* input, size_t input_length) {
+     if (input == nullptr && input_length != 0) {
+         return nullptr;
+     }
+
+     try {
+         std::string result = "[";
+         for (size_t i = 0; i < input_length; ++i) {
+             if (i > 0) result += ", ";
+             result += std::to_string(input[i]);
+         }
+         result += "]";
+
+         return copy_to_c_string(result);
+     } catch (...) {
+         return nullptr;
+     }
+}
+
+}
+
+```
+
+Compiler stdout:
+```text
+
+```
+
+Compiler stderr:
+```text
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/optimized_format_list.cpp:49:17: error: call to 'copy_to_c_string' is ambiguous
+   49 |          return copy_to_c_string(result);
+      |                 ^~~~~~~~~~~~~~~~
+/home/tijl/code/llmO/SUT/sut_common.h:6:7: note: candidate function
+    6 | char* copy_to_c_string(const std::string& value);
+      |       ^
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/optimized_format_list.cpp:18:7: note: candidate function
+   18 | char* copy_to_c_string(const std::string& value) {
+      |       ^
+1 error generated.
+
+```

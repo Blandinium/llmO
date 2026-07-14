@@ -1,0 +1,4 @@
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/fibonacci_cpp/optimized_fibonacci.ll:31:18: error: expected integer
+   31 | !llvm.ident = !{!"clang version 20.1.8 (CentOS 20.1.8-9.el10_2)"}
+      |                  ^
+1 error generated.

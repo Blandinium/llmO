@@ -1,0 +1,24 @@
+{
+  "command": [
+    "clang++",
+    "-std=c++23",
+    "-O1",
+    "-DNDEBUG",
+    "-fPIC",
+    "-S",
+    "-emit-llvm",
+    "-fno-discard-value-names",
+    "-I",
+    "/home/tijl/code/llmO/SUT",
+    "-I",
+    "/home/tijl/code/llmO",
+    "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+    "-o",
+    "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/input/ir/repeated_sort/repeated_sort__O1.ll"
+  ],
+  "cwd": "/home/tijl/code/llmO",
+  "duration_seconds": 0.31007091398350894,
+  "returncode": 0,
+  "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/input/ir/repeated_sort/generate_ir_stderr.txt",
+  "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/input/ir/repeated_sort/generate_ir_stdout.txt"
+}

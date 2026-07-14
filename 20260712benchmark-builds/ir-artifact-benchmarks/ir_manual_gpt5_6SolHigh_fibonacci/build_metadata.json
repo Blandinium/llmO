@@ -1,0 +1,80 @@
+{
+  "abi_check": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci",
+    "duration_seconds": 0.008619826985523105,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci/abi_symbols_stdout.txt"
+  },
+  "benchmarks": [
+    {
+      "command": [
+        "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+        "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci/libSUT.so",
+        "0"
+      ],
+      "cwd": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci",
+      "duration_seconds": 30.7105480118189,
+      "returncode": 0,
+      "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci/benchmark_0_fibonacci_stderr.txt",
+      "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci/benchmark_0_fibonacci_stdout.txt"
+    }
+  ],
+  "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci",
+  "compile": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/manual/gpt5.6SolHigh/optimized_fibonacci.ll",
+      "/home/tijl/code/llmO/SUT/count_matches.cpp",
+      "/home/tijl/code/llmO/SUT/format_list.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+      "-o",
+      "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 2.2179205000866205,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci/compile_stdout.txt"
+  },
+  "compile_optimization_level": "-O3",
+  "function_name": "fibonacci",
+  "ir_file": "/home/tijl/code/llmO/manual/gpt5.6SolHigh/optimized_fibonacci.ll",
+  "libsut_path": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci/libSUT.so",
+  "producer": "gpt5.6SolHigh",
+  "runner_path": "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+  "source_group": "manual",
+  "total_duration_seconds": 32.94551128288731,
+  "variant_name": "ir_manual_gpt5_6SolHigh_fibonacci",
+  "verify": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/manual/gpt5.6SolHigh/optimized_fibonacci.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.0075613080989569426,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci/verify_ir_stdout.txt"
+  }
+}

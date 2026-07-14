@@ -1,0 +1,35 @@
+{
+  "abi_check": null,
+  "benchmark": [],
+  "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_repeated_sort_cpp_ir",
+  "compile": {
+    "command": [],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.0,
+    "returncode": 125,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_repeated_sort_cpp_ir/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_repeated_sort_cpp_ir/compile_stdout.txt"
+  },
+  "ir_verify": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.01612096605822444,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_repeated_sort_cpp_ir/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen3_14b_q4km_repeated_sort_cpp_ir/verify_ir_stdout.txt"
+  },
+  "libsut_path": null,
+  "llm_task": "ir",
+  "model": "qwen3-14b-q4km",
+  "runner_path": "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+  "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.ll",
+  "source_kind": "ir",
+  "target_source": "repeated_sort.cpp",
+  "total_duration_seconds": 0.01658930303528905,
+  "variant_name": "llm_qwen3_14b_q4km_repeated_sort_cpp_ir"
+}

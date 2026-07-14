@@ -1,0 +1,4 @@
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/fibonacci_cpp/optimized_fibonacci.ll:17:3: error: multiple definition of local value named 'n'
+   17 |   %n = add i64 %n, -1
+      |   ^
+1 error generated.

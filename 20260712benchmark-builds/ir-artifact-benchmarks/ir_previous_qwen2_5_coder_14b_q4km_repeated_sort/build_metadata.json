@@ -1,0 +1,35 @@
+{
+  "abi_check": null,
+  "benchmarks": [],
+  "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen2_5_coder_14b_q4km_repeated_sort",
+  "compile": {
+    "command": [],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.0,
+    "returncode": 125,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen2_5_coder_14b_q4km_repeated_sort/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen2_5_coder_14b_q4km_repeated_sort/compile_stdout.txt"
+  },
+  "compile_optimization_level": "-O3",
+  "function_name": "repeated_sort",
+  "ir_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.ll",
+  "libsut_path": null,
+  "producer": "qwen2_5_coder_14b_q4km",
+  "runner_path": "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+  "source_group": "previous",
+  "total_duration_seconds": 0.007792287040501833,
+  "variant_name": "ir_previous_qwen2_5_coder_14b_q4km_repeated_sort",
+  "verify": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.007599771022796631,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen2_5_coder_14b_q4km_repeated_sort/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen2_5_coder_14b_q4km_repeated_sort/verify_ir_stdout.txt"
+  }
+}

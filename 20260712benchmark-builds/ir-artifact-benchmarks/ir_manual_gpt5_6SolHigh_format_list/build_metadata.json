@@ -1,0 +1,80 @@
+{
+  "abi_check": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list",
+    "duration_seconds": 0.008925056084990501,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list/abi_symbols_stdout.txt"
+  },
+  "benchmarks": [
+    {
+      "command": [
+        "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+        "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list/libSUT.so",
+        "1"
+      ],
+      "cwd": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list",
+      "duration_seconds": 30.560690026031807,
+      "returncode": 0,
+      "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list/benchmark_1_format_list_stderr.txt",
+      "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list/benchmark_1_format_list_stdout.txt"
+    }
+  ],
+  "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list",
+  "compile": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/manual/gpt5.6SolHigh/optimized_format_list.ll",
+      "/home/tijl/code/llmO/SUT/count_matches.cpp",
+      "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+      "-o",
+      "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 1.9667673879303038,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list/compile_stdout.txt"
+  },
+  "compile_optimization_level": "-O3",
+  "function_name": "format_list",
+  "ir_file": "/home/tijl/code/llmO/manual/gpt5.6SolHigh/optimized_format_list.ll",
+  "libsut_path": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list/libSUT.so",
+  "producer": "gpt5.6SolHigh",
+  "runner_path": "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+  "source_group": "manual",
+  "total_duration_seconds": 32.553098037838936,
+  "variant_name": "ir_manual_gpt5_6SolHigh_format_list",
+  "verify": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/manual/gpt5.6SolHigh/optimized_format_list.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.015705602942034602,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list/verify_ir_stdout.txt"
+  }
+}

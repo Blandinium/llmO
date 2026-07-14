@@ -1,0 +1,11 @@
+{
+  "duration_seconds": 71.0135615139734,
+  "error": null,
+  "model": "qwen3-14b-q4km",
+  "output_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/format_list_cpp/optimized_format_list.cpp",
+  "prompt_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/format_list_cpp/prompt_cpp_format_list.txt",
+  "raw_response_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/format_list_cpp/raw_response_cpp_format_list.txt",
+  "success": true,
+  "target_source": "format_list.cpp",
+  "task": "cpp"
+}

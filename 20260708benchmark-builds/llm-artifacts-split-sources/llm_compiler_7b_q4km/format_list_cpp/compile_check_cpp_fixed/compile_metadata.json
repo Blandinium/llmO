@@ -1,0 +1,30 @@
+{
+  "command": [
+    "clang++",
+    "-std=c++23",
+    "-O3",
+    "-DNDEBUG",
+    "-shared",
+    "-fPIC",
+    "-I",
+    "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp",
+    "-I",
+    "/home/tijl/code/llmO/SUT",
+    "-I",
+    "/home/tijl/code/llmO",
+    "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/optimized_format_list.fixed.cpp",
+    "/home/tijl/code/llmO/SUT/count_matches.cpp",
+    "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+    "/home/tijl/code/llmO/SUT/free_functions.cpp",
+    "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+    "/home/tijl/code/llmO/SUT/sut_common.cpp",
+    "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+    "-o",
+    "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/compile_check_cpp_fixed/libSUT.so"
+  ],
+  "cwd": "/home/tijl/code/llmO",
+  "duration_seconds": 4.138061475008726,
+  "returncode": 1,
+  "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/compile_check_cpp_fixed/compile_stderr.txt",
+  "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/compile_check_cpp_fixed/compile_stdout.txt"
+}

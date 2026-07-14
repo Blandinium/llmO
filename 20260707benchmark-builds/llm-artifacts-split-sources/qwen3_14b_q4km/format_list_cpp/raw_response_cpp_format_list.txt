@@ -1,0 +1,31 @@
+#include "library.h"
+#include "sut_common.h"
+
+#include <string>
+#include <sstream>
+#include <vector>
+
+extern "C" {
+
+char* format_list(const int* input, size_t input_length) {
+    if (input == nullptr && input_length != 0) {
+        return nullptr;
+    }
+
+    try {
+        std::ostringstream oss;
+        oss << "[";
+        
+        for (size_t i = 0; i < input_length; ++i) {
+            if (i > 0) oss << ", ";
+            oss << input[i];
+        }
+        
+        oss << "]";
+        return copy_to_c_string(oss.str());
+    } catch (...) {
+        return nullptr;
+    }
+}
+
+}

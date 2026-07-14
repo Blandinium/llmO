@@ -1,0 +1,86 @@
+[
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -DSUT_EXPORTS -I/home/tijl/code/llmO/SUT -O3 -O3 -DNDEBUG -std=gnu++23 -fPIC -o SUT/CMakeFiles/SUT.dir/count_matches.cpp.o -c /home/tijl/code/llmO/SUT/count_matches.cpp",
+  "file": "/home/tijl/code/llmO/SUT/count_matches.cpp",
+  "output": "SUT/CMakeFiles/SUT.dir/count_matches.cpp.o"
+},
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -DSUT_EXPORTS -I/home/tijl/code/llmO/SUT -O3 -O3 -DNDEBUG -std=gnu++23 -fPIC -o SUT/CMakeFiles/SUT.dir/fibonacci.cpp.o -c /home/tijl/code/llmO/SUT/fibonacci.cpp",
+  "file": "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+  "output": "SUT/CMakeFiles/SUT.dir/fibonacci.cpp.o"
+},
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -DSUT_EXPORTS -I/home/tijl/code/llmO/SUT -O3 -O3 -DNDEBUG -std=gnu++23 -fPIC -o SUT/CMakeFiles/SUT.dir/format_list.cpp.o -c /home/tijl/code/llmO/SUT/format_list.cpp",
+  "file": "/home/tijl/code/llmO/SUT/format_list.cpp",
+  "output": "SUT/CMakeFiles/SUT.dir/format_list.cpp.o"
+},
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -DSUT_EXPORTS -I/home/tijl/code/llmO/SUT -O3 -O3 -DNDEBUG -std=gnu++23 -fPIC -o SUT/CMakeFiles/SUT.dir/free_functions.cpp.o -c /home/tijl/code/llmO/SUT/free_functions.cpp",
+  "file": "/home/tijl/code/llmO/SUT/free_functions.cpp",
+  "output": "SUT/CMakeFiles/SUT.dir/free_functions.cpp.o"
+},
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -DSUT_EXPORTS -I/home/tijl/code/llmO/SUT -O3 -O3 -DNDEBUG -std=gnu++23 -fPIC -o SUT/CMakeFiles/SUT.dir/repeated_sort.cpp.o -c /home/tijl/code/llmO/SUT/repeated_sort.cpp",
+  "file": "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+  "output": "SUT/CMakeFiles/SUT.dir/repeated_sort.cpp.o"
+},
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -DSUT_EXPORTS -I/home/tijl/code/llmO/SUT -O3 -O3 -DNDEBUG -std=gnu++23 -fPIC -o SUT/CMakeFiles/SUT.dir/sut_common.cpp.o -c /home/tijl/code/llmO/SUT/sut_common.cpp",
+  "file": "/home/tijl/code/llmO/SUT/sut_common.cpp",
+  "output": "SUT/CMakeFiles/SUT.dir/sut_common.cpp.o"
+},
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -DSUT_EXPORTS -I/home/tijl/code/llmO/SUT -O3 -O3 -DNDEBUG -std=gnu++23 -fPIC -o SUT/CMakeFiles/SUT.dir/top_words_from_file.cpp.o -c /home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+  "file": "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+  "output": "SUT/CMakeFiles/SUT.dir/top_words_from_file.cpp.o"
+},
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -I/home/tijl/code/llmO/librunner/../SUT -O3 -O3 -DNDEBUG -std=gnu++23 -Wall -Wextra -Wpedantic -o librunner/CMakeFiles/librunner.dir/count_matches_tests.cpp.o -c /home/tijl/code/llmO/librunner/count_matches_tests.cpp",
+  "file": "/home/tijl/code/llmO/librunner/count_matches_tests.cpp",
+  "output": "librunner/CMakeFiles/librunner.dir/count_matches_tests.cpp.o"
+},
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -I/home/tijl/code/llmO/librunner/../SUT -O3 -O3 -DNDEBUG -std=gnu++23 -Wall -Wextra -Wpedantic -o librunner/CMakeFiles/librunner.dir/fibonacci_tests.cpp.o -c /home/tijl/code/llmO/librunner/fibonacci_tests.cpp",
+  "file": "/home/tijl/code/llmO/librunner/fibonacci_tests.cpp",
+  "output": "librunner/CMakeFiles/librunner.dir/fibonacci_tests.cpp.o"
+},
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -I/home/tijl/code/llmO/librunner/../SUT -O3 -O3 -DNDEBUG -std=gnu++23 -Wall -Wextra -Wpedantic -o librunner/CMakeFiles/librunner.dir/format_list_tests.cpp.o -c /home/tijl/code/llmO/librunner/format_list_tests.cpp",
+  "file": "/home/tijl/code/llmO/librunner/format_list_tests.cpp",
+  "output": "librunner/CMakeFiles/librunner.dir/format_list_tests.cpp.o"
+},
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -I/home/tijl/code/llmO/librunner/../SUT -O3 -O3 -DNDEBUG -std=gnu++23 -Wall -Wextra -Wpedantic -o librunner/CMakeFiles/librunner.dir/main.cpp.o -c /home/tijl/code/llmO/librunner/main.cpp",
+  "file": "/home/tijl/code/llmO/librunner/main.cpp",
+  "output": "librunner/CMakeFiles/librunner.dir/main.cpp.o"
+},
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -I/home/tijl/code/llmO/librunner/../SUT -O3 -O3 -DNDEBUG -std=gnu++23 -Wall -Wextra -Wpedantic -o librunner/CMakeFiles/librunner.dir/repeated_sort_tests.cpp.o -c /home/tijl/code/llmO/librunner/repeated_sort_tests.cpp",
+  "file": "/home/tijl/code/llmO/librunner/repeated_sort_tests.cpp",
+  "output": "librunner/CMakeFiles/librunner.dir/repeated_sort_tests.cpp.o"
+},
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -I/home/tijl/code/llmO/librunner/../SUT -O3 -O3 -DNDEBUG -std=gnu++23 -Wall -Wextra -Wpedantic -o librunner/CMakeFiles/librunner.dir/top_words_from_file_tests.cpp.o -c /home/tijl/code/llmO/librunner/top_words_from_file_tests.cpp",
+  "file": "/home/tijl/code/llmO/librunner/top_words_from_file_tests.cpp",
+  "output": "librunner/CMakeFiles/librunner.dir/top_words_from_file_tests.cpp.o"
+},
+{
+  "directory": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+  "command": "/usr/lib64/llvm20/bin/clang++ -I/home/tijl/code/llmO/librunner/../SUT -O3 -O3 -DNDEBUG -std=gnu++23 -Wall -Wextra -Wpedantic -o librunner/CMakeFiles/librunner.dir/benchmarks.cpp.o -c /home/tijl/code/llmO/librunner/benchmarks.cpp",
+  "file": "/home/tijl/code/llmO/librunner/benchmarks.cpp",
+  "output": "librunner/CMakeFiles/librunner.dir/benchmarks.cpp.o"
+}
+]

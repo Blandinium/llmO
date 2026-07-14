@@ -1,0 +1,178 @@
+```llvm
+; ModuleID = '/home/tijl/code/llmO/SUT/repeated_sort.cpp'
+source_filename = "/home/tijl/code/llmO/SUT/repeated_sort.cpp"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-redhat-linux-gnu"
+
+%"struct.std::ranges::less" = type { i8 }
+%"struct.std::identity" = type { i8 }
+
+$_ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SG_T1_ = comdat any
+
+$_ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SG_ = comdat any
+
+; Function Attrs: mustprogress uwtable
+define i64 @repeated_sort(ptr noundef readonly %input, i64 noundef %input_length, i32 noundef %rounds) local_unnamed_addr #0 personality ptr @__gxx_personality_v0 {
+entry:
+  %cmp = icmp ne ptr %input, null
+  %cmp2 = icmp ne i64 %input_length, 0
+  %or.cond = and i1 %cmp, %cmp2
+  %cmp3 = icmp sgt i32 %rounds, 0
+  %and = and i1 %or.cond, %cmp3
+  br i1 %and, label %for.body.lr.ph, label %return
+
+for.body.lr.ph:                                   ; preds = %entry
+  %mul = mul nuw nsw i64 %input_length, 4
+  %cmp4 = icmp ugt i64 %input_length, 1
+  %cmp5 = icmp eq i64 %input_length, 1
+  %wide.trip.count = zext nneg i32 %rounds to i64
+  br label %for.body
+
+for.body:                                         ; preds = %for.body.lr.ph, %cond.end
+  %indvars.iv = phi i64 [ 0, %for.body.lr.ph ], [ %indvars.iv.next, %cond.end ]
+  %total = phi i64 [ 0, %for.body.lr.ph ], [ %add, %cond.end ]
+  %call = invoke noalias noundef nonnull ptr @_Znwm(i64 noundef %mul) #7
+          to label %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i unwind label %lpad.i
+
+_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i: ; preds = %for.body
+  %add.ptr = getelementptr inbounds nuw i8, ptr %call, i64 %mul
+  br i1 %cmp4, label %if.then.i.i.i.i.i.i.i.i.i.i, label %if.else.i.i.i.i.i.i.i.i.i.i, !prof !4
+
+if.then.i.i.i.i.i.i.i.i.i.i:                      ; preds = %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i
+  call void @llvm.memcpy.p0.p0.i64(ptr nonnull align 4 %call, ptr nonnull align 4 %input, i64 %mul, i1 false)
+  br label %invoke.cont
+
+if.else.i.i.i.i.i.i.i.i.i.i:                      ; preds = %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i
+  br i1 %cmp5, label %if.then2.i.i.i.i.i.i.i.i.i.i, label %invoke.cont
+
+if.then2.i.i.i.i.i.i.i.i.i.i:                     ; preds = %if.else.i.i.i.i.i.i.i.i.i.i
+  %2 = load i32, ptr %input, align 4, !tbaa !5
+  store i32 %2, ptr %call, align 4, !tbaa !5
+  br label %invoke.cont
+
+lpad.i:                                           ; preds = %for.body
+  %3 = landingpad { ptr, i32 }
+          catch ptr null
+  br label %ehcleanup
+
+invoke.cont:                                      ; preds = %if.then2.i.i.i.i.i.i.i.i.i.i, %if.else.i.i.i.i.i.i.i.i.i.i, %if.then.i.i.i.i.i.i.i.i.i.i
+  call void @llvm.lifetime.start.p0(i64 1, ptr nonnull %__comp.i.i)
+  call void @llvm.lifetime.start.p0(i64 1, ptr nonnull %__proj.i.i)
+  invoke void @_ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SG_T1_(ptr nonnull %call, ptr nonnull %add.ptr, i64 noundef 126, ptr nonnull %__comp.i.i, ptr nonnull %__proj.i.i)
+          to label %.noexc unwind label %lpad7
+
+.noexc:                                           ; preds = %invoke.cont
+  invoke void @_ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SG_(ptr nonnull %call, ptr nonnull %add.ptr, ptr nonnull %__comp.i.i, ptr nonnull %__proj.i.i)
+          to label %_ZNKSt6ranges9__sort_fnclITkNS_19random_access_rangeERSt6vectorIiSaIiEENS_4lessESt8identityQ8sortableIDTclsr6ranges8__accessE7__beginclsr3stdE7declvalIRT_EEEET0_T1_EEENSt13__conditionalIX14borrowed_rangeIS8_EEE4typeISA_NS_8danglingEEEOS8_SB_SC_.exit unwind label %lpad7
+
+_ZNKSt6ranges9__sort_fnclITkNS_19random_access_rangeERSt6vectorIiSaIiEENS_4lessESt8identityQ8sortableIDTclsr6ranges8__accessE7__beginclsr3stdE7declvalIRT_EEEET0_T1_EEENSt13__conditionalIX14borrowed_rangeIS8_EEE4typeISA_NS_8danglingEEEOS8_SB_SC_.exit: ; preds = %.noexc
+  call void @llvm.lifetime.end.p0(i64 1, ptr nonnull %__comp.i.i)
+  call void @llvm.lifetime.end.p0(i64 1, ptr nonnull %__proj.i.i)
+  %4 = getelementptr i32, ptr %call, i64 %div
+  br i1 %even, label %cond.true, label %cond.false
+
+cond.true:                                        ; preds = %_ZNKSt6ranges9__sort_fnclITkNS_19random_access_rangeERSt6vectorIiSaIiEENS_4lessESt8identityQ8sortableIDTclsr6ranges8__accessE7__beginclsr3stdE7declvalIRT_EEEET0_T1_EEENSt13__conditionalIX14borrowed_rangeIS8_EEE4typeISA_NS_8danglingEEEOS8_SB_SC_.exit
+  %add.ptr.i = getelementptr i8, ptr %4, i64 -4
+  %5 = load i32, ptr %add.ptr.i, align 4, !tbaa !5
+  %conv = sext i32 %5 to i64
+  %add.ptr.i46 = getelementptr inbounds nuw i32, ptr %call, i64 %div
+  %6 = load i32, ptr %add.ptr.i46, align 4, !tbaa !5
+  %conv14 = sext i32 %6 to i64
+  %add = add nsw i64 %conv14, %conv
+  %div15 = sdiv i64 %add, 2
+  %conv16 = trunc nsw i64 %div15 to i32
+  br label %cond.end
+
+cond.false:                                       ; preds = %_ZNKSt6ranges9__sort_fnclITkNS_19random_access_rangeERSt6vectorIiSaIiEENS_4lessESt8identityQ8sortableIDTclsr6ranges8__accessE7__beginclsr3stdE7declvalIRT_EEEET0_T1_EEENSt13__conditionalIX14borrowed_rangeIS8_EEE4typeISA_NS_8danglingEEEOS8_SB_SC_.exit
+  %7 = load i32, ptr %4, align 4, !tbaa !5
+  br label %cond.end
+
+cond.end:                                         ; preds = %cond.false, %cond.true
+  %cond = phi i32 [ %conv16, %cond.true ], [ %7, %cond.false ]
+  %conv18 = sext i32 %cond to i64
+  %add19 = add nsw i64 %total, %conv18
+  %rem22 = urem i64 %indvars.iv, %input_length
+  %add.ptr.i53 = getelementptr inbounds nuw i32, ptr %call, i64 %rem22
+  %8 = load i32, ptr %add.ptr.i53, align 4, !tbaa !5
+  %conv24 = sext i32 %8 to i64
+  %add = add nsw i64 %add19, %conv24
+  call void @_ZdlPvm(ptr noundef nonnull %call, i64 noundef %mul) #8
+  %indvars.iv.next = add nuw nsw i64 %indvars.iv, 1
+  %exitcond.not = icmp eq i64 %indvars.iv.next, %wide.trip.count
+  br i1 %exitcond.not, label %return, label %for.body, !llvm.loop !9
+
+lpad7:                                            ; preds = %.noexc, %invoke.cont
+  %9 = landingpad { ptr, i32 }
+          catch ptr null
+  call void @_ZdlPvm(ptr noundef nonnull %call, i64 noundef %mul) #8
+  br label %ehcleanup
+
+ehcleanup:                                        ; preds = %lpad7, %lpad.i
+  %.pn = phi { ptr, i32 } [ %3, %lpad.i ], [ %9, %lpad7 ]
+  %exn.slot.0 = extractvalue { ptr, i32 } %.pn, 0
+  %10 = call ptr @__cxa_begin_catch(ptr %exn.slot.0) #9
+  call void @__cxa_end_catch()
+  br label %return
+
+return:                                           ; preds = %cond.end, %entry, %ehcleanup
+  %retval.0 = phi i64 [ 0, %ehcleanup ], [ 0, %entry ], [ %add, %cond.end ]
+  ret i64 %retval.0
+}
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind willreturn memory(argmem: readwrite)
+declare void @llvm.lifetime.start.p0(i64 immarg, ptr nocapture) #1
+
+declare i32 @__gxx_personality_v0(...)
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind willreturn memory(argmem: readwrite)
+declare void @llvm.lifetime.end.p0(i64 immarg, ptr nocapture) #1
+
+declare ptr @__cxa_begin_catch(ptr) local_unnamed_addr
+
+declare void @__cxa_end_catch() local_unnamed_addr
+
+; Function Attrs: nobuiltin allocsize(0)
+declare noundef nonnull ptr @_Znwm(i64 noundef) local_unnamed_addr #2
+
+; Function Attrs: mustprogress nocallback nofree nounwind willreturn memory(argmem: readwrite)
+declare void @llvm.memmove.p0.p0.i64(ptr nocapture writeonly, ptr nocapture readonly, i64, i1 immarg) #3
+
+; Function Attrs: nobuiltin nounwind
+declare void @_ZdlPvm(ptr noundef, i64 noundef) local_unnamed_addr #4
+
+; Function Attrs: mustprogress nocallback nofree nounwind willreturn memory(argmem: readwrite)
+declare void @llvm.memcpy.p0.p0.i64(ptr noalias nocapture writeonly, ptr noalias nocapture readonly, i64, i1 immarg) #3
+
+; Function Attrs: mustprogress uwtable
+define linkonce_odr void @_ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SG_T1_(ptr %__first.coerce, ptr %__last.coerce, i64 noundef %__depth_limit, ptr %__comp.coerce0, ptr %__comp.coerce1) local_unnamed_addr #0 comdat personality ptr @__gxx_personality_v0 {
+entry:
+  %sub.ptr.rhs.cast.i = ptrtoint ptr %__first.coerce to i64
+  %sub.ptr.lhs.cast.i40 = ptrtoint ptr %__last.coerce to i64
+  %sub.ptr.sub.i41 = sub i64 %sub.ptr.lhs.cast.i40, %sub.ptr.rhs.cast.i
+  %sub.ptr.div.i42 = ashr exact i64 %sub.ptr.sub.i41, 2
+  %cmp43 = icmp sgt i64 %sub.ptr.div.i42, 16
+  br i1 %cmp43, label %while.body.lr.ph, label %while.end
+
+while.body.lr.ph:                                 ; preds = %entry
+  %add.ptr.i28.i = getelementptr inbounds nuw i8, ptr %__first.coerce, i64 4
+  %cmp258 = icmp eq i64 %__depth_limit, 0
+  br i1 %cmp258, label %if.end.i.i27, label %if.end
+
+while.body:                                       ; preds = %_ZSt27__unguarded_partition_pivotIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEESE_SE_SE_SG_.exit
+  %cmp2 = icmp eq i64 %dec, 0
+  br i1 %cmp2, label %if.end.i.i27, label %if.end, !llvm.loop !12
+
+if.end.i.i27:                                     ; preds = %while.body, %while.body.lr.ph
+  %sub.ptr.div.i47.lcssa = phi i64 [ %sub.ptr.div.i42, %while.body.lr.ph ], [ %sub.ptr.div.i, %while.body ]
+  %sub.ptr.sub.i46.lcssa = phi i64 [ %sub.ptr.sub.i41, %while.body.lr.ph ], [ %sub.ptr.sub.i, %while.body ]
+  %storemerge44.lcssa = phi ptr [ %__last.coerce, %while.body.lr.ph ], [ %__first.sroa.0.1.i.i, %while.body ]
+  %sub.i.i = add nsw i64 %sub.ptr.div.i47.lcssa, -2
+  %div.i.i = sdiv i64 %sub.i.i, 2
+  %sub.i.i.i = add nsw i64 %sub.ptr.div.i47.lcssa, -1
+  %div.i.i.i = sdiv i64 %sub.i.i.i, 2
+  %0 = and i64 %sub.ptr.sub.i46.lcssa, 4
+  %cmp16.i.i.i = icmp eq i64 %0, 0
+  %div18.i.i.i = ashr exact i64 %sub.i.i, 1
+  br label %while.cond.i.i
+
+while.cond.i.i:                                   ; preds = %_ZSt13__adjust_heapIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEEliNS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SG_SG_T1_T2_.exit.i.i, %if

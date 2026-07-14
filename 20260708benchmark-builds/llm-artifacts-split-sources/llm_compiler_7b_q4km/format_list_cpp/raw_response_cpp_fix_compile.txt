@@ -1,0 +1,555 @@
+
+```cpp
+#include "library.h"
+#include "sut_common.h"
+
+#include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace {
+
+char* copy_to_c_string(const std::string& value) {
+     char* result = static_cast<char*>(malloc(value.size() + 1));
+     std::strcpy(result, value.c_str());
+     return result;
+}
+
+bool is_word_char(char c) {
+     return std::isalpha(c) || std::isdigit(c) || c == '_';
+}
+
+char normalize_char(char c) {
+     return std::tolower(c);
+}
+
+} // namespace
+
+extern "C" {
+
+char* format_list(const int* input, size_t input_length) {
+      if (input == nullptr && input_length != 0) {
+         return nullptr;
+      }
+
+     try {
+         std::string result = "[";
+         for (size_t i = 0; i < input_length; ++i) {
+              if (i > 0) result += ", ";
+             result += std::to_string(input[i]);
+         }
+         result += "]";
+
+         return copy_to_c_string(result);
+      } catch (...) {
+         return nullptr;
+      }
+}
+
+}
+
+```
+
+Assistant stdout:
+```text
+
+```
+
+Assistant stderr:
+```text
+
+```
+<|im_end|>
+<|im_start|>compiler
+
+```cpp
+#include "library.h"
+#include "sut_common.h"
+
+#include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace {
+
+char* copy_to_c_string(const std::string& value) {
+     char* result = static_cast<char*>(malloc(value.size() + 1));
+     std::strcpy(result, value.c_str());
+     return result;
+}
+
+bool is_word_char(char c) {
+     return std::isalpha(c) || std::isdigit(c) || c == '_';
+}
+
+char normalize_char(char c) {
+     return std::tolower(c);
+}
+
+} // namespace
+
+extern "C" {
+
+char* format_list(const int* input, size_t input_length) {
+      if (input == nullptr && input_length != 0) {
+         return nullptr;
+      }
+
+     try {
+         std::string result = "[";
+         for (size_t i = 0; i < input_length; ++i) {
+              if (i > 0) result += ", ";
+             result += std::to_string(input[i]);
+         }
+         result += "]";
+
+         return copy_to_c_string(result);
+      } catch (...) {
+         return nullptr;
+      }
+}
+
+}
+
+```
+
+Compiler stdout:
+```text
+
+```
+
+Compiler stderr:
+```text
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/optimized_format_list.cpp:49:17: error: call to 'copy_to_c_string' is ambiguous
+   49 |           return copy_to_c_string(result);
+       |                 ^~~~~~~~~~~~~~~~
+/home/tijl/code/llmO/SUT/sut_common.h:6:7: note: candidate function
+    6 | char* copy_to_c_string(const std::string& value);
+       |        ^
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/optimized_format_list.cpp:18:7: note: candidate function
+   18 | char* copy_to_c_string(const std::string& value) {
+       |        ^
+1 error generated.
+
+```
+<|im_end|>
+<|im_start|>assistant
+
+```cpp
+#include "library.h"
+#include "sut_common.h"
+
+#include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace {
+
+char* copy_to_c_string(const std::string& value) {
+     char* result = static_cast<char*>(malloc(value.size() + 1));
+     std::strcpy(result, value.c_str());
+     return result;
+}
+
+bool is_word_char(char c) {
+     return std::isalpha(c) || std::isdigit(c) || c == '_';
+}
+
+char normalize_char(char c) {
+     return std::tolower(c);
+}
+
+} // namespace
+
+extern "C" {
+
+char* format_list(const int* input, size_t input_length) {
+      if (input == nullptr && input_length != 0) {
+         return nullptr;
+      }
+
+     try {
+         std::string result = "[";
+         for (size_t i = 0; i < input_length; ++i) {
+              if (i > 0) result += ", ";
+             result += std::to_string(input[i]);
+         }
+         result += "]";
+
+         return copy_to_c_string(result);
+      } catch (...) {
+         return nullptr;
+      }
+}
+
+}
+
+```
+
+Assistant stdout:
+```text
+
+```
+
+Assistant stderr:
+```text
+
+```
+<|im_end|>
+<|im_start|>compiler
+
+```cpp
+#include "library.h"
+#include "sut_common.h"
+
+#include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace {
+
+char* copy_to_c_string(const std::string& value) {
+     char* result = static_cast<char*>(malloc(value.size() + 1));
+     std::strcpy(result, value.c_str());
+     return result;
+}
+
+bool is_word_char(char c) {
+     return std::isalpha(c) || std::isdigit(c) || c == '_';
+}
+
+char normalize_char(char c) {
+     return std::tolower(c);
+}
+
+} // namespace
+
+extern "C" {
+
+char* format_list(const int* input, size_t input_length) {
+      if (input == nullptr && input_length != 0) {
+         return nullptr;
+      }
+
+     try {
+         std::string result = "[";
+         for (size_t i = 0; i < input_length; ++i) {
+              if (i > 0) result += ", ";
+             result += std::to_string(input[i]);
+         }
+         result += "]";
+
+         return copy_to_c_string(result);
+      } catch (...) {
+         return nullptr;
+      }
+}
+
+}
+
+```
+
+Compiler stdout:
+```text
+
+```
+
+Compiler stderr:
+```text
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/optimized_format_list.cpp:49:17: error: call to 'copy_to_c_string' is ambiguous
+   49 |           return copy_to_c_string(result);
+       |                 ^~~~~~~~~~~~~~~~
+/home/tijl/code/llmO/SUT/sut_common.h:6:7: note: candidate function
+    6 | char* copy_to_c_string(const std::string& value);
+       |        ^
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/optimized_format_list.cpp:18:7: note: candidate function
+   18 | char* copy_to_c_string(const std::string& value) {
+       |        ^
+1 error generated.
+
+```
+<|im_end|>
+<|im_start|>assistant
+
+```cpp
+#include "library.h"
+#include "sut_common.h"
+
+#include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace {
+
+char* copy_to_c_string(const std::string& value) {
+     char* result = static_cast<char*>(malloc(value.size() + 1));
+     std::strcpy(result, value.c_str());
+     return result;
+}
+
+bool is_word_char(char c) {
+     return std::isalpha(c) || std::isdigit(c) || c == '_';
+}
+
+char normalize_char(char c) {
+     return std::tolower(c);
+}
+
+} // namespace
+
+extern "C" {
+
+char* format_list(const int* input, size_t input_length) {
+      if (input == nullptr && input_length != 0) {
+         return nullptr;
+      }
+
+     try {
+         std::string result = "[";
+         for (size_t i = 0; i < input_length; ++i) {
+              if (i > 0) result += ", ";
+             result += std::to_string(input[i]);
+         }
+         result += "]";
+
+         return copy_to_c_string(result);
+      } catch (...) {
+         return nullptr;
+      }
+}
+
+}
+
+```
+
+Assistant stdout:
+```text
+
+```
+
+Assistant stderr:
+```text
+
+```
+<|im_end|>
+<|im_start|>compiler
+
+```cpp
+#include "library.h"
+#include "sut_common.h"
+
+#include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace {
+
+char* copy_to_c_string(const std::string& value) {
+     char* result = static_cast<char*>(malloc(value.size() + 1));
+     std::strcpy(result, value.c_str());
+     return result;
+}
+
+bool is_word_char(char c) {
+     return std::isalpha(c) || std::isdigit(c) || c == '_';
+}
+
+char normalize_char(char c) {
+     return std::tolower(c);
+}
+
+} // namespace
+
+extern "C" {
+
+char* format_list(const int* input, size_t input_length) {
+      if (input == nullptr && input_length != 0) {
+         return nullptr;
+      }
+
+     try {
+         std::string result = "[";
+         for (size_t i = 0; i < input_length; ++i) {
+              if (i > 0) result += ", ";
+             result += std::to_string(input[i]);
+         }
+         result += "]";
+
+         return copy_to_c_string(result);
+      } catch (...) {
+         return nullptr;
+      }
+}
+
+}
+
+```
+
+Compiler stdout:
+```text
+
+```
+
+Compiler stderr:
+```text
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/optimized_format_list.cpp:49:17: error: call to 'copy_to_c_string' is ambiguous
+   49 |           return copy_to_c_string(result);
+       |                 ^~~~~~~~~~~~~~~~
+/home/tijl/code/llmO/SUT/sut_common.h:6:7: note: candidate function
+    6 | char* copy_to_c_string(const std::string& value);
+       |        ^
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/optimized_format_list.cpp:18:7: note: candidate function
+   18 | char* copy_to_c_string(const std::string& value) {
+       |        ^
+1 error generated.
+
+```
+<|im_end|>
+<|im_start|>assistant
+
+```cpp
+#include "library.h"
+#include "sut_common.h"
+
+#include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace {
+
+char* copy_to_c_string(const std::string& value) {
+     char* result = static_cast<char*>(malloc(value.size() + 1));
+     std::strcpy(result, value.c_str());
+     return result;
+}
+
+bool is_word_char(char c) {
+     return std::isalpha(c) || std::isdigit(c) || c == '_';
+}
+
+char normalize_char(char c) {
+     return std::tolower(c);
+}
+
+} // namespace
+
+extern "C" {
+
+char* format_list(const int* input, size_t input_length) {
+      if (input == nullptr && input_length != 0) {
+         return nullptr;
+      }
+
+     try {
+         std::string result = "[";
+         for (size_t i = 0; i < input_length; ++i) {
+              if (i > 0) result += ", ";
+             result += std::to_string(input[i]);
+         }
+         result += "]";
+
+         return copy_to_c_string(result);
+      } catch (...) {
+         return nullptr;
+      }
+}
+
+}
+
+```
+
+Assistant stdout:
+```text
+
+```
+
+Assistant stderr:
+```text
+
+```
+<|im_end|>
+<|im_start|>compiler
+
+```cpp
+#include "library.h"
+#include "sut_common.h"
+
+#include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace {
+
+char* copy_to_c_string(const std::string& value) {
+     char* result = static_cast<char*>(malloc(value.size() + 1));
+     std::strcpy(result, value.c_str());
+     return result;
+}
+
+bool is_word_char(char c) {
+     return std::isalpha(c) || std::isdigit(c) || c == '_';
+}

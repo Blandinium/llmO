@@ -1,0 +1,41 @@
+{
+  "benchmark": [],
+  "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_llm_compiler_13b_ftd_q4km_fibonacci_cpp_ir",
+  "compile": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_13b_ftd_q4km/fibonacci_cpp/optimized_fibonacci.ll",
+      "/home/tijl/code/llmO/SUT/count_matches.cpp",
+      "/home/tijl/code/llmO/SUT/format_list.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+      "-o",
+      "/home/tijl/code/llmO/benchmark-builds/llm_llm_compiler_13b_ftd_q4km_fibonacci_cpp_ir/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 2.095032870071009,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm_llm_compiler_13b_ftd_q4km_fibonacci_cpp_ir/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm_llm_compiler_13b_ftd_q4km_fibonacci_cpp_ir/compile_stdout.txt"
+  },
+  "libsut_path": null,
+  "llm_task": "ir",
+  "model": "llm-compiler-13b-ftd-q4km",
+  "runner_path": "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+  "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_13b_ftd_q4km/fibonacci_cpp/optimized_fibonacci.ll",
+  "source_kind": "ir",
+  "target_source": "fibonacci.cpp",
+  "total_duration_seconds": 2.0952019800897688,
+  "variant_name": "llm_llm_compiler_13b_ftd_q4km_fibonacci_cpp_ir"
+}

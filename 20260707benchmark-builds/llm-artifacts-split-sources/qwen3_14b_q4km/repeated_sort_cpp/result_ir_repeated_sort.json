@@ -1,0 +1,11 @@
+{
+  "duration_seconds": 3471.8268881000113,
+  "error": null,
+  "model": "qwen3-14b-q4km",
+  "output_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.ll",
+  "prompt_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/repeated_sort_cpp/prompt_ir_repeated_sort.txt",
+  "raw_response_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/repeated_sort_cpp/raw_response_ir_repeated_sort.txt",
+  "success": true,
+  "target_source": "repeated_sort.cpp",
+  "task": "ir"
+}

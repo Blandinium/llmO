@@ -1,0 +1,11 @@
+{
+  "duration_seconds": 553.7689755900064,
+  "error": null,
+  "model": "qwen3-14b-q4km",
+  "output_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/top_words_from_file_cpp/optimized_top_words_from_file.cpp",
+  "prompt_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/top_words_from_file_cpp/prompt_cpp_top_words_from_file.txt",
+  "raw_response_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/top_words_from_file_cpp/raw_response_cpp_top_words_from_file.txt",
+  "success": true,
+  "target_source": "top_words_from_file.cpp",
+  "task": "cpp"
+}

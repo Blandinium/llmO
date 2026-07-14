@@ -1,0 +1,11 @@
+{
+  "duration_seconds": 288.4219784809975,
+  "error": null,
+  "model": "llm-compiler-7b-q4km",
+  "output_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/fibonacci_cpp/optimized_fibonacci.ll",
+  "prompt_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/fibonacci_cpp/prompt_ir_fibonacci.txt",
+  "raw_response_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/fibonacci_cpp/raw_response_ir_fibonacci.txt",
+  "success": true,
+  "target_source": "fibonacci.cpp",
+  "task": "ir"
+}

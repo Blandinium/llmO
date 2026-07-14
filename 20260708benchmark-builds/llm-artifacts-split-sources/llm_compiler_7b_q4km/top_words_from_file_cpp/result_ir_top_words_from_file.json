@@ -1,0 +1,11 @@
+{
+  "duration_seconds": 1.0640982569893822,
+  "error": "HTTP Error 400: Bad Request",
+  "model": "llm-compiler-7b-q4km",
+  "output_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/top_words_from_file_cpp/optimized_top_words_from_file.ll",
+  "prompt_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/top_words_from_file_cpp/prompt_ir_top_words_from_file.txt",
+  "raw_response_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/top_words_from_file_cpp/raw_response_ir_top_words_from_file.txt",
+  "success": false,
+  "target_source": "top_words_from_file.cpp",
+  "task": "ir"
+}

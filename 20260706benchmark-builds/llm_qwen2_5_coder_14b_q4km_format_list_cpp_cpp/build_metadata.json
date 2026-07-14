@@ -1,0 +1,102 @@
+{
+  "benchmark": [
+    {
+      "command": [
+        "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+        "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/libSUT.so",
+        "0"
+      ],
+      "cwd": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp",
+      "duration_seconds": 30.83787025907077,
+      "returncode": 0,
+      "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/benchmark_0_fibonacci_stderr.txt",
+      "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/benchmark_0_fibonacci_stdout.txt"
+    },
+    {
+      "command": [
+        "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+        "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/libSUT.so",
+        "1"
+      ],
+      "cwd": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp",
+      "duration_seconds": 31.011629931046627,
+      "returncode": 0,
+      "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/benchmark_1_format_list_stderr.txt",
+      "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/benchmark_1_format_list_stdout.txt"
+    },
+    {
+      "command": [
+        "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+        "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/libSUT.so",
+        "2"
+      ],
+      "cwd": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp",
+      "duration_seconds": 31.633589542936534,
+      "returncode": 0,
+      "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/benchmark_2_repeated_sort_stderr.txt",
+      "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/benchmark_2_repeated_sort_stdout.txt"
+    },
+    {
+      "command": [
+        "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+        "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/libSUT.so",
+        "3"
+      ],
+      "cwd": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp",
+      "duration_seconds": 32.85124215693213,
+      "returncode": 0,
+      "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/benchmark_3_count_matches_stderr.txt",
+      "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/benchmark_3_count_matches_stdout.txt"
+    },
+    {
+      "command": [
+        "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+        "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/libSUT.so",
+        "4"
+      ],
+      "cwd": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp",
+      "duration_seconds": 31.559603005996905,
+      "returncode": 0,
+      "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/benchmark_4_top_words_from_file_stderr.txt",
+      "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/benchmark_4_top_words_from_file_stdout.txt"
+    }
+  ],
+  "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp",
+  "compile": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/format_list_cpp/optimized_format_list.cpp",
+      "/home/tijl/code/llmO/SUT/count_matches.cpp",
+      "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+      "-o",
+      "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 2.594080795068294,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/compile_stdout.txt"
+  },
+  "libsut_path": "/home/tijl/code/llmO/benchmark-builds/llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp/libSUT.so",
+  "llm_task": "cpp",
+  "model": "qwen2.5-coder-14b-q4km",
+  "runner_path": "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+  "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/format_list_cpp/optimized_format_list.cpp",
+  "source_kind": "cpp",
+  "target_source": "format_list.cpp",
+  "total_duration_seconds": 160.48881422600243,
+  "variant_name": "llm_qwen2_5_coder_14b_q4km_format_list_cpp_cpp"
+}

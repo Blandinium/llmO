@@ -1,0 +1,80 @@
+{
+  "abi_check": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches",
+    "duration_seconds": 0.008516069035977125,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches/abi_symbols_stdout.txt"
+  },
+  "benchmarks": [
+    {
+      "command": [
+        "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+        "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches/libSUT.so",
+        "3"
+      ],
+      "cwd": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches",
+      "duration_seconds": 30.71065515000373,
+      "returncode": 0,
+      "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches/benchmark_3_count_matches_stderr.txt",
+      "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches/benchmark_3_count_matches_stdout.txt"
+    }
+  ],
+  "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches",
+  "compile": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/manual/fable5/optimized_count_matches.ll",
+      "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+      "/home/tijl/code/llmO/SUT/format_list.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+      "-o",
+      "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 2.1168044758960605,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches/compile_stdout.txt"
+  },
+  "compile_optimization_level": "-O3",
+  "function_name": "count_matches",
+  "ir_file": "/home/tijl/code/llmO/manual/fable5/optimized_count_matches.ll",
+  "libsut_path": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches/libSUT.so",
+  "producer": "fable5",
+  "runner_path": "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+  "source_group": "manual",
+  "total_duration_seconds": 32.85292386310175,
+  "variant_name": "ir_manual_fable5_count_matches",
+  "verify": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/manual/fable5/optimized_count_matches.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.015936838928610086,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches/verify_ir_stdout.txt"
+  }
+}

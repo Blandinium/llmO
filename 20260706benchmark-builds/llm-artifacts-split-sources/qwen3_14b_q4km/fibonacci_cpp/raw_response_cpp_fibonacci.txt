@@ -1,0 +1,23 @@
+#include "library.h"
+
+extern "C" {
+
+uint64_t fibonacci(uint64_t n) {
+    if (n <= 1) {
+        return n;
+    }
+    
+    uint64_t a = 0;
+    uint64_t b = 1;
+    uint64_t result = 1;
+    
+    for (uint64_t i = 2; i <= n; ++i) {
+        result = a + b;
+        a = b;
+        b = result;
+    }
+    
+    return result;
+}
+
+}

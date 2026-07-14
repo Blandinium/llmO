@@ -1,0 +1,4 @@
+/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_13b_ftd_q4km/fibonacci_cpp/optimized_fibonacci.ll:1:1: error: expected top-level entity
+    1 | // library.h
+      | ^
+1 error generated.

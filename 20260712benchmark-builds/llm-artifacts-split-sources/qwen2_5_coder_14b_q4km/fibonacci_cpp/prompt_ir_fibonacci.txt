@@ -1,0 +1,93 @@
+You are an LLVM optimization pass focused on runtime performance.
+
+Task:
+
+Rewrite the LLVM IR module below to improve runtime performance on the target described by the module.
+The input module has already been processed by LLVM -O1. Seek meaningful improvements beyond cosmetic control-flow cleanup or canonicalization that standard LLVM -O2/-O3 passes are likely to reproduce automatically.
+
+Optimization policy:
+
+Optimize for runtime performance unless the module explicitly provides a different objective.
+You may replace function bodies and substantially restructure algorithms, loops, memory access patterns, and control flow.
+Consider vectorization, unrolling, loop versioning, specialization, branch reduction, common-subexpression elimination, reduced allocation, improved locality, and algorithmic changes when valid and plausibly profitable.
+Use target information, function attributes, metadata, constants, and profile information present in the module.
+When no profile information is available, optimize for broadly reasonable performance rather than assuming benchmark-specific input values.
+Do not restrict the result to simple or minimally changed IR merely because more substantial transformations are harder to express.
+Do not perform transformations whose correctness depends on assumptions not established by LLVM IR semantics, attributes, metadata, or control flow.
+
+Output requirements:
+
+Return exactly one complete LLVM IR module.
+Return raw LLVM IR only.
+Do not include Markdown, code fences, explanations, notes, or benchmarking text.
+The output must be accepted by llvm-as, opt -passes=verify, and clang++.
+
+ABI and module requirements:
+
+Preserve every externally visible function definition in the input module.
+Preserve every externally visible function name, signature, linkage, visibility, storage class, and calling convention exactly.
+Do not add, remove, rename, or redefine externally visible functions.
+Do not define functions that are only declared in the input module.
+Preserve target datalayout and target triple.
+Preserve externally observable functional behaviour.
+Preserve ownership and allocation conventions that are externally observable.
+Do not introduce benchmark-specific constants or hard-coded results.
+
+Permitted changes:
+
+You may add private or internal helper functions.
+You may add correctly typed LLVM intrinsic declarations.
+You may keep external declarations required by the rewritten module.
+You may remove unused declarations.
+You may add, remove, or update attributes and metadata when justified by the rewritten implementation.
+You may remove unused personality functions and exception-handling declarations when no remaining instruction requires them.
+
+IR correctness:
+
+Every SSA value must dominate all uses.
+Every PHI node must have one incoming value for each predecessor.
+All types must be correct.
+Memory accesses must remain valid for every execution allowed by the input IR.
+Vectorized or unrolled loops must handle remainders and small sizes correctly.
+Exception-handling structures must remain valid where used.
+
+LLVM IR module produced with -O1:
+; ModuleID = '/home/tijl/code/llmO/SUT/fibonacci.cpp'
+source_filename = "/home/tijl/code/llmO/SUT/fibonacci.cpp"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-redhat-linux-gnu"
+
+; Function Attrs: mustprogress nofree nosync nounwind willreturn memory(none) uwtable
+define i64 @fibonacci(i64 noundef %n) local_unnamed_addr #0 {
+entry:
+  br label %tailrecurse
+
+tailrecurse:                                      ; preds = %if.end, %entry
+  %accumulator.tr = phi i64 [ 0, %entry ], [ %add, %if.end ]
+  %n.tr = phi i64 [ %n, %entry ], [ %sub1, %if.end ]
+  %cmp = icmp ult i64 %n.tr, 2
+  br i1 %cmp, label %return, label %if.end
+
+if.end:                                           ; preds = %tailrecurse
+  %sub = add i64 %n.tr, -1
+  %call = tail call i64 @fibonacci(i64 noundef %sub)
+  %sub1 = add i64 %n.tr, -2
+  %add = add i64 %accumulator.tr, %call
+  br label %tailrecurse
+
+return:                                           ; preds = %tailrecurse
+  %accumulator.ret.tr = add i64 %accumulator.tr, %n.tr
+  ret i64 %accumulator.ret.tr
+}
+
+attributes #0 = { mustprogress nofree nosync nounwind willreturn memory(none) uwtable "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+
+!llvm.linker.options = !{}
+!llvm.module.flags = !{!0, !1, !2}
+!llvm.ident = !{!3}
+
+!0 = !{i32 1, !"wchar_size", i32 4}
+!1 = !{i32 8, !"PIC Level", i32 2}
+!2 = !{i32 7, !"uwtable", i32 2}
+!3 = !{!"clang version 20.1.8 (CentOS 20.1.8-9.el10_2)"}
+

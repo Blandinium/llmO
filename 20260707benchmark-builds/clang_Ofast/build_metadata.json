@@ -1,0 +1,126 @@
+{
+  "abi_check": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/SUT/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast",
+    "duration_seconds": 0.008349271956831217,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/abi_symbols_stdout.txt"
+  },
+  "benchmark": [
+    {
+      "command": [
+        "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+        "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/SUT/libSUT.so",
+        "0"
+      ],
+      "cwd": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast",
+      "duration_seconds": 30.971251580980606,
+      "returncode": 0,
+      "stderr_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/benchmark_0_fibonacci_stderr.txt",
+      "stdout_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/benchmark_0_fibonacci_stdout.txt"
+    },
+    {
+      "command": [
+        "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+        "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/SUT/libSUT.so",
+        "1"
+      ],
+      "cwd": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast",
+      "duration_seconds": 30.493911450961605,
+      "returncode": 0,
+      "stderr_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/benchmark_1_format_list_stderr.txt",
+      "stdout_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/benchmark_1_format_list_stdout.txt"
+    },
+    {
+      "command": [
+        "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+        "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/SUT/libSUT.so",
+        "2"
+      ],
+      "cwd": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast",
+      "duration_seconds": 30.533178012934513,
+      "returncode": 0,
+      "stderr_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/benchmark_2_repeated_sort_stderr.txt",
+      "stdout_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/benchmark_2_repeated_sort_stdout.txt"
+    },
+    {
+      "command": [
+        "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+        "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/SUT/libSUT.so",
+        "3"
+      ],
+      "cwd": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast",
+      "duration_seconds": 30.752458113944158,
+      "returncode": 0,
+      "stderr_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/benchmark_3_count_matches_stderr.txt",
+      "stdout_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/benchmark_3_count_matches_stdout.txt"
+    },
+    {
+      "command": [
+        "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+        "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/SUT/libSUT.so",
+        "4"
+      ],
+      "cwd": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast",
+      "duration_seconds": 31.25996205501724,
+      "returncode": 0,
+      "stderr_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/benchmark_4_top_words_from_file_stderr.txt",
+      "stdout_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/benchmark_4_top_words_from_file_stdout.txt"
+    }
+  ],
+  "build": {
+    "command": [
+      "cmake",
+      "--build",
+      "/home/tijl/code/llmO/benchmark-builds/clang_Ofast",
+      "--parallel",
+      "32"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 1.6932218599831685,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/build_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/build_stdout.txt"
+  },
+  "build_dir": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast",
+  "c_compiler": "clang",
+  "cmake_generator": "Ninja",
+  "configure": {
+    "command": [
+      "cmake",
+      "-S",
+      "/home/tijl/code/llmO",
+      "-B",
+      "/home/tijl/code/llmO/benchmark-builds/clang_Ofast",
+      "-DCMAKE_C_COMPILER=clang",
+      "-DCMAKE_CXX_COMPILER=clang++",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_C_FLAGS=-Ofast",
+      "-DCMAKE_CXX_FLAGS=-Ofast",
+      "-DCMAKE_CXX_FLAGS_RELEASE=-Ofast -DNDEBUG",
+      "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+      "-G",
+      "Ninja"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.22041412198450416,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/configure_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/configure_stdout.txt"
+  },
+  "cxx_compiler": "clang++",
+  "libsut_path": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/SUT/libSUT.so",
+  "project_root": "/home/tijl/code/llmO",
+  "runner_path": null,
+  "total_duration_seconds": 155.9357358199777,
+  "variant": {
+    "clang_optimization_flag": "-Ofast",
+    "name": "clang_Ofast"
+  }
+}

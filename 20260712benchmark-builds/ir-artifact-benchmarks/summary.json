@@ -1,0 +1,371 @@
+[
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches",
+    "compile_returncode": 0,
+    "failed": false,
+    "function_name": "count_matches",
+    "ir_file": "/home/tijl/code/llmO/manual/fable5/optimized_count_matches.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_count_matches/build_metadata.json",
+    "producer": "fable5",
+    "source_group": "manual",
+    "total_duration_seconds": 32.85292386310175,
+    "variant_name": "ir_manual_fable5_count_matches",
+    "verify_returncode": 0
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_fibonacci",
+    "compile_returncode": 0,
+    "failed": false,
+    "function_name": "fibonacci",
+    "ir_file": "/home/tijl/code/llmO/manual/fable5/optimized_fibonacci.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_fibonacci/build_metadata.json",
+    "producer": "fable5",
+    "source_group": "manual",
+    "total_duration_seconds": 32.66291957302019,
+    "variant_name": "ir_manual_fable5_fibonacci",
+    "verify_returncode": 0
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_format_list",
+    "compile_returncode": 0,
+    "failed": false,
+    "function_name": "format_list",
+    "ir_file": "/home/tijl/code/llmO/manual/fable5/optimized_format_list.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_format_list/build_metadata.json",
+    "producer": "fable5",
+    "source_group": "manual",
+    "total_duration_seconds": 32.648822182789445,
+    "variant_name": "ir_manual_fable5_format_list",
+    "verify_returncode": 0
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_repeated_sort",
+    "compile_returncode": 0,
+    "failed": false,
+    "function_name": "repeated_sort",
+    "ir_file": "/home/tijl/code/llmO/manual/fable5/optimized_repeated_sort.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_repeated_sort/build_metadata.json",
+    "producer": "fable5",
+    "source_group": "manual",
+    "total_duration_seconds": 32.6553668321576,
+    "variant_name": "ir_manual_fable5_repeated_sort",
+    "verify_returncode": 0
+  },
+  {
+    "abi_returncode": 1,
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_top_words_from_file",
+    "compile_returncode": 0,
+    "failed": true,
+    "function_name": "top_words_from_file",
+    "ir_file": "/home/tijl/code/llmO/manual/fable5/optimized_top_words_from_file.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_top_words_from_file/build_metadata.json",
+    "producer": "fable5",
+    "source_group": "manual",
+    "total_duration_seconds": 1.1413043199572712,
+    "variant_name": "ir_manual_fable5_top_words_from_file",
+    "verify_returncode": 0
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      -11
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gemni3_5Pro_count_matches",
+    "compile_returncode": 0,
+    "failed": true,
+    "function_name": "count_matches",
+    "ir_file": "/home/tijl/code/llmO/manual/gemni3.5Pro/optimized_count_matches.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gemni3_5Pro_count_matches/build_metadata.json",
+    "producer": "gemni3.5Pro",
+    "source_group": "manual",
+    "total_duration_seconds": 2.256922029191628,
+    "variant_name": "ir_manual_gemni3_5Pro_count_matches",
+    "verify_returncode": 0
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gemni3_5Pro_fibonacci",
+    "compile_returncode": 0,
+    "failed": false,
+    "function_name": "fibonacci",
+    "ir_file": "/home/tijl/code/llmO/manual/gemni3.5Pro/optimized_fibonacci.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gemni3_5Pro_fibonacci/build_metadata.json",
+    "producer": "gemni3.5Pro",
+    "source_group": "manual",
+    "total_duration_seconds": 32.79966034996323,
+    "variant_name": "ir_manual_gemni3_5Pro_fibonacci",
+    "verify_returncode": 0
+  },
+  {
+    "abi_returncode": null,
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gemni3_5Pro_format_list",
+    "compile_returncode": 125,
+    "failed": true,
+    "function_name": "format_list",
+    "ir_file": "/home/tijl/code/llmO/manual/gemni3.5Pro/optimized_format_list.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gemni3_5Pro_format_list/build_metadata.json",
+    "producer": "gemni3.5Pro",
+    "source_group": "manual",
+    "total_duration_seconds": 0.01593464706093073,
+    "variant_name": "ir_manual_gemni3_5Pro_format_list",
+    "verify_returncode": 1
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gemni3_5Pro_repeated_sort",
+    "compile_returncode": 0,
+    "failed": false,
+    "function_name": "repeated_sort",
+    "ir_file": "/home/tijl/code/llmO/manual/gemni3.5Pro/optimized_repeated_sort.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gemni3_5Pro_repeated_sort/build_metadata.json",
+    "producer": "gemni3.5Pro",
+    "source_group": "manual",
+    "total_duration_seconds": 33.305871712975204,
+    "variant_name": "ir_manual_gemni3_5Pro_repeated_sort",
+    "verify_returncode": 0
+  },
+  {
+    "abi_returncode": null,
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gemni3_5Pro_top_words_from_file",
+    "compile_returncode": 125,
+    "failed": true,
+    "function_name": "top_words_from_file",
+    "ir_file": "/home/tijl/code/llmO/manual/gemni3.5Pro/optimized_top_words_from_file.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gemni3_5Pro_top_words_from_file/build_metadata.json",
+    "producer": "gemni3.5Pro",
+    "source_group": "manual",
+    "total_duration_seconds": 0.015989240957424045,
+    "variant_name": "ir_manual_gemni3_5Pro_top_words_from_file",
+    "verify_returncode": 1
+  },
+  {
+    "abi_returncode": null,
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_count_matches",
+    "compile_returncode": 125,
+    "failed": true,
+    "function_name": "count_matches",
+    "ir_file": "/home/tijl/code/llmO/manual/gpt5.6SolHigh/optimized_count_matches.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_count_matches/build_metadata.json",
+    "producer": "gpt5.6SolHigh",
+    "source_group": "manual",
+    "total_duration_seconds": 0.007805341854691505,
+    "variant_name": "ir_manual_gpt5_6SolHigh_count_matches",
+    "verify_returncode": 1
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci",
+    "compile_returncode": 0,
+    "failed": false,
+    "function_name": "fibonacci",
+    "ir_file": "/home/tijl/code/llmO/manual/gpt5.6SolHigh/optimized_fibonacci.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_fibonacci/build_metadata.json",
+    "producer": "gpt5.6SolHigh",
+    "source_group": "manual",
+    "total_duration_seconds": 32.94551128288731,
+    "variant_name": "ir_manual_gpt5_6SolHigh_fibonacci",
+    "verify_returncode": 0
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list",
+    "compile_returncode": 0,
+    "failed": false,
+    "function_name": "format_list",
+    "ir_file": "/home/tijl/code/llmO/manual/gpt5.6SolHigh/optimized_format_list.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_format_list/build_metadata.json",
+    "producer": "gpt5.6SolHigh",
+    "source_group": "manual",
+    "total_duration_seconds": 32.553098037838936,
+    "variant_name": "ir_manual_gpt5_6SolHigh_format_list",
+    "verify_returncode": 0
+  },
+  {
+    "abi_returncode": null,
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_repeated_sort",
+    "compile_returncode": 125,
+    "failed": true,
+    "function_name": "repeated_sort",
+    "ir_file": "/home/tijl/code/llmO/manual/gpt5.6SolHigh/optimized_repeated_sort.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_repeated_sort/build_metadata.json",
+    "producer": "gpt5.6SolHigh",
+    "source_group": "manual",
+    "total_duration_seconds": 0.01593542890623212,
+    "variant_name": "ir_manual_gpt5_6SolHigh_repeated_sort",
+    "verify_returncode": 1
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_top_words_from_file",
+    "compile_returncode": 0,
+    "failed": false,
+    "function_name": "top_words_from_file",
+    "ir_file": "/home/tijl/code/llmO/manual/gpt5.6SolHigh/optimized_top_words_from_file.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_top_words_from_file/build_metadata.json",
+    "producer": "gpt5.6SolHigh",
+    "source_group": "manual",
+    "total_duration_seconds": 31.601059715030715,
+    "variant_name": "ir_manual_gpt5_6SolHigh_top_words_from_file",
+    "verify_returncode": 0
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen2_5_coder_14b_q4km_count_matches",
+    "compile_returncode": 0,
+    "failed": false,
+    "function_name": "count_matches",
+    "ir_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/count_matches_cpp/optimized_count_matches.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen2_5_coder_14b_q4km_count_matches/build_metadata.json",
+    "producer": "qwen2_5_coder_14b_q4km",
+    "source_group": "previous",
+    "total_duration_seconds": 33.4041953899432,
+    "variant_name": "ir_previous_qwen2_5_coder_14b_q4km_count_matches",
+    "verify_returncode": 0
+  },
+  {
+    "abi_returncode": null,
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen2_5_coder_14b_q4km_fibonacci",
+    "compile_returncode": 125,
+    "failed": true,
+    "function_name": "fibonacci",
+    "ir_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/fibonacci_cpp/optimized_fibonacci.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen2_5_coder_14b_q4km_fibonacci/build_metadata.json",
+    "producer": "qwen2_5_coder_14b_q4km",
+    "source_group": "previous",
+    "total_duration_seconds": 0.015955846989527345,
+    "variant_name": "ir_previous_qwen2_5_coder_14b_q4km_fibonacci",
+    "verify_returncode": 1
+  },
+  {
+    "abi_returncode": null,
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen2_5_coder_14b_q4km_format_list",
+    "compile_returncode": 125,
+    "failed": true,
+    "function_name": "format_list",
+    "ir_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/format_list_cpp/optimized_format_list.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen2_5_coder_14b_q4km_format_list/build_metadata.json",
+    "producer": "qwen2_5_coder_14b_q4km",
+    "source_group": "previous",
+    "total_duration_seconds": 0.0077686309814453125,
+    "variant_name": "ir_previous_qwen2_5_coder_14b_q4km_format_list",
+    "verify_returncode": 1
+  },
+  {
+    "abi_returncode": null,
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen2_5_coder_14b_q4km_repeated_sort",
+    "compile_returncode": 125,
+    "failed": true,
+    "function_name": "repeated_sort",
+    "ir_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen2_5_coder_14b_q4km_repeated_sort/build_metadata.json",
+    "producer": "qwen2_5_coder_14b_q4km",
+    "source_group": "previous",
+    "total_duration_seconds": 0.007792287040501833,
+    "variant_name": "ir_previous_qwen2_5_coder_14b_q4km_repeated_sort",
+    "verify_returncode": 1
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen3_14b_q4km_count_matches",
+    "compile_returncode": 0,
+    "failed": false,
+    "function_name": "count_matches",
+    "ir_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/count_matches_cpp/optimized_count_matches.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen3_14b_q4km_count_matches/build_metadata.json",
+    "producer": "qwen3_14b_q4km",
+    "source_group": "previous",
+    "total_duration_seconds": 33.34564886405133,
+    "variant_name": "ir_previous_qwen3_14b_q4km_count_matches",
+    "verify_returncode": 0
+  },
+  {
+    "abi_returncode": null,
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen3_14b_q4km_fibonacci",
+    "compile_returncode": 125,
+    "failed": true,
+    "function_name": "fibonacci",
+    "ir_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/fibonacci_cpp/optimized_fibonacci.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen3_14b_q4km_fibonacci/build_metadata.json",
+    "producer": "qwen3_14b_q4km",
+    "source_group": "previous",
+    "total_duration_seconds": 0.016056037042289972,
+    "variant_name": "ir_previous_qwen3_14b_q4km_fibonacci",
+    "verify_returncode": 1
+  },
+  {
+    "abi_returncode": null,
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen3_14b_q4km_format_list",
+    "compile_returncode": 125,
+    "failed": true,
+    "function_name": "format_list",
+    "ir_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/format_list_cpp/optimized_format_list.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen3_14b_q4km_format_list/build_metadata.json",
+    "producer": "qwen3_14b_q4km",
+    "source_group": "previous",
+    "total_duration_seconds": 0.0158509889151901,
+    "variant_name": "ir_previous_qwen3_14b_q4km_format_list",
+    "verify_returncode": 1
+  },
+  {
+    "abi_returncode": null,
+    "benchmark_returncodes": [],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen3_14b_q4km_repeated_sort",
+    "compile_returncode": 125,
+    "failed": true,
+    "function_name": "repeated_sort",
+    "ir_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.ll",
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_previous_qwen3_14b_q4km_repeated_sort/build_metadata.json",
+    "producer": "qwen3_14b_q4km",
+    "source_group": "previous",
+    "total_duration_seconds": 0.007818455807864666,
+    "variant_name": "ir_previous_qwen3_14b_q4km_repeated_sort",
+    "verify_returncode": 1
+  }
+]

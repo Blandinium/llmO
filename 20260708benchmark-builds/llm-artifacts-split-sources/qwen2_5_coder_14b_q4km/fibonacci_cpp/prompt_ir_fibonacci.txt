@@ -1,0 +1,82 @@
+You are an expert LLVM optimizer.
+
+Task:
+Optimize the LLVM IR module below for runtime performance.
+
+Input file:
+fibonacci.cpp
+
+Hard requirements:
+- Return exactly one complete LLVM IR module.
+- Return raw LLVM IR only.
+- Do not include Markdown, code fences, comments outside the IR, explanations, notes, or benchmarking text.
+- The output must be accepted by llvm-as, opt -passes=verify, and clang++.
+- Preserve every externally visible function definition that exists in the input module.
+- Preserve every externally visible function signature exactly:
+  - same function name
+  - same return type
+  - same parameter types
+  - same linkage/visibility/dll/storage attributes where present
+  - same calling convention where present
+- Do not add, remove, rename, or change exported functions.
+- Do not define functions that are only declared in the input module.
+- Keep all external declarations required by the optimized module.
+- Preserve target datalayout and target triple.
+- Preserve externally observable behavior exactly.
+- Preserve ownership, allocation, deallocation, and returned-pointer conventions exactly.
+- Do not replace the implementation with benchmark-specific constants or hard-coded answers.
+- Do not rely on undefined behavior unless it was already guaranteed by the input IR.
+- Do not introduce calls to helper functions unless they are defined in the module or already declared in the input IR.
+- If an optimization is unsafe, do not perform it.
+- Prefer simple, valid, verifiable LLVM IR over clever but fragile transformations.
+
+Optimization guidance:
+- Optimize only the function bodies defined in this module.
+- You may simplify control flow, remove redundant work, improve loops, inline local helper logic, and expose opportunities for LLVM's normal optimizer.
+- You may restructure basic blocks and SSA values as needed.
+- Every SSA value must dominate all uses.
+- Every PHI node must have exactly one incoming value for each predecessor block.
+- Keep types exactly correct.
+- Keep personality functions, landingpads, invokes, and exception-handling structure valid if present.
+- Keep attributes and metadata only if they remain correct.
+
+LLVM IR module produced with -O1:
+; ModuleID = '/home/tijl/code/llmO/SUT/fibonacci.cpp'
+source_filename = "/home/tijl/code/llmO/SUT/fibonacci.cpp"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-redhat-linux-gnu"
+
+; Function Attrs: mustprogress nofree nosync nounwind willreturn memory(none) uwtable
+define i64 @fibonacci(i64 noundef %n) local_unnamed_addr #0 {
+entry:
+  br label %tailrecurse
+
+tailrecurse:                                      ; preds = %if.end, %entry
+  %accumulator.tr = phi i64 [ 0, %entry ], [ %add, %if.end ]
+  %n.tr = phi i64 [ %n, %entry ], [ %sub1, %if.end ]
+  %cmp = icmp ult i64 %n.tr, 2
+  br i1 %cmp, label %return, label %if.end
+
+if.end:                                           ; preds = %tailrecurse
+  %sub = add i64 %n.tr, -1
+  %call = tail call i64 @fibonacci(i64 noundef %sub)
+  %sub1 = add i64 %n.tr, -2
+  %add = add i64 %accumulator.tr, %call
+  br label %tailrecurse
+
+return:                                           ; preds = %tailrecurse
+  %accumulator.ret.tr = add i64 %accumulator.tr, %n.tr
+  ret i64 %accumulator.ret.tr
+}
+
+attributes #0 = { mustprogress nofree nosync nounwind willreturn memory(none) uwtable "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+
+!llvm.linker.options = !{}
+!llvm.module.flags = !{!0, !1, !2}
+!llvm.ident = !{!3}
+
+!0 = !{i32 1, !"wchar_size", i32 4}
+!1 = !{i32 8, !"PIC Level", i32 2}
+!2 = !{i32 7, !"uwtable", i32 2}
+!3 = !{!"clang version 20.1.8 (CentOS 20.1.8-9.el10_2)"}
+

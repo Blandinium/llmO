@@ -1,0 +1,16 @@
+[1/16] Building CXX object SUT/CMakeFiles/SUT.dir/fibonacci.cpp.o
+[2/16] Building CXX object SUT/CMakeFiles/SUT.dir/free_functions.cpp.o
+[3/16] Building CXX object SUT/CMakeFiles/SUT.dir/count_matches.cpp.o
+[4/16] Building CXX object SUT/CMakeFiles/SUT.dir/format_list.cpp.o
+[5/16] Building CXX object SUT/CMakeFiles/SUT.dir/sut_common.cpp.o
+[6/16] Building CXX object SUT/CMakeFiles/SUT.dir/repeated_sort.cpp.o
+[7/16] Building CXX object librunner/CMakeFiles/librunner.dir/fibonacci_tests.cpp.o
+[8/16] Building CXX object librunner/CMakeFiles/librunner.dir/count_matches_tests.cpp.o
+[9/16] Building CXX object librunner/CMakeFiles/librunner.dir/format_list_tests.cpp.o
+[10/16] Building CXX object librunner/CMakeFiles/librunner.dir/repeated_sort_tests.cpp.o
+[11/16] Building CXX object librunner/CMakeFiles/librunner.dir/main.cpp.o
+[12/16] Building CXX object librunner/CMakeFiles/librunner.dir/top_words_from_file_tests.cpp.o
+[13/16] Building CXX object SUT/CMakeFiles/SUT.dir/top_words_from_file.cpp.o
+[14/16] Linking CXX shared library SUT/libSUT.so
+[15/16] Building CXX object librunner/CMakeFiles/librunner.dir/benchmarks.cpp.o
+[16/16] Linking CXX executable librunner/librunner

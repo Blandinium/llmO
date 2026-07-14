@@ -1,0 +1,3 @@
+opt: /home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/repeated_sort_cpp/optimized_repeated_sort.ll:64:56: error: use of undefined value '%__comp.i.i'
+  call void @llvm.lifetime.start.p0(i64 1, ptr nonnull %__comp.i.i)
+                                                       ^

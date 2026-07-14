@@ -1,3 +1,14 @@
 cmake-build-*
 .idea
+*.o
+*.so
+*.out
+*.bin
+CMakeFiles/
+CMakeCache.txt
+*.cmake
+*.ninja
+.ninja*
+librunner
+!librunner/
 

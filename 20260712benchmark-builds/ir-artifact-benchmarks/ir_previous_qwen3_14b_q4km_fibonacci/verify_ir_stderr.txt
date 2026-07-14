@@ -1,0 +1,4 @@
+PHI nodes not grouped at top of basic block!
+  %n_copy = phi i64 [ %0, %entry ], [ %sub, %loop ]
+label %entry
+opt: /home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/fibonacci_cpp/optimized_fibonacci.ll: error: input module is broken!

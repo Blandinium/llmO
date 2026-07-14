@@ -1,0 +1,11 @@
+{
+  "duration_seconds": 52.71720261708833,
+  "error": null,
+  "model": "qwen3-14b-q4km",
+  "output_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/fibonacci_cpp/optimized_fibonacci.cpp",
+  "prompt_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/fibonacci_cpp/prompt_cpp_fibonacci.txt",
+  "raw_response_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen3_14b_q4km/fibonacci_cpp/raw_response_cpp_fibonacci.txt",
+  "success": true,
+  "target_source": "fibonacci.cpp",
+  "task": "cpp"
+}

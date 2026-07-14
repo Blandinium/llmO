@@ -1,0 +1,3 @@
+opt: /home/tijl/code/llmO/manual/gpt5.6SolHigh/optimized_repeated_sort.ll:9:1: error: expected top-level entity
+$*ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SG_T1* = comdat any
+^

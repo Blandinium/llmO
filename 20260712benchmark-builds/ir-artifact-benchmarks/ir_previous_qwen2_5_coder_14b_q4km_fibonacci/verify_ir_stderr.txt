@@ -1,0 +1,4 @@
+Instruction does not dominate all uses!
+  %accumulator.tr = phi i64 [ 0, %entry ], [ %add, %loop ]
+  %accumulator.ret.tr = add i64 %accumulator.tr, %n
+opt: /home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/qwen2_5_coder_14b_q4km/fibonacci_cpp/optimized_fibonacci.ll: error: input module is broken!

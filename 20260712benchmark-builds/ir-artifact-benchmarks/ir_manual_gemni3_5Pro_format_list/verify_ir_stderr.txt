@@ -1,0 +1,9 @@
+Instruction does not dominate all uses!
+  %heap_ptr = invoke ptr @_Znwm(i64 %alloc_sz) #14
+          to label %alloc_done unwind label %lpad_alloc
+  call void @_ZdlPvm(ptr noundef %heap_ptr, i64 noundef %alloc_sz_free) #15
+Instruction does not dominate all uses!
+  %heap_ptr = invoke ptr @_Znwm(i64 %alloc_sz) #14
+          to label %alloc_done unwind label %lpad_alloc
+  call void @_ZdlPvm(ptr noundef %heap_ptr, i64 noundef %alloc_sz_lp) #15
+opt: /home/tijl/code/llmO/manual/gemni3.5Pro/optimized_format_list.ll: error: input module is broken!

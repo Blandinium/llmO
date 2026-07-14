@@ -1,0 +1,142 @@
+[
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      -11
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/clang_O0",
+    "build_returncode": 0,
+    "configure_returncode": 0,
+    "failed": true,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/clang_O0/build_metadata.json",
+    "total_duration_seconds": 132.31931339704897,
+    "variant": {
+      "clang_optimization_flag": "-O0",
+      "name": "clang_O0"
+    }
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/clang_O1",
+    "build_returncode": 0,
+    "configure_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/clang_O1/build_metadata.json",
+    "total_duration_seconds": 138.59373280103318,
+    "variant": {
+      "clang_optimization_flag": "-O1",
+      "name": "clang_O1"
+    }
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/clang_O2",
+    "build_returncode": 0,
+    "configure_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/clang_O2/build_metadata.json",
+    "total_duration_seconds": 155.85338562296238,
+    "variant": {
+      "clang_optimization_flag": "-O2",
+      "name": "clang_O2"
+    }
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/clang_O3",
+    "build_returncode": 0,
+    "configure_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/clang_O3/build_metadata.json",
+    "total_duration_seconds": 157.21656128100585,
+    "variant": {
+      "clang_optimization_flag": "-O3",
+      "name": "clang_O3"
+    }
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast",
+    "build_returncode": 0,
+    "configure_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/clang_Ofast/build_metadata.json",
+    "total_duration_seconds": 155.9357358199777,
+    "variant": {
+      "clang_optimization_flag": "-Ofast",
+      "name": "clang_Ofast"
+    }
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/clang_Os",
+    "build_returncode": 0,
+    "configure_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/clang_Os/build_metadata.json",
+    "total_duration_seconds": 157.19673999398947,
+    "variant": {
+      "clang_optimization_flag": "-Os",
+      "name": "clang_Os"
+    }
+  },
+  {
+    "abi_returncode": 0,
+    "benchmark_returncodes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "build_dir": "/home/tijl/code/llmO/benchmark-builds/clang_Oz",
+    "build_returncode": 0,
+    "configure_returncode": 0,
+    "failed": false,
+    "metadata_file": "/home/tijl/code/llmO/benchmark-builds/clang_Oz/build_metadata.json",
+    "total_duration_seconds": 156.25951448106207,
+    "variant": {
+      "clang_optimization_flag": "-Oz",
+      "name": "clang_Oz"
+    }
+  }
+]

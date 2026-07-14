@@ -1,0 +1,54 @@
+{
+  "abi_check": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_format_list_cpp_ir/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_format_list_cpp_ir",
+    "duration_seconds": 0.008520503994077444,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_format_list_cpp_ir/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_format_list_cpp_ir/abi_symbols_stdout.txt"
+  },
+  "benchmark": [],
+  "build_dir": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_format_list_cpp_ir",
+  "compile": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/gemma_4_12b_it_qat_udq4xl/format_list_cpp/optimized_format_list.ll",
+      "/home/tijl/code/llmO/SUT/count_matches.cpp",
+      "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+      "-o",
+      "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_format_list_cpp_ir/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 1.921347434981726,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_format_list_cpp_ir/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_format_list_cpp_ir/compile_stdout.txt"
+  },
+  "libsut_path": "/home/tijl/code/llmO/benchmark-builds/llm_gemma_4_12b_it_qat_udq4xl_format_list_cpp_ir/libSUT.so",
+  "llm_task": "ir",
+  "model": "gemma-4-12b-it-qat-udq4xl",
+  "runner_path": "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+  "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/gemma_4_12b_it_qat_udq4xl/format_list_cpp/optimized_format_list.ll",
+  "source_kind": "ir",
+  "target_source": "format_list.cpp",
+  "total_duration_seconds": 1.9303032950265333,
+  "variant_name": "llm_gemma_4_12b_it_qat_udq4xl_format_list_cpp_ir"
+}

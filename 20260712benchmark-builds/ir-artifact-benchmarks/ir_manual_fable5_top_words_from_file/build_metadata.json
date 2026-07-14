@@ -1,0 +1,67 @@
+{
+  "abi_check": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_top_words_from_file/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_top_words_from_file",
+    "duration_seconds": 0.009181251982226968,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_top_words_from_file/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_top_words_from_file/abi_symbols_stdout.txt"
+  },
+  "benchmarks": [],
+  "build_dir": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_top_words_from_file",
+  "compile": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/manual/fable5/optimized_top_words_from_file.ll",
+      "/home/tijl/code/llmO/SUT/count_matches.cpp",
+      "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+      "/home/tijl/code/llmO/SUT/format_list.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "-o",
+      "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_top_words_from_file/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 1.1158983809873462,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_top_words_from_file/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_top_words_from_file/compile_stdout.txt"
+  },
+  "compile_optimization_level": "-O3",
+  "function_name": "top_words_from_file",
+  "ir_file": "/home/tijl/code/llmO/manual/fable5/optimized_top_words_from_file.ll",
+  "libsut_path": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_top_words_from_file/libSUT.so",
+  "producer": "fable5",
+  "runner_path": "/home/tijl/code/llmO/cmake-build-release-llvm-20/librunner/librunner",
+  "source_group": "manual",
+  "total_duration_seconds": 1.1413043199572712,
+  "variant_name": "ir_manual_fable5_top_words_from_file",
+  "verify": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/manual/fable5/optimized_top_words_from_file.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.015791344922035933,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_top_words_from_file/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_fable5_top_words_from_file/verify_ir_stdout.txt"
+  }
+}

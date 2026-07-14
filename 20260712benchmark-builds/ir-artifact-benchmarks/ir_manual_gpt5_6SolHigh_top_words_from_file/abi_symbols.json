@@ -1,0 +1,40 @@
+{
+  "defined_symbols": [
+    "_Z12is_word_charc",
+    "_Z14normalize_charc",
+    "_Z16copy_to_c_stringRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE",
+    "_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm",
+    "_ZSt11__make_heapIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SH_",
+    "_ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SG_T1_",
+    "_ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SG_",
+    "count_matches",
+    "fibonacci",
+    "format_list",
+    "free_string",
+    "free_word_counts",
+    "repeated_sort",
+    "top_words_from_file"
+  ],
+  "libsut_path": "/home/tijl/code/llmO/benchmark-builds/ir-artifact-benchmarks/ir_manual_gpt5_6SolHigh_top_words_from_file/libSUT.so",
+  "missing_symbols": [],
+  "nm_returncode": 0,
+  "present_required_symbols": [
+    "fibonacci",
+    "format_list",
+    "free_string",
+    "repeated_sort",
+    "count_matches",
+    "top_words_from_file",
+    "free_word_counts"
+  ],
+  "required_symbols": [
+    "fibonacci",
+    "format_list",
+    "free_string",
+    "repeated_sort",
+    "count_matches",
+    "top_words_from_file",
+    "free_word_counts"
+  ],
+  "success": true
+}

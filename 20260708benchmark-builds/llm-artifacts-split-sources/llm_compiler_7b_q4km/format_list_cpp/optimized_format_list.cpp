@@ -1,0 +1,55 @@
+#include "library.h"
+#include "sut_common.h"
+
+#include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace {
+
+char* copy_to_c_string(const std::string& value) {
+     char* result = static_cast<char*>(malloc(value.size() + 1));
+     std::strcpy(result, value.c_str());
+     return result;
+}
+
+bool is_word_char(char c) {
+     return std::isalpha(c) || std::isdigit(c) || c == '_';
+}
+
+char normalize_char(char c) {
+     return std::tolower(c);
+}
+
+} // namespace
+
+extern "C" {
+
+char* format_list(const int* input, size_t input_length) {
+     if (input == nullptr && input_length != 0) {
+         return nullptr;
+     }
+
+     try {
+         std::string result = "[";
+         for (size_t i = 0; i < input_length; ++i) {
+             if (i > 0) result += ", ";
+             result += std::to_string(input[i]);
+         }
+         result += "]";
+
+         return copy_to_c_string(result);
+     } catch (...) {
+         return nullptr;
+     }
+}
+
+}

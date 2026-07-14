@@ -1,0 +1,39 @@
+#include "library.h"
+
+#include <unordered_set>
+#include <span>
+
+static bool contains(const std::unordered_set<int>& input, const int needle) {
+    return input.find(needle) != input.end();
+}
+
+extern "C" {
+
+size_t count_matches(
+    const int* allowed,
+    size_t allowed_length,
+    const int* queries,
+    size_t queries_length
+) {
+    if ((allowed == nullptr && allowed_length != 0) ||
+        (queries == nullptr && queries_length != 0)) {
+        return 0;
+    }
+
+    try {
+        std::unordered_set<int> allowed_set(allowed, allowed + allowed_length);
+        std::size_t matches = 0;
+
+        for (std::size_t i = 0; i < queries_length; ++i) {
+            if (contains(allowed_set, queries[i])) {
+                ++matches;
+            }
+        }
+
+        return matches;
+    } catch (...) {
+        return 0;
+    }
+}
+
+}

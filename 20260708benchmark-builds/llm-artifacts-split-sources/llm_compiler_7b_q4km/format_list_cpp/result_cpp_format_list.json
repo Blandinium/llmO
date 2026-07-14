@@ -1,0 +1,11 @@
+{
+  "duration_seconds": 1047.7699637550395,
+  "error": "Initial optimized C++ failed and the one allowed repair attempt also failed.",
+  "model": "llm-compiler-7b-q4km",
+  "output_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/optimized_format_list.cpp",
+  "prompt_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/prompt_cpp_format_list.txt",
+  "raw_response_file": "/home/tijl/code/llmO/benchmark-builds/llm-artifacts-split-sources/llm_compiler_7b_q4km/format_list_cpp/raw_response_cpp_format_list.txt",
+  "success": false,
+  "target_source": "format_list.cpp",
+  "task": "cpp"
+}

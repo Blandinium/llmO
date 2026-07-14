@@ -1,0 +1,116 @@
+You are an LLVM optimizer.
+
+Task: optimize the LLVM IR for fibonacci.cpp for runtime performance.
+
+Hard requirements:
+- Return one complete LLVM IR module that can be compiled by clang++/LLVM.
+- Preserve the exported ABI exactly as declared in library.h.
+- Do not define unrelated exported functions from library.h.
+- Preserve externally observable behavior and allocation/freeing conventions.
+- Keep any external declarations needed to link against the other SUT object files.
+- Do not include markdown, commentary, explanations, benchmarking notes, or code fences in your answer.
+
+Function-specific invariants for fibonacci:
+- Preserve uint64_t wraparound behavior of the public API.
+- fibonacci(0) == 0 and fibonacci(1) == 1.
+
+Headers:
+```cpp
+// library.h
+#ifndef SUT_LIBRARY_H
+#define SUT_LIBRARY_H
+
+#include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct WordCount {
+     char* word;
+     uint64_t count;
+} WordCount;
+
+uint64_t fibonacci(uint64_t n);
+char* format_list(const int* input, size_t input_length);
+int64_t repeated_sort(const int* input, size_t input_length, int rounds);
+size_t count_matches(
+     const int* allowed,
+     size_t allowed_length,
+     const int* queries,
+     size_t queries_length
+);
+WordCount* top_words_from_file(
+     const char* path,
+     const char* const* ignore_words,
+     size_t ignore_words_length,
+     size_t max_results,
+     size_t* result_length
+);
+void free_string(char* value);
+void free_word_counts(WordCount* values, size_t length);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // SUT_LIBRARY_H
+
+
+// sut_common.h
+#ifndef SUT_COMMON_H
+#define SUT_COMMON_H
+
+#include <string>
+
+char* copy_to_c_string(const std::string& value);
+bool is_word_char(char c);
+char normalize_char(char c);
+
+#endif // SUT_COMMON_H
+
+```
+
+LLVM IR for fibonacci.cpp, produced with -O1:
+```llvm
+; ModuleID = '<stdin>'
+source_filename = "-"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-linux-gnu"
+
+; Function Attrs: minsize mustprogress nofree nosync nounwind optsize willreturn memory(none) uwtable
+define dso_local i64 @fibonacci(i64 noundef %0) local_unnamed_addr #0 {
+entry:
+  br label %tailrecurse
+
+tailrecurse:                                      ; preds = %if.end, %entry
+  %accumulator.tr = phi i64 [ 0, %entry ], [ %add, %if.end ]
+  %.tr = phi i64 [ %0, %entry ], [ %sub1, %if.end ]
+  %cmp = icmp ult i64 %.tr, 2
+  br i1 %cmp, label %common.ret, label %if.end
+
+common.ret:                                       ; preds = %tailrecurse
+  %accumulator.ret.tr = add i64 %accumulator.tr, %.tr
+  ret i64 %accumulator.ret.tr
+
+if.end:                                           ; preds = %tailrecurse
+  %sub = add i64 %.tr, -1
+  %call = tail call i64 @fibonacci(i64 noundef %sub) #1
+  %sub1 = add i64 %.tr, -2
+  %add = add i64 %call, %accumulator.tr
+  br label %tailrecurse
+}
+
+attributes #0 = { minsize mustprogress nofree nosync nounwind optsize willreturn memory(none) uwtable "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #1 = { minsize optsize }
+
+!llvm.module.flags = !{!0, !1, !2, !3}
+!llvm.ident = !{!4}
+
+!0 = !{i32 1, !"wchar_size", i32 4}
+!1 = !{i32 8, !"PIC Level", i32 2}
+!2 = !{i32 7, !"PIE Level", i32 2}
+!3 = !{i32 7, !"uwtable", i32 2}
+!4 = !{!"clang version 17.0.6 (git@github.com:fairinternal/CodeGen.git b05db9bbf7a92019267416c1bb9996fe6134e3f1)"}
+</code>
