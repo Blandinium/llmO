@@ -3,61 +3,34 @@
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import shutil
-import subprocess
 import sys
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Optional
 
+from llmo.config import *
+from llmo.command import CommandResult, run_command, write_json, sanitize_name
+from llmo.abi import run_abi_symbol_check
+from llmo.benchmark import run_benchmarks_for_lib, try_write_benchmark_json
+from llmo.project import all_sut_cpp_files, other_sources_for_replacement
+from llmo.llvm import verify_llvm_ir
+from llmo.build import compile_replacement_artifact_for_check
+
 # =============================================================================
 # Configuration
 # =============================================================================
 
-PROJECT_ROOT = Path(__file__).resolve().parent
-SUT_DIR = PROJECT_ROOT / "SUT"
 MANUAL_ROOT = PROJECT_ROOT / "manual"
-BUILD_ROOT = PROJECT_ROOT / "benchmark-builds"
 OUTPUT_ROOT = BUILD_ROOT / "ir-artifact-benchmarks"
 
-CLANG_CXX_COMPILER = os.environ.get("CLANG_CXX_COMPILER", "clang++")
-LLVM_OPT_TOOL = os.environ.get("LLVM_OPT_TOOL", "opt")
 COMPILE_OPTIMIZATION_LEVEL = os.environ.get("IR_COMPILE_OPT_LEVEL", "-O3")
-RUNNER_EXECUTABLE = Path(
-    os.environ.get(
-        "RUNNER_EXECUTABLE",
-        str(PROJECT_ROOT / "cmake-build-release-llvm-20/librunner/librunner"),
-    )
-)
-RUNNER_ARGS: list[str] = []
+RUNNER_EXECUTABLE = RUNNER_EXECUTABLE_NAME
 
 CLEAN_BEFORE_BUILD = os.environ.get("CLEAN_BEFORE_BUILD", "1") != "0"
 RUN_ALL_BENCHMARKS = os.environ.get("RUN_ALL_BENCHMARKS", "0") != "0"
-IR_VERIFY_TIMEOUT_SECONDS = int(os.environ.get("IR_VERIFY_TIMEOUT_SECONDS", "120"))
-COMPILE_TIMEOUT_SECONDS = int(os.environ.get("IR_COMPILE_TIMEOUT_SECONDS", "300"))
-BENCHMARK_TIMEOUT_SECONDS = int(os.environ.get("BENCHMARK_TIMEOUT_SECONDS", "900"))
-
-BENCHMARK_FUNCTIONS = {
-    0: "fibonacci",
-    1: "format_list",
-    2: "repeated_sort",
-    3: "count_matches",
-    4: "top_words_from_file",
-}
-FUNCTION_TO_BENCHMARK_ID = {name: function_id for function_id, name in BENCHMARK_FUNCTIONS.items()}
-
-REQUIRED_ABI_SYMBOLS = [
-    "fibonacci",
-    "format_list",
-    "free_string",
-    "repeated_sort",
-    "count_matches",
-    "top_words_from_file",
-    "free_word_counts",
-]
 
 
 # =============================================================================
@@ -70,16 +43,6 @@ class IrArtifact:
     producer: str
     function_name: str
     ir_file: Path
-
-
-@dataclass
-class CommandResult:
-    command: list[str]
-    cwd: str
-    returncode: int
-    duration_seconds: float
-    stdout_file: str
-    stderr_file: str
 
 
 @dataclass
@@ -101,127 +64,8 @@ class ArtifactBenchmarkMetadata:
 
 
 # =============================================================================
-# General helpers
+# Artifact discovery
 # =============================================================================
-
-def run_command(
-    command: list[str],
-    cwd: Path,
-    stdout_file: Path,
-    stderr_file: Path,
-    *,
-    env: Optional[dict[str, str]] = None,
-    timeout_seconds: Optional[int] = None,
-) -> CommandResult:
-    start = time.perf_counter()
-    stdout_file.parent.mkdir(parents=True, exist_ok=True)
-    stderr_file.parent.mkdir(parents=True, exist_ok=True)
-
-    with stdout_file.open("w", encoding="utf-8") as out, stderr_file.open("w", encoding="utf-8") as err:
-        try:
-            completed = subprocess.run(
-                command,
-                cwd=str(cwd),
-                stdout=out,
-                stderr=err,
-                text=True,
-                env=env,
-                timeout=timeout_seconds,
-            )
-            returncode = completed.returncode
-        except subprocess.TimeoutExpired:
-            returncode = 124
-            err.write(f"\nCommand timed out after {timeout_seconds} seconds.\n")
-        except FileNotFoundError as exc:
-            returncode = 127
-            err.write(f"\nCommand not found: {exc}\n")
-
-    return CommandResult(
-        command=command,
-        cwd=str(cwd),
-        returncode=returncode,
-        duration_seconds=time.perf_counter() - start,
-        stdout_file=str(stdout_file),
-        stderr_file=str(stderr_file),
-    )
-
-
-def write_json(path: Path, data: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
-
-
-def sanitize_name(value: str) -> str:
-    result = value
-    for old, new in (
-        ("/", "_"),
-        ("\\", "_"),
-        ("-", "_"),
-        ("+", "plus"),
-        ("=", "_"),
-        (":", "_"),
-        (".", "_"),
-        (" ", "_"),
-    ):
-        result = result.replace(old, new)
-    return result.strip("_")
-
-
-def parse_scalar_value(value: str) -> Any:
-    value = value.strip()
-    lower = value.lower()
-    if lower == "true":
-        return True
-    if lower == "false":
-        return False
-    if lower in {"null", "none"}:
-        return None
-    if value == "":
-        return ""
-    try:
-        if any(character in value for character in ".eE"):
-            return float(value)
-        return int(value, 10)
-    except ValueError:
-        return value
-
-
-def parse_key_value_lines(text: str) -> dict[str, Any]:
-    parsed: dict[str, Any] = {}
-    for raw_line in text.splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        key = key.strip()
-        if key:
-            parsed[key] = parse_scalar_value(value)
-    return parsed
-
-
-def try_write_benchmark_json(stdout_file: Path, output_json_file: Path) -> None:
-    text = stdout_file.read_text(encoding="utf-8", errors="replace").strip()
-    if not text:
-        return
-    try:
-        parsed = json.loads(text)
-    except json.JSONDecodeError:
-        parsed = parse_key_value_lines(text)
-    if parsed:
-        write_json(output_json_file, parsed)
-
-
-def all_sut_cpp_files() -> list[Path]:
-    return [
-        path
-        for path in sorted(SUT_DIR.glob("*.cpp"))
-        if not path.name.endswith("_original.cpp")
-    ]
-
-
-def other_sources_for_replacement(function_name: str) -> list[Path]:
-    target_source_name = f"{function_name}.cpp"
-    return [path for path in all_sut_cpp_files() if path.name != target_source_name]
 
 
 # =============================================================================
@@ -309,137 +153,6 @@ def discover_artifacts(manual_root: Path, build_root: Path, output_root: Path) -
 # Verification, build, ABI check, and benchmarks
 # =============================================================================
 
-def verify_llvm_ir(build_dir: Path, ir_file: Path) -> CommandResult:
-    return run_command(
-        [LLVM_OPT_TOOL, "-passes=verify", "-disable-output", str(ir_file)],
-        PROJECT_ROOT,
-        build_dir / "verify_ir_stdout.txt",
-        build_dir / "verify_ir_stderr.txt",
-        timeout_seconds=IR_VERIFY_TIMEOUT_SECONDS,
-    )
-
-
-def parse_defined_symbols(nm_stdout: str) -> set[str]:
-    symbols: set[str] = set()
-    for raw_line in nm_stdout.splitlines():
-        parts = raw_line.split()
-        if parts:
-            symbols.add(parts[-1])
-    return symbols
-
-
-def run_abi_symbol_check(build_dir: Path, libsut_path: Path) -> CommandResult:
-    stdout_file = build_dir / "abi_symbols_stdout.txt"
-    stderr_file = build_dir / "abi_symbols_stderr.txt"
-    result = run_command(
-        ["nm", "-D", "--defined-only", str(libsut_path)],
-        build_dir,
-        stdout_file,
-        stderr_file,
-    )
-
-    nm_stdout = stdout_file.read_text(encoding="utf-8", errors="replace") if stdout_file.exists() else ""
-    present = parse_defined_symbols(nm_stdout)
-    missing = [symbol for symbol in REQUIRED_ABI_SYMBOLS if symbol not in present]
-    write_json(
-        build_dir / "abi_symbols.json",
-        {
-            "libsut_path": str(libsut_path),
-            "required_symbols": REQUIRED_ABI_SYMBOLS,
-            "missing_symbols": missing,
-            "present_required_symbols": [
-                symbol for symbol in REQUIRED_ABI_SYMBOLS if symbol in present
-            ],
-            "defined_symbols": sorted(present),
-            "nm_returncode": result.returncode,
-            "success": result.returncode == 0 and not missing,
-        },
-    )
-
-    if missing:
-        with stderr_file.open("a", encoding="utf-8") as err:
-            err.write("\nMissing required ABI symbols: " + ", ".join(missing) + "\n")
-        if result.returncode == 0:
-            return CommandResult(
-                command=result.command,
-                cwd=result.cwd,
-                returncode=1,
-                duration_seconds=result.duration_seconds,
-                stdout_file=result.stdout_file,
-                stderr_file=result.stderr_file,
-            )
-    return result
-
-
-def compile_ir_replacement(build_dir: Path, artifact: IrArtifact, libsut_path: Path) -> CommandResult:
-    command = [
-        CLANG_CXX_COMPILER,
-        "-std=c++23",
-        COMPILE_OPTIMIZATION_LEVEL,
-        "-DNDEBUG",
-        "-shared",
-        "-fPIC",
-        "-I",
-        str(SUT_DIR),
-        "-I",
-        str(PROJECT_ROOT),
-        str(artifact.ir_file),
-    ]
-    command.extend(str(source) for source in other_sources_for_replacement(artifact.function_name))
-    command.extend(["-o", str(libsut_path)])
-
-    return run_command(
-        command,
-        PROJECT_ROOT,
-        build_dir / "compile_stdout.txt",
-        build_dir / "compile_stderr.txt",
-        timeout_seconds=COMPILE_TIMEOUT_SECONDS,
-    )
-
-
-def run_benchmarks_for_lib(
-    build_dir: Path,
-    libsut_path: Path,
-    target_function_name: str,
-) -> list[CommandResult]:
-    env = os.environ.copy()
-    old_ld_library_path = env.get("LD_LIBRARY_PATH")
-    env["LD_LIBRARY_PATH"] = (
-        f"{libsut_path.parent}:{old_ld_library_path}"
-        if old_ld_library_path
-        else str(libsut_path.parent)
-    )
-
-    if RUN_ALL_BENCHMARKS:
-        selected = list(BENCHMARK_FUNCTIONS.items())
-    else:
-        function_id = FUNCTION_TO_BENCHMARK_ID[target_function_name]
-        selected = [(function_id, target_function_name)]
-
-    results: list[CommandResult] = []
-    for function_id, function_name in selected:
-        stdout_file = build_dir / f"benchmark_{function_id}_{function_name}_stdout.txt"
-        stderr_file = build_dir / f"benchmark_{function_id}_{function_name}_stderr.txt"
-        command = [
-            str(RUNNER_EXECUTABLE),
-            str(libsut_path),
-            str(function_id),
-            *RUNNER_ARGS,
-        ]
-        result = run_command(
-            command,
-            build_dir,
-            stdout_file,
-            stderr_file,
-            env=env,
-            timeout_seconds=BENCHMARK_TIMEOUT_SECONDS,
-        )
-        results.append(result)
-        try_write_benchmark_json(
-            stdout_file,
-            build_dir / f"benchmark_{function_id}_{function_name}_results.json",
-        )
-    return results
 
 
 def variant_name_for_artifact(artifact: IrArtifact) -> str:
@@ -479,14 +192,20 @@ def benchmark_artifact(artifact: IrArtifact, output_root: Path) -> ArtifactBench
             encoding="utf-8",
         )
     else:
-        compile_result = compile_ir_replacement(build_dir, artifact, libsut_path)
+        compile_result = compile_replacement_artifact_for_check(
+            build_dir, artifact.function_name, artifact.ir_file, "ir",
+            CLANG_CXX_COMPILER, COMPILE_OPTIMIZATION_LEVEL,
+            SUT_DIR, PROJECT_ROOT, LLM_COMPILE_TIMEOUT_SECONDS,
+            other_sources_for_replacement(artifact.function_name)
+        )
         if compile_result.returncode == 0 and libsut_path.exists():
             abi_result = run_abi_symbol_check(build_dir, libsut_path)
             if abi_result.returncode == 0:
                 benchmark_results = run_benchmarks_for_lib(
                     build_dir,
                     libsut_path,
-                    artifact.function_name,
+                    target_function_name=artifact.function_name,
+                    run_all=RUN_ALL_BENCHMARKS
                 )
 
     metadata = ArtifactBenchmarkMetadata(

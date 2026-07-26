@@ -11,4 +11,5 @@ CMakeCache.txt
 .ninja*
 librunner
 !librunner/
+__pycache__
 
