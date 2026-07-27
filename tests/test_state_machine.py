@@ -307,11 +307,83 @@ class TestStateMachine(unittest.TestCase):
         from run_iterative_cpp_optimization import run_optimization_iteration
         
         res = run_optimization_iteration(
-            "model", self.target_source, self.target_source, 1, 1, 
+            "model", self.target_source, self.target_source, 1, 1, 1, 
             self.temp_dir / "opt_iter", set(), self.headers
         )
         
         self.assertTrue(mock_est.called)
+
+    @patch("run_iterative_cpp_optimization.write_json")
+    @patch("run_iterative_cpp_optimization.batch_remarks")
+    @patch("run_iterative_cpp_optimization.parse_remarks")
+    @patch("run_iterative_cpp_optimization.compile_for_remarks")
+    @patch("run_iterative_cpp_optimization.call_llm")
+    @patch("run_iterative_cpp_optimization.build_full_library")
+    @patch("run_iterative_cpp_optimization.run_abi_symbol_check")
+    @patch("run_iterative_cpp_optimization.find_libsut")
+    def test_no_change_limit(self, mock_find_libsut, mock_abi, mock_build, mock_llm, mock_compile, mock_parse, mock_batch, mock_write_json):
+        from llmo.remarks import Remark
+        # Setup mocks to simulate no change
+        def side_effect_compile(source, output_dir):
+            output_dir.mkdir(parents=True, exist_ok=True)
+            (output_dir / "optimization_record.yaml").write_text("dummy", encoding="utf-8")
+            return CommandResult([], "", 0, 0.1, str(output_dir/"stdout.txt"), str(output_dir/"stderr.txt"))
+        mock_compile.side_effect = side_effect_compile
+        
+        remarks = [
+            Remark("Missed", "p", f"n{i}", "fibonacci", "fibonacci.cpp", 10+i, 1, "msg", f"RAW{i}")
+            for i in range(10)
+        ]
+        mock_parse.return_value = remarks
+        
+        def side_effect_batch(unseen, budget, count_fn):
+            if not unseen: return [], []
+            return [unseen[0]], unseen[1:]
+        mock_batch.side_effect = side_effect_batch
+        
+        mock_llm.return_value = "uint64_t fibonacci(int n) { return n; }\n"
+        self.target_source.write_text("uint64_t fibonacci(int n) { return n; }\n", encoding="utf-8")
+        
+        mock_build.return_value = CommandResult([], "", 0, 0.1, str(self.temp_dir/"stdout.txt"), str(self.temp_dir/"stderr.txt"))
+        mock_find_libsut.return_value = self.temp_dir / "libSUT.so"
+        (self.temp_dir / "libSUT.so").write_text("dummy", encoding="utf-8")
+
+        with patch("run_iterative_cpp_optimization.CPP_MAX_NO_CHANGE_ATTEMPTS", 2):
+            res = script.optimize_target(
+                self.model_config, self.target_source, 3, self.temp_dir / "output", 
+                self.headers, False, False
+            )
+        
+        self.assertEqual(res["stopped_reason"], "repeated_no_change")
+        self.assertTrue((self.temp_dir / "output" / "iteration_01" / "attempt_02").exists())
+        self.assertFalse((self.temp_dir / "output" / "iteration_01" / "attempt_03").exists())
+
+    @patch("run_iterative_cpp_optimization.parse_remarks")
+    @patch("run_iterative_cpp_optimization.compile_for_remarks")
+    @patch("run_iterative_cpp_optimization.call_llm")
+    @patch("run_iterative_cpp_optimization.build_full_library")
+    @patch("run_iterative_cpp_optimization.run_abi_symbol_check")
+    @patch("run_iterative_cpp_optimization.run_repair_step")
+    def test_too_many_attempts_safety_cap(self, mock_repair, mock_abi, mock_build, mock_llm, mock_compile, mock_parse):
+        from llmo.remarks import Remark
+        from run_iterative_cpp_optimization import IterationResult
+        mock_compile.return_value = CommandResult([], "", 1, 0.1, str(self.temp_dir/"stdout.txt"), str(self.temp_dir/"stderr.txt"))
+        
+        repaired_source = self.temp_dir / "repaired.cpp"
+        repaired_source.write_text("uint64_t fibonacci(int n) { return n; }", encoding="utf-8")
+        
+        mock_repair.return_value = IterationResult(
+            iteration=1, type="repair_01", success=True, 
+            source_file=repaired_source, metadata={"duration_seconds": 0.1}
+        )
+        
+        res = script.optimize_target(
+            self.model_config, self.target_source, 1, self.temp_dir / "output", 
+            self.headers, False, False
+        )
+        
+        self.assertEqual(res["stopped_reason"], "too_many_attempts")
+        self.assertTrue((self.temp_dir / "output" / "iteration_01" / "attempt_10").exists())
 
 if __name__ == '__main__':
     unittest.main()

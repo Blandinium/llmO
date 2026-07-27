@@ -31,6 +31,7 @@ from llmo.build import find_libsut, compile_replacement_artifact_for_check
 ITERATIVE_ARTIFACT_ROOT = BUILD_ROOT / "llm-cpp-remarks"
 CPP_REMARK_OPTIMIZATION_PASSES = int(os.environ.get("CPP_REMARK_OPTIMIZATION_PASSES", "3"))
 CPP_MAX_REPAIR_ATTEMPTS = int(os.environ.get("CPP_MAX_REPAIR_ATTEMPTS", "2"))
+CPP_MAX_NO_CHANGE_ATTEMPTS = int(os.environ.get("CPP_MAX_NO_CHANGE_ATTEMPTS", "2"))
 CONTEXT_SAFETY_MARGIN_TOKENS = int(os.environ.get("CONTEXT_SAFETY_MARGIN_TOKENS", "1000"))
 
 # =============================================================================
@@ -268,6 +269,7 @@ def run_optimization_iteration(
     target_source: Path,
     current_source_file: Path,
     iteration: int,
+    attempt: int,
     total_iterations: int,
     iter_dir: Path,
     shown_fingerprints: Set[str],
@@ -279,7 +281,7 @@ def run_optimization_iteration(
     shutil.copy2(current_source_file, iter_dir / "source_input.cpp")
     
     # 1. Compile for remarks
-    print(f"  Iteration {iteration:02d}: Compiling for remarks...")
+    print(f"  Iteration {iteration:02d} Attempt {attempt:02d}: Compiling for remarks...")
     comp_remarks = compile_for_remarks(current_source_file, iter_dir)
     if comp_remarks.returncode != 0:
         return IterationResult(iteration, "optimization", False, current_source_file, compile_result=comp_remarks)
@@ -341,7 +343,7 @@ def run_optimization_iteration(
     prompt = make_optimization_feedback_prompt(target_source.name, iteration, total_iterations, headers, current_source_file.read_text(encoding="utf-8"), remarks_text)
     (iter_dir / "prompt.txt").write_text(prompt, encoding="utf-8")
     
-    print(f"  Iteration {iteration:02d}: Calling LLM for optimization...")
+    print(f"  Iteration {iteration:02d} Attempt {attempt:02d}: Calling LLM for optimization...")
     start_time = time.perf_counter()
     try:
         response = call_llm(model_name, prompt, system_prompt)
@@ -396,14 +398,20 @@ def optimize_target(
     
     completed_passes = 0
     attempt_idx = 1
+    no_change_attempts = 0
     while completed_passes < num_passes:
+        if attempt_idx > 10:
+            print(f"  Iteration {completed_passes + 1:02d}: Maximum total attempts reached (10).")
+            stop_reason = "too_many_attempts"
+            break
+            
         iter_dir = target_output_dir / f"iteration_{completed_passes + 1:02d}"
         attempt_dir = iter_dir / f"attempt_{attempt_idx:02d}"
         
         # 1. Optimization step
         opt_res = run_optimization_iteration(
             model_name, target_source, current_source_file, 
-            completed_passes + 1, num_passes, attempt_dir, shown_fingerprints, headers
+            completed_passes + 1, attempt_idx, num_passes, attempt_dir, shown_fingerprints, headers
         )
         total_llm_duration += opt_res.metadata.get("duration_seconds", 0.0) if opt_res.metadata else 0.0
         
@@ -437,6 +445,7 @@ def optimize_target(
                 
                 if repair_success:
                     attempt_idx += 1
+                    no_change_attempts = 0
                     continue # Try optimization again with repaired source
                 else:
                     stop_reason = f"initial_repair_failed_pass_{completed_passes + 1}"
@@ -453,10 +462,17 @@ def optimize_target(
         # Detect useless/no-change responses
         new_source = opt_res.source_file.read_text(encoding="utf-8")
         if new_source == current_source_file.read_text(encoding="utf-8"):
-            print(f"  Iteration {completed_passes + 1:02d}: No change detected in source.")
+            print(f"  Iteration {completed_passes + 1:02d} Attempt {attempt_idx:02d}: No change detected in source.")
             opt_res.metadata["no_change"] = True
             iterations_meta.append(asdict(opt_res))
             write_json(attempt_dir / "iteration_metadata.json", asdict(opt_res))
+            
+            no_change_attempts += 1
+            if no_change_attempts >= CPP_MAX_NO_CHANGE_ATTEMPTS:
+                print(f"  Iteration {completed_passes + 1:02d}: Maximum no-change attempts reached ({CPP_MAX_NO_CHANGE_ATTEMPTS}).")
+                stop_reason = "repeated_no_change"
+                break
+
             if opt_res.metadata.get("remark_count_remaining", 0) == 0:
                 stop_reason = "no_unseen_remarks"
                 break
@@ -518,6 +534,7 @@ def optimize_target(
             last_valid_libsut = find_libsut(last_valid_iteration_dir)
             completed_passes += 1
             attempt_idx = 1 # Reset attempt counter for next iteration
+            no_change_attempts = 0
             
             if opt_res.shown_remarks:
                 for f in opt_res.shown_remarks:
