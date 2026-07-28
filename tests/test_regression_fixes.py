@@ -26,6 +26,18 @@ class TestRegressionFixes(unittest.TestCase):
         if self.temp_dir.exists():
             shutil.rmtree(self.temp_dir)
 
+    def _setup_baseline_mocks(self, mock_build, mock_find_libsut, mock_abi, mock_bench=None):
+        mock_build.return_value = CommandResult([], "", 0, 0.1, str(self.temp_dir/"stdout.txt"), str(self.temp_dir/"stderr.txt"))
+        mock_find_libsut.return_value = self.temp_dir / "libSUT.so"
+        (self.temp_dir / "libSUT.so").touch()
+        mock_abi.return_value = CommandResult(["nm"], ".", 0, 0.1, str(self.temp_dir/"abi_stdout.txt"), str(self.temp_dir/"abi_stderr.txt"))
+        if mock_bench:
+            def mock_bench_baseline(build_dir, libsut, target, run_all):
+                res_file = build_dir / f"benchmark_0_fibonacci_results.json"
+                res_file.write_text(json.dumps({"calls_per_second": 100.0}), encoding="utf-8")
+                return [CommandResult([], "", 0, 0.1, str(res_file.with_suffix(".txt")), "")]
+            mock_bench.side_effect = mock_bench_baseline
+
     @patch("run_iterative_cpp_optimization.call_llm")
     def test_abi_failure_diagnostics_in_prompt(self, mock_llm):
         # Setup: Compilation succeeds, ABI fails
@@ -54,79 +66,52 @@ class TestRegressionFixes(unittest.TestCase):
 
     @patch("run_iterative_cpp_optimization.run_repair_step")
     @patch("run_iterative_cpp_optimization.compile_for_remarks")
-    def test_fresh_diagnostics_in_initial_repair_loop(self, mock_compile, mock_repair):
+    @patch("run_iterative_cpp_optimization.build_full_library")
+    @patch("run_iterative_cpp_optimization.find_libsut")
+    @patch("run_iterative_cpp_optimization.run_abi_symbol_check")
+    @patch("run_iterative_cpp_optimization.run_benchmarks_for_lib")
+    def test_fresh_diagnostics_in_initial_repair_loop(self, mock_bench, mock_abi, mock_libsut, mock_build, mock_compile, mock_repair):
+        self._setup_baseline_mocks(mock_build, mock_libsut, mock_abi, mock_bench)
         # Setup: opt_res fails initially
         initial_comp_res = CommandResult(["clang++"], ".", 1, 0.1, str(self.temp_dir/"initial_out.txt"), str(self.temp_dir/"initial_err.txt"))
+        
+        # We need to distinguish between baseline build (success) and remarks build (fail)
         mock_compile.return_value = initial_comp_res
         (self.temp_dir/"initial_err.txt").write_text("error A", encoding="utf-8")
         
-        # First repair attempt fails with error B
-        repair_source_1 = self.temp_dir / "repair1.cpp"
-        repair_source_1.write_text("source B", encoding="utf-8")
-        compile_res_B = CommandResult(["clang++"], ".", 1, 0.1, str(self.temp_dir/"repair1_out.txt"), str(self.temp_dir/"repair1_err.txt"))
-        (self.temp_dir/"repair1_err.txt").write_text("error B", encoding="utf-8")
+        with patch("run_iterative_cpp_optimization.LLM_MODELS", []):
+            res = script.optimize_target(
+                self.model_config, self.target_source, 1, self.temp_dir / "output",
+                self.headers, False
+            )
         
-        # Second repair attempt succeeds
-        repair_source_2 = self.temp_dir / "repair2.cpp"
-        repair_source_2.write_text("uint64_t fibonacci(int n) { return n; }", encoding="utf-8")
-        
-        mock_repair.side_effect = [
-            IterationResult(1, "repair_initial_01", False, repair_source_1, compile_result=compile_res_B, metadata={}),
-            IterationResult(1, "repair_initial_02", True, repair_source_2, metadata={}) 
-        ]
-        
-        # To avoid infinite loop, we make the next optimization call "stop"
-        with patch("run_iterative_cpp_optimization.run_optimization_iteration") as mock_opt:
-            mock_opt.side_effect = [
-                IterationResult(1, "optimization", False, self.target_source, compile_result=initial_comp_res), # First optimization attempt fails
-                IterationResult(1, "optimization", False, repair_source_2, metadata={"stop_reason": "no_unseen_remarks"}) # Stop after repair
-            ]
-            
-            with patch("run_iterative_cpp_optimization.LLM_MODELS", []):
-                script.optimize_target(
-                    self.model_config, self.target_source, 1, self.temp_dir / "output",
-                    self.headers, False, False
-                )
-        
-        # Check second call to run_repair_step
-        self.assertEqual(mock_repair.call_count, 2)
-        args, kwargs = mock_repair.call_args_list[1]
-        # It should have been called with compile_res_B (error B)
-        self.assertEqual(kwargs["compile_result"].stderr_file, str(self.temp_dir/"repair1_err.txt"))
+        # It should have stopped because remark compilation failed and we no longer repair it here (terminal stop choice)
+        self.assertEqual(res["stopped_reason"], "remark_compilation_failed")
+        self.assertEqual(mock_repair.call_count, 0)
 
     @patch("run_iterative_cpp_optimization.run_optimization_iteration")
     @patch("run_iterative_cpp_optimization.build_full_library")
     @patch("run_iterative_cpp_optimization.run_abi_symbol_check")
     @patch("run_iterative_cpp_optimization.find_libsut")
-    def test_no_overwrite_on_no_change(self, mock_find, mock_abi, mock_build, mock_opt):
+    @patch("run_iterative_cpp_optimization.run_benchmarks_for_lib")
+    def test_stop_on_no_change(self, mock_bench, mock_find, mock_abi, mock_build, mock_opt):
+        self._setup_baseline_mocks(mock_build, mock_find, mock_abi, mock_bench)
+        
         # First iteration: no change
         source_1 = self.temp_dir / "source1.cpp"
         source_1.write_text(self.target_source.read_text(), encoding="utf-8")
         
-        # Second iteration: change
-        source_2 = self.temp_dir / "source2.cpp"
-        source_2.write_text("changed source", encoding="utf-8")
-        
         mock_opt.side_effect = [
             IterationResult(1, "optimization", True, source_1, metadata={"remark_count_remaining": 1}),
-            IterationResult(1, "optimization", True, source_2, metadata={"remark_count_remaining": 0})
         ]
         
-        mock_build.return_value = CommandResult([], "", 0, 0.1, "", "")
-        mock_abi.return_value = CommandResult([], "", 0, 0.1, "", "")
-        mock_find.return_value = self.temp_dir / "libSUT.so"
-        (self.temp_dir / "libSUT.so").touch()
-
-        script.optimize_target(
+        res = script.optimize_target(
             self.model_config, self.target_source, 2, self.temp_dir / "output",
-            self.headers, False, False
+            self.headers, False
         )
         
-        # In the fixed version, there should be separate attempt directories or some way to distinguish
-        # If I implement attempt_XX subdirs:
-        iter1_dir = self.temp_dir / "output" / "iteration_01"
-        self.assertTrue((iter1_dir / "attempt_01").exists())
-        self.assertTrue((iter1_dir / "attempt_02").exists())
+        self.assertEqual(res["stopped_reason"], "no_change")
+        self.assertEqual(mock_opt.call_count, 1)
 
 if __name__ == "__main__":
     unittest.main()

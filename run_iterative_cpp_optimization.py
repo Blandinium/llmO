@@ -3,6 +3,7 @@
 from __future__ import annotations
 import argparse
 import json
+import math
 import os
 import shutil
 import sys
@@ -31,7 +32,6 @@ from llmo.build import find_libsut, compile_replacement_artifact_for_check
 ITERATIVE_ARTIFACT_ROOT = BUILD_ROOT / "llm-cpp-remarks"
 CPP_REMARK_OPTIMIZATION_PASSES = int(os.environ.get("CPP_REMARK_OPTIMIZATION_PASSES", "3"))
 CPP_MAX_REPAIR_ATTEMPTS = int(os.environ.get("CPP_MAX_REPAIR_ATTEMPTS", "2"))
-CPP_MAX_NO_CHANGE_ATTEMPTS = int(os.environ.get("CPP_MAX_NO_CHANGE_ATTEMPTS", "2"))
 CONTEXT_SAFETY_MARGIN_TOKENS = int(os.environ.get("CONTEXT_SAFETY_MARGIN_TOKENS", "1000"))
 
 # =============================================================================
@@ -370,35 +370,87 @@ def optimize_target(
     num_passes: int,
     target_output_dir: Path,
     headers: str,
-    benchmark_all: bool,
-    benchmark_each: bool
+    benchmark_all: bool
 ) -> Dict[str, Any]:
     model_name = model_config.alias or model_config.name
     print(f"\n=== Optimizing {target_source.name} with {model_name} ===")
+
+    # 2. Prevent stale benchmark/artifact reuse
+    if target_output_dir.exists():
+        shutil.rmtree(target_output_dir)
+    target_output_dir.mkdir(parents=True, exist_ok=True)
     
+    # shown_fingerprints tracks remarks shown to the model in optimization attempts
+    # from the CURRENT best source. It is cleared when a new best is accepted.
+    # If a candidate is rejected (slower), shown_fingerprints is NOT cleared,
+    # ensuring those remarks are considered "consumed" and not shown again.
     shown_fingerprints = set()
+    all_shown_fingerprints = set()
     accepted_fingerprints = set()
-    current_source_file = target_source
-    last_valid_source_file = target_source
-    last_valid_libsut = None
-    last_valid_iteration_dir = None
+    
+    # 0. Baseline Benchmark
+    print(f"  Establishing baseline for {target_source.name}...")
+    baseline_dir = target_output_dir / "baseline"
+    baseline_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(target_source, baseline_dir / target_source.name)
+    
+    comp_res = build_full_library(baseline_dir, target_source.name, target_source)
+    if comp_res.returncode != 0:
+        print(f"  ERROR: Baseline compilation failed for {target_source.name}.")
+        return {"success": False, "error": "baseline_compilation_failed", "stopped_reason": "baseline_compilation_failed"}
+    
+    libsut = find_libsut(baseline_dir)
+    if not libsut:
+        print(f"  ERROR: Could not find libSUT.so for baseline.")
+        return {"success": False, "error": "baseline_libsut_not_found", "stopped_reason": "baseline_libsut_not_found"}
+        
+    abi_res = run_abi_symbol_check(baseline_dir, libsut)
+    if abi_res.returncode != 0:
+        print(f"  ERROR: Baseline ABI check failed.")
+        return {"success": False, "error": "baseline_abi_failed", "stopped_reason": "baseline_abi_failed"}
+        
+    bench_results = run_benchmarks_for_lib(baseline_dir, libsut, target_source.stem, benchmark_all)
+    if not all(r.returncode == 0 for r in bench_results):
+        print(f"  ERROR: Baseline benchmark command failed.")
+        return {"success": False, "error": "baseline_benchmark_failed", "stopped_reason": "baseline_benchmark_failed"}
+
+    target_id = FUNCTION_TO_BENCHMARK_ID[target_source.stem]
+    results_file = baseline_dir / f"benchmark_{target_id}_{target_source.stem}_results.json"
+    
+    if not results_file.exists():
+        print(f"  ERROR: Baseline benchmark result JSON missing.")
+        return {"success": False, "error": "baseline_benchmark_failed", "stopped_reason": "baseline_benchmark_failed"}
+    
+    try:
+        bench_data = json.loads(results_file.read_text(encoding="utf-8"))
+        baseline_cps = bench_data.get("calls_per_second")
+        if baseline_cps is None or not isinstance(baseline_cps, (int, float)) or baseline_cps <= 0 or not math.isfinite(baseline_cps):
+            print(f"  ERROR: Baseline benchmark has invalid calls_per_second: {baseline_cps}")
+            return {"success": False, "error": "baseline_benchmark_failed", "stopped_reason": "baseline_benchmark_failed"}
+    except Exception as e:
+        print(f"  ERROR: Could not parse baseline benchmark results: {e}")
+        return {"success": False, "error": "baseline_benchmark_failed", "stopped_reason": "baseline_benchmark_failed"}
+    
+    print(f"  Baseline benchmark: {baseline_cps:.2f} calls/s")
+    
+    best_calls_per_second = baseline_cps
+    best_iteration = 0
+    best_source_file = baseline_dir / target_source.name
+    best_libsut = libsut
+    best_is_baseline = True
+    best_iteration_dir = baseline_dir
+    
+    current_source_file = best_source_file
     
     iterations_meta = []
     
     stop_reason = "completed"
-    completed_passes = 0
     total_repair_attempts = 0
     total_llm_duration = 0.0
     start_time = time.perf_counter()
     
-    best_calls_per_second = -1.0
-    best_iteration = -1
-    best_source_file = None
-    best_libsut = None
-    
     completed_passes = 0
     attempt_idx = 1
-    no_change_attempts = 0
     while completed_passes < num_passes:
         if attempt_idx > 10:
             print(f"  Iteration {completed_passes + 1:02d}: Maximum total attempts reached (10).")
@@ -418,38 +470,13 @@ def optimize_target(
         if not opt_res.success:
             if opt_res.metadata and opt_res.metadata.get("stop_reason") == "no_unseen_remarks":
                 stop_reason = "no_unseen_remarks"
+                break
             elif opt_res.compile_result and opt_res.compile_result.returncode != 0:
-                # Compilation for remarks failed, enter repair path
-                print(f"  Iteration {completed_passes + 1:02d}: Compilation for remarks failed. Repairing...")
-                repair_source_file = current_source_file
-                curr_compile_res = opt_res.compile_result
-                repair_success = False
-                for repair_attempt in range(1, CPP_MAX_REPAIR_ATTEMPTS + 1):
-                    repair_dir = attempt_dir / f"repair_initial_{repair_attempt:02d}"
-                    repair_res = run_repair_step(
-                        model_name, target_source, repair_source_file, 
-                        completed_passes + 1, repair_attempt, repair_dir, headers, 
-                        compile_result=curr_compile_res
-                    )
-                    total_llm_duration += repair_res.metadata.get("duration_seconds", 0.0) if repair_res.metadata else 0.0
-                    total_repair_attempts += 1
-                    iterations_meta.append(asdict(repair_res))
-                    if repair_res.success:
-                        repair_success = True
-                        current_source_file = repair_res.source_file
-                        # Now that it compiles, we must regenerate remarks
-                        # This will happen in the next pass of the while loop
-                        break
-                    repair_source_file = repair_res.source_file
-                    curr_compile_res = repair_res.compile_result
-                
-                if repair_success:
-                    attempt_idx += 1
-                    no_change_attempts = 0
-                    continue # Try optimization again with repaired source
-                else:
-                    stop_reason = f"initial_repair_failed_pass_{completed_passes + 1}"
-                    break
+                # Inability to compile the already accepted source for remarks is treated
+                # as a terminal stop to maintain the hill-climbing invariant.
+                print(f"  Iteration {completed_passes + 1:02d}: Compilation for remarks failed on current best.")
+                stop_reason = "remark_compilation_failed"
+                break
             else:
                 stop_reason = f"optimization_failed_pass_{completed_passes + 1}"
                 iterations_meta.append(asdict(opt_res))
@@ -458,33 +485,24 @@ def optimize_target(
         if opt_res.shown_remarks:
             for f in opt_res.shown_remarks:
                 shown_fingerprints.add(f)
+                all_shown_fingerprints.add(f)
             
-        # Detect useless/no-change responses
+        # 2. Detect unchanged source
         new_source = opt_res.source_file.read_text(encoding="utf-8")
-        if new_source == current_source_file.read_text(encoding="utf-8"):
-            print(f"  Iteration {completed_passes + 1:02d} Attempt {attempt_idx:02d}: No change detected in source.")
+        if new_source.strip() == current_source_file.read_text(encoding="utf-8").strip():
+            print(f"  Iteration {completed_passes + 1:02d} Attempt {attempt_idx:02d}: No change detected in source. Stopping.")
             opt_res.metadata["no_change"] = True
+            opt_res.metadata["accepted_as_best"] = False
             iterations_meta.append(asdict(opt_res))
             write_json(attempt_dir / "iteration_metadata.json", asdict(opt_res))
+            stop_reason = "no_change"
+            break
             
-            no_change_attempts += 1
-            if no_change_attempts >= CPP_MAX_NO_CHANGE_ATTEMPTS:
-                print(f"  Iteration {completed_passes + 1:02d}: Maximum no-change attempts reached ({CPP_MAX_NO_CHANGE_ATTEMPTS}).")
-                stop_reason = "repeated_no_change"
-                break
-
-            if opt_res.metadata.get("remark_count_remaining", 0) == 0:
-                stop_reason = "no_unseen_remarks"
-                break
-            attempt_idx += 1
-            continue
-
-        # 2. Validation & Repair loop
+        # 3. Validation & Repair loop
         valid = False
         repair_source_file = opt_res.source_file
-        final_opt_res = opt_res # Track the successful build results
+        final_opt_res = opt_res
         
-        # Check if it contains the target function
         if not contains_target_function_definition(new_source, target_source.name):
             print(f"  Iteration {completed_passes + 1:02d}: Target function missing. Repairing...")
             comp_res = None
@@ -519,7 +537,7 @@ def optimize_target(
                 
                 if repair_res.success:
                     valid = True
-                    final_opt_res = repair_res # The repair result is now our successful iteration result
+                    final_opt_res = repair_res
                     break
                 
                 repair_source_file = repair_res.source_file
@@ -527,39 +545,56 @@ def optimize_target(
                 abi_res = repair_res.abi_result
         
         if valid:
-            print(f"  Iteration {completed_passes + 1:02d}: Success!")
-            current_source_file = final_opt_res.source_file
-            last_valid_source_file = current_source_file
-            last_valid_iteration_dir = final_opt_res.source_file.parent
-            last_valid_libsut = find_libsut(last_valid_iteration_dir)
-            completed_passes += 1
-            attempt_idx = 1 # Reset attempt counter for next iteration
-            no_change_attempts = 0
+            # 4. Benchmark every valid candidate
+            print(f"  Iteration {completed_passes + 1:02d}: Valid candidate produced. Benchmarking...")
+            iter_libsut = find_libsut(final_opt_res.source_file.parent)
+            bench_results = run_benchmarks_for_lib(final_opt_res.source_file.parent, iter_libsut, target_source.stem, benchmark_all)
             
-            if opt_res.shown_remarks:
-                for f in opt_res.shown_remarks:
-                    accepted_fingerprints.add(f)
+            results_file = final_opt_res.source_file.parent / f"benchmark_{target_id}_{target_source.stem}_results.json"
+            
+            cps = 0.0
+            bench_success = False
+            if results_file.exists():
+                try:
+                    bench_data = json.loads(results_file.read_text(encoding="utf-8"))
+                    cps = bench_data.get("calls_per_second", 0.0)
+                    bench_success = any(r.returncode == 0 and f"benchmark_{target_id}_" in str(r.stdout_file) for r in bench_results)
+                except Exception as e:
+                    print(f"  Warning: Could not parse benchmark results: {e}")
+            
+            final_opt_res.metadata["candidate_calls_per_second"] = cps
+            
+            if bench_success and cps > best_calls_per_second:
+                improvement = ((cps - best_calls_per_second) / best_calls_per_second * 100) if best_calls_per_second > 0 else 0
+                print(f"  Iteration {completed_passes + 1:02d}: Accepted as new best ({cps:.2f} calls/s, +{improvement:.1f}%)")
+                
+                best_calls_per_second = cps
+                best_iteration = completed_passes + 1
+                best_source_file = final_opt_res.source_file
+                best_libsut = iter_libsut
+                best_is_baseline = False
+                best_iteration_dir = final_opt_res.source_file.parent
+                
+                current_source_file = best_source_file
+                shown_fingerprints.clear() # Reset remarks for the new best source
+                
+                final_opt_res.metadata["accepted_as_best"] = True
+                final_opt_res.metadata["performance_change_vs_previous_best_percent"] = improvement
+                
+                if opt_res.shown_remarks:
+                    for f in opt_res.shown_remarks:
+                        accepted_fingerprints.add(f)
+            else:
+                reason = "slower/equal" if bench_success else "benchmark failed"
+                print(f"  Iteration {completed_passes + 1:02d}: Rejected ({reason}). Candidate: {cps:.2f} calls/s, Current best: {best_calls_per_second:.2f} calls/s")
+                final_opt_res.metadata["accepted_as_best"] = False
+                final_opt_res.metadata["performance_change_vs_previous_best_percent"] = ((cps - best_calls_per_second) / best_calls_per_second * 100) if best_calls_per_second > 0 else 0
+            
+            completed_passes += 1
+            attempt_idx = 1
             
             iterations_meta.append(asdict(final_opt_res))
-            write_json(attempt_dir / "iteration_metadata.json", asdict(final_opt_res))
-            
-            if benchmark_each:
-                print(f"  Iteration {completed_passes:02d}: Benchmarking...")
-                run_benchmarks_for_lib(last_valid_iteration_dir, last_valid_libsut, target_source.stem, benchmark_all)
-                
-                # Check for best
-                results_file = last_valid_iteration_dir / f"benchmark_{FUNCTION_TO_BENCHMARK_ID[target_source.stem]}_{target_source.stem}_results.json"
-                if results_file.exists():
-                    try:
-                        bench_data = json.loads(results_file.read_text(encoding="utf-8"))
-                        cps = bench_data.get("calls_per_second", 0.0)
-                        if cps > best_calls_per_second:
-                            best_calls_per_second = cps
-                            best_iteration = completed_passes
-                            best_source_file = last_valid_source_file
-                            best_libsut = last_valid_libsut
-                    except:
-                        pass
+            write_json(final_opt_res.source_file.parent / "iteration_metadata.json", asdict(final_opt_res))
         else:
             print(f"  Iteration {completed_passes + 1:02d}: Failed to produce a valid build after repair attempts.")
             stop_reason = f"repair_failed_pass_{completed_passes + 1}"
@@ -567,18 +602,17 @@ def optimize_target(
             write_json(attempt_dir / "iteration_metadata.json", asdict(opt_res))
             break
 
-    # 3. Finalization
+    # 5. Finalization
     final_dir = target_output_dir / "final"
     final_dir.mkdir(parents=True, exist_ok=True)
     
-    if last_valid_source_file:
-        shutil.copy2(last_valid_source_file, final_dir / f"optimized_{target_source.name}")
-        if last_valid_libsut and last_valid_libsut.exists():
-            shutil.copy2(last_valid_libsut, final_dir / "libSUT.so")
-            # Copy other artifacts
-            for f in last_valid_iteration_dir.glob("compile_*"): shutil.copy2(f, final_dir)
-            for f in last_valid_iteration_dir.glob("abi_symbols*"): shutil.copy2(f, final_dir)
-            for f in last_valid_iteration_dir.glob("benchmark_*"): shutil.copy2(f, final_dir)
+    if best_source_file:
+        shutil.copy2(best_source_file, final_dir / f"optimized_{target_source.name}")
+        if best_libsut and best_libsut.exists():
+            shutil.copy2(best_libsut, final_dir / "libSUT.so")
+            for f in best_iteration_dir.glob("compile_*"): shutil.copy2(f, final_dir)
+            for f in best_iteration_dir.glob("abi_symbols*"): shutil.copy2(f, final_dir)
+            for f in best_iteration_dir.glob("benchmark_*"): shutil.copy2(f, final_dir)
 
     summary = {
         "model": model_config.name,
@@ -587,40 +621,22 @@ def optimize_target(
         "completed_optimization_passes": completed_passes,
         "repair_attempts": total_repair_attempts,
         "stopped_reason": stop_reason,
+        "baseline_calls_per_second": baseline_cps,
+        "best_calls_per_second": best_calls_per_second,
+        "best_iteration": best_iteration,
+        "best_is_baseline": best_is_baseline,
         "final_source": str(final_dir / f"optimized_{target_source.name}"),
-        "final_compile_ok": completed_passes > 0,
-        "final_abi_ok": completed_passes > 0,
+        "final_compile_ok": True,
+        "final_abi_ok": True,
         "llm_duration_seconds": total_llm_duration,
         "total_duration_seconds": time.perf_counter() - start_time,
-        "benchmark_ok": False,
+        "benchmark_ok": True,
         "benchmark_results": {},
-        "shown_remarks": sorted(list(shown_fingerprints)),
+        "shown_remarks": sorted(list(all_shown_fingerprints)),
         "accepted_remarks": sorted(list(accepted_fingerprints)),
         "iterations": iterations_meta
     }
     
-    # Run final benchmark if not already done
-    if completed_passes > 0:
-        if not benchmark_each:
-            print(f"Running final benchmarks...")
-            libsut = find_libsut(final_dir)
-            if libsut:
-                run_benchmarks_for_lib(final_dir, libsut, target_source.stem, benchmark_all)
-    
-    # Best handling
-    if benchmark_each and best_iteration != -1:
-        summary["best_iteration"] = best_iteration
-        summary["best_calls_per_second"] = best_calls_per_second
-        if best_iteration != completed_passes:
-            best_dir = target_output_dir / "best"
-            best_dir.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(best_source_file, best_dir / f"optimized_{target_source.name}")
-            shutil.copy2(best_libsut, best_dir / "libSUT.so")
-            for f in best_source_file.parent.glob("compile_*"): shutil.copy2(f, best_dir)
-            for f in best_source_file.parent.glob("abi_symbols*"): shutil.copy2(f, best_dir)
-            for f in best_source_file.parent.glob("benchmark_*"): shutil.copy2(f, best_dir)
-            summary["best_source"] = str(best_dir / f"optimized_{target_source.name}")
-
     results = {}
     for res_file in final_dir.glob("benchmark_*_results.json"):
         try:
@@ -630,8 +646,10 @@ def optimize_target(
     summary["benchmark_results"] = results
     summary["benchmark_ok"] = len(results) > 0
     
-    if last_valid_source_file == target_source and completed_passes == 0:
+    if best_is_baseline and completed_passes == 0:
         summary["message"] = "No successful optimization passes."
+    elif best_is_baseline:
+        summary["message"] = "Optimization attempts made, but baseline remains best."
     
     write_json(final_dir / "final_metadata.json", summary)
     write_json(target_output_dir / "summary.json", summary)
@@ -643,7 +661,6 @@ def main() -> int:
     parser.add_argument("--model", action="append", help="Run only for these models.")
     parser.add_argument("--passes", type=int, default=CPP_REMARK_OPTIMIZATION_PASSES, help="Number of optimization passes.")
     parser.add_argument("--benchmark-all", action="store_true", help="Run all benchmarks instead of just the target.")
-    parser.add_argument("--benchmark-each-iteration", action="store_true", help="Benchmark every successful iteration.")
     args = parser.parse_args()
     
     ITERATIVE_ARTIFACT_ROOT.mkdir(parents=True, exist_ok=True)
@@ -689,7 +706,7 @@ def main() -> int:
                 try:
                     res = optimize_target(
                         model, target, args.passes, target_dir, 
-                        headers, args.benchmark_all, args.benchmark_each_iteration
+                        headers, args.benchmark_all
                     )
                     overall_summary.append(res)
                 except Exception as exc:
