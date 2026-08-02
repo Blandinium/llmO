@@ -2,11 +2,17 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 from .command import CommandResult, run_command
+from .benchmark import BenchmarkRunResult
 
 @dataclass
 class BuildVariant:
     name: str
     clang_optimization_flag: str
+
+@dataclass
+class CompileResult:
+    command_result: CommandResult
+    libsut_path: Optional[Path] = None
 
 def find_libsut(build_dir: Path) -> Optional[Path]:
     candidates = list(build_dir.rglob("libSUT.so"))
@@ -23,7 +29,7 @@ def compile_replacement_artifact_for_check(
     project_root: Path,
     timeout: int,
     other_sources: list[Path]
-) -> CommandResult:
+) -> CompileResult:
     output_dir.mkdir(parents=True, exist_ok=True)
     libsut_path = output_dir / "libSUT.so"
     include_dirs = [replacement_file.parent, sut_dir, project_root]
@@ -35,7 +41,8 @@ def compile_replacement_artifact_for_check(
     for source in other_sources:
         command.append(str(source))
     command.extend(["-o", str(libsut_path)])
-    return run_command(command, project_root, output_dir / "compile_stdout.txt", output_dir / "compile_stderr.txt", timeout_seconds=timeout)
+    res = run_command(command, project_root, output_dir / "compile_stdout.txt", output_dir / "compile_stderr.txt", timeout_seconds=timeout)
+    return CompileResult(res, libsut_path if res.returncode == 0 and libsut_path.exists() else None)
 
 @dataclass
 class BuildMetadata:
@@ -47,7 +54,7 @@ class BuildMetadata:
     cmake_generator: Optional[str]
     configure: CommandResult
     build: CommandResult
-    benchmark: list[CommandResult]
+    benchmark: list[BenchmarkRunResult]
     abi_check: Optional[CommandResult]
     libsut_path: Optional[str]
     runner_path: Optional[str]
@@ -61,7 +68,7 @@ class DirectBuildMetadata:
     source_file: str
     build_dir: str
     compile: CommandResult
-    benchmark: list[CommandResult]
+    benchmark: list[BenchmarkRunResult]
     abi_check: Optional[CommandResult]
     libsut_path: Optional[str]
     runner_path: str

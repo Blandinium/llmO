@@ -13,15 +13,15 @@ from pathlib import Path
 from typing import Any, Optional, List, Set, Dict
 
 from llmo.config import *
-from llmo.command import run_command, write_json, sanitize_name, CommandResult
+from llmo.command import run_command, write_json, write_json_atomic, sha256_sum, sanitize_name, CommandResult
 from llmo.project import llm_target_source_files, other_sources_for_replacement, source_function_name
 from llmo.source import extract_code_block, contains_target_function_definition, read_support_headers
-from llmo.abi import run_abi_symbol_check
-from llmo.benchmark import run_benchmarks_for_lib
+from llmo.abi import run_abi_symbol_check, load_abi_check_outcome
+from llmo.benchmark import run_benchmarks_for_lib, BenchmarkRunResult
 from llmo import llama
 from llmo.llama import (
-    LlmModelConfig, LlmCallResult, start_llama_server, stop_process, 
-    wait_for_llama_ready, call_llm, warm_up_llm, tokenize, count_tokens
+    LlmModelConfig, start_llama_server, stop_process, 
+    wait_for_llama_ready, call_llm, warm_up_llm, tokenize, count_tokens, ChatCompletionResult, save_llm_call
 )
 from llmo.remarks import parse_remarks, prioritize_remarks, filter_remarks, batch_remarks, Remark
 from llmo.build import find_libsut, compile_replacement_artifact_for_check
@@ -249,28 +249,34 @@ def run_repair_step(
     print(f"  Iteration {iteration:02d} Repair {repair_attempt:02d}: Calling LLM for repair...")
     start_time = time.perf_counter()
     try:
-        response = call_llm(model_name, prompt, system_prompt)
+        result = call_llm(model_name, prompt, system_prompt)
         duration = time.perf_counter() - start_time
-        (repair_dir / "raw_response.txt").write_text(response, encoding="utf-8")
         
-        new_source = extract_code_block(response)
+        resp_file = save_llm_call(repair_dir, f"repair_{repair_attempt:02d}", result)
+        
+        if result.finish_reason == "length":
+            print(f"  Iteration {iteration:02d} Repair {repair_attempt:02d}: Truncated response.")
+            return IterationResult(iteration, f"repair_{repair_attempt:02d}", False, failed_source_file, metadata={"error": "response_truncated", "duration_seconds": duration, "raw_response_file": resp_file})
+
+        new_source = extract_code_block(result.content)
         output_file = repair_dir / "source_output.cpp"
         output_file.write_text(new_source, encoding="utf-8")
         
         if not contains_target_function_definition(new_source, target_source.name):
-            return IterationResult(iteration, f"repair_{repair_attempt:02d}", False, output_file, metadata={"error": "Target function missing", "duration_seconds": duration})
+            return IterationResult(iteration, f"repair_{repair_attempt:02d}", False, output_file, metadata={"error": "Target function missing", "duration_seconds": duration, "llm_result": asdict(result), "raw_response_file": resp_file})
 
         # Compile and ABI check the repaired source
         comp_res = build_full_library(repair_dir, target_source.name, output_file)
         if comp_res.returncode == 0:
             libsut = find_libsut(repair_dir)
             if libsut:
-                abi_res = run_abi_symbol_check(repair_dir, libsut)
-                if abi_res.returncode == 0:
-                    return IterationResult(iteration, f"repair_{repair_attempt:02d}", True, output_file, compile_result=comp_res, abi_result=abi_res, metadata={"duration_seconds": duration})
-                return IterationResult(iteration, f"repair_{repair_attempt:02d}", False, output_file, compile_result=comp_res, abi_result=abi_res, metadata={"duration_seconds": duration})
+                abi_res_cmd = run_abi_symbol_check(repair_dir, libsut)
+                abi_outcome = load_abi_check_outcome(repair_dir, abi_res_cmd)
+                if abi_outcome.success:
+                    return IterationResult(iteration, f"repair_{repair_attempt:02d}", True, output_file, compile_result=comp_res, abi_result=abi_res_cmd, metadata={"duration_seconds": duration, "llm_result": asdict(result), "abi_error": abi_outcome.error})
+                return IterationResult(iteration, f"repair_{repair_attempt:02d}", False, output_file, compile_result=comp_res, abi_result=abi_res_cmd, metadata={"duration_seconds": duration, "llm_result": asdict(result), "abi_error": abi_outcome.error})
         
-        return IterationResult(iteration, f"repair_{repair_attempt:02d}", False, output_file, compile_result=comp_res, metadata={"duration_seconds": duration})
+        return IterationResult(iteration, f"repair_{repair_attempt:02d}", False, output_file, compile_result=comp_res, metadata={"duration_seconds": duration, "llm_result": asdict(result)})
         
     except Exception as exc:
         print(f"  Repair LLM call failed: {exc}")
@@ -385,18 +391,23 @@ def run_optimization_iteration(
     print(f"  Iteration {iteration:02d} Attempt {attempt:02d}: Calling LLM for optimization...")
     start_time = time.perf_counter()
     try:
-        response = call_llm(model_name, prompt, system_prompt)
+        result = call_llm(model_name, prompt, system_prompt)
         duration = time.perf_counter() - start_time
-        (iter_dir / "raw_response.txt").write_text(response, encoding="utf-8")
         
-        new_source = extract_code_block(response)
+        resp_file = save_llm_call(iter_dir, f"optimization_{attempt:02d}", result)
+        
+        if result.finish_reason == "length":
+             print(f"  Iteration {iteration:02d} Attempt {attempt:02d}: Truncated response.")
+             return IterationResult(iteration, "optimization", False, current_source_file, metadata={"error": "response_truncated", "duration_seconds": duration, "raw_response_file": resp_file})
+
+        new_source = extract_code_block(result.content)
         output_file = iter_dir / "source_output.cpp"
         output_file.write_text(new_source, encoding="utf-8")
         
         return IterationResult(
             iteration, "optimization", True, output_file, 
             remarks_file=remark_file, 
-            metadata={"duration_seconds": duration, **selection_metadata},
+            metadata={"duration_seconds": duration, "llm_result": asdict(result), "raw_response_file": resp_file, **selection_metadata},
             shown_remarks=shown_in_this_batch
         )
     except Exception as exc:
@@ -443,31 +454,27 @@ def optimize_target(
         print(f"  ERROR: Could not find libSUT.so for baseline.")
         return {"success": False, "error": "baseline_libsut_not_found", "stopped_reason": "baseline_libsut_not_found"}
         
-    abi_res = run_abi_symbol_check(baseline_dir, libsut)
-    if abi_res.returncode != 0:
-        print(f"  ERROR: Baseline ABI check failed.")
-        return {"success": False, "error": "baseline_abi_failed", "stopped_reason": "baseline_abi_failed"}
+    abi_res_cmd = run_abi_symbol_check(baseline_dir, libsut)
+    abi_outcome = load_abi_check_outcome(baseline_dir, abi_res_cmd)
+    if not abi_outcome.success:
+        print(f"  ERROR: Baseline ABI check failed: {abi_outcome.error}")
+        return {"success": False, "error": "baseline_abi_failed", "stopped_reason": "baseline_abi_failed", "abi_error": abi_outcome.error}
         
     bench_results = run_benchmarks_for_lib(baseline_dir, libsut, target_source.stem, benchmark_all)
-    if not all(r.returncode == 0 for r in bench_results):
+    if not all(r.command_result.returncode == 0 for r in bench_results):
         print(f"  ERROR: Baseline benchmark command failed.")
         return {"success": False, "error": "baseline_benchmark_failed", "stopped_reason": "baseline_benchmark_failed"}
 
     target_id = FUNCTION_TO_BENCHMARK_ID[target_source.stem]
-    results_file = baseline_dir / f"benchmark_{target_id}_{target_source.stem}_results.json"
     
-    if not results_file.exists():
-        print(f"  ERROR: Baseline benchmark result JSON missing.")
-        return {"success": False, "error": "baseline_benchmark_failed", "stopped_reason": "baseline_benchmark_failed"}
-    
-    try:
-        bench_data = json.loads(results_file.read_text(encoding="utf-8"))
-        baseline_cps = bench_data.get("calls_per_second")
-        if baseline_cps is None or not isinstance(baseline_cps, (int, float)) or baseline_cps <= 0 or not math.isfinite(baseline_cps):
-            print(f"  ERROR: Baseline benchmark has invalid calls_per_second: {baseline_cps}")
-            return {"success": False, "error": "baseline_benchmark_failed", "stopped_reason": "baseline_benchmark_failed"}
-    except Exception as e:
-        print(f"  ERROR: Could not parse baseline benchmark results: {e}")
+    baseline_cps = 0.0
+    for r in bench_results:
+        if r.function_name == target_source.stem and r.parsed_result:
+            baseline_cps = r.parsed_result.get("calls_per_second", 0.0)
+            break
+            
+    if baseline_cps <= 0 or not math.isfinite(baseline_cps):
+        print(f"  ERROR: Baseline benchmark has invalid calls_per_second: {baseline_cps}")
         return {"success": False, "error": "baseline_benchmark_failed", "stopped_reason": "baseline_benchmark_failed"}
     
     print(f"  Baseline benchmark: {baseline_cps:.2f} calls/s")
@@ -545,22 +552,23 @@ def optimize_target(
         if not contains_target_function_definition(new_source, target_source.name):
             print(f"  Iteration {completed_passes + 1:02d}: Target function missing. Repairing...")
             comp_res = None
-            abi_res = None
+            abi_res_cmd = None
         else:
             comp_res = build_full_library(attempt_dir, target_source.name, repair_source_file)
             if comp_res.returncode == 0:
                 libsut = find_libsut(attempt_dir)
                 if libsut:
-                    abi_res = run_abi_symbol_check(attempt_dir, libsut)
-                    if abi_res.returncode == 0:
+                    abi_res_cmd = run_abi_symbol_check(attempt_dir, libsut)
+                    abi_outcome = load_abi_check_outcome(attempt_dir, abi_res_cmd)
+                    if abi_outcome.success:
                         valid = True
                         final_opt_res.compile_result = comp_res
-                        final_opt_res.abi_result = abi_res
+                        final_opt_res.abi_result = abi_res_cmd
                         final_opt_res.metadata["libsut"] = str(libsut)
                 else:
-                    abi_res = None
+                    abi_res_cmd = None
             else:
-                abi_res = None
+                abi_res_cmd = None
 
         if not valid:
             for repair_attempt in range(1, CPP_MAX_REPAIR_ATTEMPTS + 1):
@@ -568,7 +576,7 @@ def optimize_target(
                 repair_res = run_repair_step(
                     model_name, target_source, repair_source_file, 
                     completed_passes + 1, repair_attempt, repair_dir, headers, 
-                    compile_result=comp_res, abi_result=abi_res
+                    compile_result=comp_res, abi_result=abi_res_cmd
                 )
                 total_llm_duration += repair_res.metadata.get("duration_seconds", 0.0) if repair_res.metadata else 0.0
                 total_repair_attempts += 1
@@ -581,7 +589,7 @@ def optimize_target(
                 
                 repair_source_file = repair_res.source_file
                 comp_res = repair_res.compile_result
-                abi_res = repair_res.abi_result
+                abi_res_cmd = repair_res.abi_result
         
         if valid:
             # 4. Benchmark every valid candidate
@@ -589,17 +597,13 @@ def optimize_target(
             iter_libsut = find_libsut(final_opt_res.source_file.parent)
             bench_results = run_benchmarks_for_lib(final_opt_res.source_file.parent, iter_libsut, target_source.stem, benchmark_all)
             
-            results_file = final_opt_res.source_file.parent / f"benchmark_{target_id}_{target_source.stem}_results.json"
-            
             cps = 0.0
             bench_success = False
-            if results_file.exists():
-                try:
-                    bench_data = json.loads(results_file.read_text(encoding="utf-8"))
-                    cps = bench_data.get("calls_per_second", 0.0)
-                    bench_success = any(r.returncode == 0 and f"benchmark_{target_id}_" in str(r.stdout_file) for r in bench_results)
-                except Exception as e:
-                    print(f"  Warning: Could not parse benchmark results: {e}")
+            for r in bench_results:
+                if r.function_name == target_source.stem and r.command_result.returncode == 0 and r.parsed_result:
+                    cps = r.parsed_result.get("calls_per_second", 0.0)
+                    bench_success = cps > 0
+                    break
             
             final_opt_res.metadata["candidate_calls_per_second"] = cps
             
@@ -677,11 +681,9 @@ def optimize_target(
     }
     
     results = {}
-    for res_file in final_dir.glob("benchmark_*_results.json"):
-        try:
-            results[res_file.stem] = json.loads(res_file.read_text(encoding="utf-8"))
-        except:
-            pass
+    for r in bench_results:
+        if r.parsed_result:
+             results[f"benchmark_{r.function_id}_{r.function_name}_results"] = r.parsed_result
     summary["benchmark_results"] = results
     summary["benchmark_ok"] = len(results) > 0
     
@@ -736,7 +738,7 @@ def main() -> int:
         
         server_process = None
         try:
-            server_process = start_llama_server(model, model_dir)
+            server_process, _ = start_llama_server(model, model_dir)
             wait_for_llama_ready(server_process, model_dir)
             warm_up_llm(model_name, model_dir)
             

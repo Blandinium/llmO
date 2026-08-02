@@ -1,7 +1,17 @@
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Any
+import json
 from .command import run_command, write_json, CommandResult
 from .config import REQUIRED_ABI_SYMBOLS
+
+@dataclass
+class AbiCheckOutcome:
+    success: bool
+    command_result: CommandResult
+    report_path: Path
+    report: dict[str, Any] | None
+    error: str | None
 
 def parse_defined_symbols(nm_stdout: str) -> set[str]:
     symbols: set[str] = set()
@@ -39,3 +49,37 @@ def run_abi_symbol_check(build_dir: Path, libsut_path: Path, required_symbols: O
     if result.returncode == 0 and missing:
         return CommandResult(result.command, result.cwd, 1, result.duration_seconds, result.stdout_file, result.stderr_file)
     return result
+
+def load_abi_check_outcome(build_dir: Path, result: Optional[CommandResult]) -> AbiCheckOutcome:
+    report_path = build_dir / "abi_symbols.json"
+    report = None
+    error = None
+    success = False
+    
+    if result is None:
+        error = "ABI check not performed (no result provided)"
+    elif result.returncode != 0:
+        error = f"ABI command failed with returncode {result.returncode}"
+    elif not report_path.exists():
+        error = "ABI report file missing"
+    else:
+        try:
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            if not isinstance(report, dict):
+                 error = "ABI report contains invalid JSON (not a dictionary)"
+            elif "success" not in report:
+                 error = "ABI report missing 'success' field"
+            else:
+                 success = report.get("success", False)
+                 if not success:
+                      error = "ABI check failed: missing symbols"
+        except json.JSONDecodeError as e:
+            error = f"ABI report contains malformed JSON: {e}"
+            
+    return AbiCheckOutcome(
+        success=success,
+        command_result=result,
+        report_path=report_path,
+        report=report,
+        error=error
+    )

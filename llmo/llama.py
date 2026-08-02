@@ -5,9 +5,9 @@ import time
 import urllib.request
 import urllib.error
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from pathlib import Path
-from typing import Any, Optional, List
+from typing import Any, Optional, List, Dict
 from .config import (
     LLAMA_SERVER_EXECUTABLE, LLAMA_HOST, LLAMA_PORT, LLAMA_CTX_SIZE,
     LLAMA_THREADS, LLAMA_THREADS_BATCH, LLAMA_BATCH_SIZE, LLAMA_UBATCH_SIZE,
@@ -18,6 +18,15 @@ from .config import (
 from .command import write_json
 
 EFFECTIVE_LLAMA_CTX_SIZE = LLAMA_CTX_SIZE
+
+@dataclass
+class ChatCompletionResult:
+    content: str
+    finish_reason: str | None
+    prompt_tokens: int | None
+    completion_tokens: int | None
+    total_tokens: int | None
+    raw_response: Dict[str, Any]
 
 @dataclass
 class LlmModelConfig:
@@ -37,7 +46,7 @@ class LlmCallResult:
     success: bool
     error: Optional[str] = None
 
-def start_llama_server(model: LlmModelConfig, log_dir: Path) -> subprocess.Popen[str]:
+def start_llama_server(model: LlmModelConfig, log_dir: Path) -> tuple[subprocess.Popen[str], list[str]]:
     if not model.hf_repo:
         raise ValueError(f"LLM model {model.name!r} is missing hf_repo")
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -59,7 +68,8 @@ def start_llama_server(model: LlmModelConfig, log_dir: Path) -> subprocess.Popen
         "--no-webui",
     ]
     print("Starting llama-server:", " ".join(command))
-    return subprocess.Popen(command, cwd=str(PROJECT_ROOT), stdout=stdout, stderr=stderr, text=True)
+    process = subprocess.Popen(command, cwd=str(PROJECT_ROOT), stdout=stdout, stderr=stderr, text=True)
+    return process, command
 
 def stop_process(process: Optional[subprocess.Popen[str]]) -> None:
     if process is None or process.poll() is not None:
@@ -182,20 +192,38 @@ def detect_effective_context(log_dir: Path) -> int:
     EFFECTIVE_LLAMA_CTX_SIZE = effective
     return effective
 
-def call_llm(model_name: str, prompt: str, system_prompt: str = "You are a compiler and C++ optimization assistant. Return only the requested source code.") -> str:
+def call_llm(
+    model_name: str,
+    prompt: str,
+    system_prompt: str = "You are a compiler and C++ optimization assistant. Return only the requested source code.",
+    max_tokens: int = LLM_MAX_TOKENS,
+    temperature: float = LLM_TEMPERATURE,
+    seed: int = LLM_SEED
+) -> ChatCompletionResult:
     payload = {
         "model": model_name,
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt},
         ],
-        "temperature": LLM_TEMPERATURE,
+        "temperature": temperature,
         "top_p": LLM_TOP_P,
-        "seed": LLM_SEED,
-        "max_tokens": LLM_MAX_TOKENS,
+        "seed": seed,
+        "max_tokens": max_tokens,
     }
     response = http_json("POST", f"{LLAMA_BASE_URL}/v1/chat/completions", payload, timeout=LLAMA_REQUEST_TIMEOUT)
-    return response["choices"][0]["message"]["content"]
+    
+    choice = response["choices"][0]
+    usage = response.get("usage", {})
+    
+    return ChatCompletionResult(
+        content=choice["message"]["content"],
+        finish_reason=choice.get("finish_reason"),
+        prompt_tokens=usage.get("prompt_tokens"),
+        completion_tokens=usage.get("completion_tokens"),
+        total_tokens=usage.get("total_tokens"),
+        raw_response=response
+    )
 
 def tokenize(text: str) -> List[int]:
     try:
@@ -216,11 +244,53 @@ def count_tokens(text: str) -> int:
         return len(tokens)
     return estimate_tokens(text)
 
+@dataclass
+class TokenBudget:
+    effective_context_size: int
+    prompt_tokens: int
+    available_output_tokens: int
+    can_fit_requested_maximum: bool
+    can_fit_minimum_expected_output: bool
+    minimum_expected_output_tokens: int
+    requested_max_tokens: int
+
+def calculate_token_budget(
+    prompt: str,
+    system_prompt: str,
+    requested_max_tokens: int,
+    minimum_expected_output_tokens: int = 4096,
+    safety_margin: int = 1024
+) -> TokenBudget:
+    prompt_tokens = count_tokens(prompt) + count_tokens(system_prompt) + 50 # Add some overhead for template
+    effective_context = EFFECTIVE_LLAMA_CTX_SIZE
+    
+    # Available for completion
+    available = max(0, effective_context - prompt_tokens - safety_margin)
+    
+    can_fit_requested_maximum = available >= requested_max_tokens
+    can_fit_minimum_expected_output = available >= minimum_expected_output_tokens
+    
+    return TokenBudget(
+        effective_context_size=effective_context,
+        prompt_tokens=prompt_tokens,
+        available_output_tokens=available,
+        can_fit_requested_maximum=can_fit_requested_maximum,
+        can_fit_minimum_expected_output=can_fit_minimum_expected_output,
+        minimum_expected_output_tokens=minimum_expected_output_tokens,
+        requested_max_tokens=requested_max_tokens
+    )
+
 def warm_up_llm(model_name: str, output_dir: Path) -> None:
     prompt = "Optimize this C++ function. Return only code: int f(int x) { return x + 0; }"
     start = time.perf_counter()
     response = call_llm(model_name, prompt)
     duration = time.perf_counter() - start
     (output_dir / "warmup_prompt.txt").write_text(prompt, encoding="utf-8")
-    (output_dir / "warmup_response.txt").write_text(response, encoding="utf-8")
+    (output_dir / "warmup_response.txt").write_text(response.content, encoding="utf-8")
     write_json(output_dir / "warmup_metadata.json", {"duration_seconds": duration})
+
+def save_llm_call(target_dir: Path, name: str, result: ChatCompletionResult) -> str:
+    filename = f"{name}_response.json"
+    path = target_dir / filename
+    write_json(path, result.raw_response)
+    return filename

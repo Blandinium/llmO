@@ -1,0 +1,268 @@
+#!/usr/bin/env python3
+
+import argparse
+import sys
+import time
+import shutil
+import json
+import random
+import platform
+from datetime import datetime
+from pathlib import Path
+from typing import List, Optional, Dict, Any, Tuple
+from dataclasses import asdict
+
+from llmo.config import *
+from llmo.command import sanitize_name, write_json, write_json_atomic, sha256_sum, CommandResult
+from llmo.project import llm_target_source_files, other_sources_for_replacement, source_function_name
+from llmo.source import extract_code_block, contains_target_function_definition, read_support_headers
+from llmo.abi import run_abi_symbol_check, load_abi_check_outcome
+from llmo.benchmark import run_benchmarks_for_lib, calculate_benchmark_statistics, classify_performance, run_benchmarks_paired
+from llmo import llama
+from llmo.llama import (
+    LlmModelConfig, start_llama_server, stop_process, 
+    wait_for_llama_ready, call_llm, warm_up_llm, calculate_token_budget, count_tokens, ChatCompletionResult, save_llm_call
+)
+from llmo.build import find_libsut, compile_replacement_artifact_for_check, CompileResult
+from llmo.metadata import get_run_metadata, get_file_sha256
+
+def make_naive_cpp_optimization_prompt(target_name: str, headers: str, source: str) -> str:
+    return f"""You are an expert C++23 performance engineer.
+Task: optimize the C++ function {target_name} for maximum runtime performance.
+
+Only rewrite the function when you identify a concrete optimization that is
+unlikely to be recovered automatically by Clang -O3. If no such safe
+transformation exists, return the original function unchanged.
+
+Hard requirements:
+- Return one complete replacement for {target_name}.
+- Preserve the public C ABI exactly as declared in library.h.
+- Do not change exported names, parameter types, return types, struct layouts, ownership rules, or allocation/free conventions.
+- Do not implement unrelated exported functions.
+- Preserve externally observable behavior for all valid inputs.
+- Do not specialize for benchmark constants or hard-code benchmark results.
+- Exceptions must not escape through extern "C" APIs.
+- Do not modify library.h or sut_common.h.
+- Return raw C++ only.
+- No Markdown, explanation, notes, or code fences.
+
+Headers:
+{headers}
+
+Current {target_name}:
+{source}
+"""
+
+def is_terminal_summary(summary: Dict[str, Any]) -> bool:
+    terminal_statuses = {
+        "completed", "baseline_compile_failed", "baseline_abi_failed", 
+        "baseline_benchmark_failed", "response_truncated", 
+        "source_extraction_failed", "candidate_compile_failed", 
+        "candidate_abi_failed", "candidate_benchmark_failed", "preflight_failed"
+    }
+    return summary.get("status") in terminal_statuses
+
+def main():
+    parser = argparse.ArgumentParser(description="Naïve C++ optimization using LLM.")
+    parser.add_argument("--model", action="append", help="Run only for these models.")
+    parser.add_argument("--only", action="append", help="Optimize only this target function.")
+    parser.add_argument("--output-root", type=Path, default=BUILD_ROOT / "llm-cpp-naive", help="Output directory.")
+    parser.add_argument("--resume", action="store_true", help="Resume an interrupted run.")
+    parser.add_argument("--seed", type=int, default=LLM_SEED, help="Random seed.")
+    parser.add_argument("--benchmark-repetitions", type=int, default=3, help="Number of benchmark repetitions.")
+    parser.add_argument("--noise-threshold-percent", type=float, default=2.0, help="Noise threshold for performance classification.")
+    parser.add_argument("--full-regression-threshold-percent", type=float, default=2.0, help="Minimum improvement to run full regression check.")
+    parser.add_argument("--full-regression-check", action="store_true", help="Always run full regression check.")
+    parser.add_argument("--run-id", help="Explicit run ID (timestamp used if omitted).")
+    args = parser.parse_args()
+
+    run_id = args.run_id or datetime.now().strftime("%Y%m%dT%H%M%S_%f")
+    output_root = args.output_root / run_id
+    
+    if args.run_id and output_root.exists() and not args.resume:
+         print(f"Error: Run ID '{args.run_id}' already exists. Use --resume to continue or choose a different ID.")
+         return 1
+
+    output_root.mkdir(parents=True, exist_ok=True)
+    
+    run_meta = get_run_metadata()
+    run_meta["args"] = vars(args)
+    write_json(output_root / "run_metadata.json", run_meta)
+
+    targets = llm_target_source_files()
+    if args.only:
+        targets = [t for t in targets if t.stem in args.only]
+        
+    models_configs = [LlmModelConfig(**m) for m in LLM_MODELS]
+    if args.model:
+        models_configs = [m for m in models_configs if m.name in args.model or m.alias in args.model]
+        
+    headers = read_support_headers()
+    
+    for model in models_configs:
+        model_name = model.alias or model.name
+        model_dir = output_root / sanitize_name(model.name)
+        model_dir.mkdir(parents=True, exist_ok=True)
+        
+        server_process = None
+        try:
+            server_process, server_command = start_llama_server(model, model_dir)
+            wait_for_llama_ready(server_process, model_dir)
+            warm_up_llm(model_name, model_dir)
+            
+            from llmo import llama
+            run_meta.setdefault("models", {})[model_name] = {
+                "model_name": model.name,
+                "alias": model.alias,
+                "hf_repo": model.hf_repo,
+                "llama_server_command": server_command,
+                "effective_context_size": llama.EFFECTIVE_LLAMA_CTX_SIZE,
+            }
+            write_json_atomic(output_root / "run_metadata.json", run_meta)
+            
+            for target in targets:
+                target_dir = model_dir / sanitize_name(target.name)
+                if args.resume and (target_dir / "summary.json").exists():
+                    try:
+                        existing_summary = json.loads((target_dir / "summary.json").read_text())
+                        if is_terminal_summary(existing_summary):
+                            print(f"Skipping {target.name} for {model_name} (already completed)")
+                            continue
+                    except Exception:
+                        pass
+                
+                target_dir.mkdir(parents=True, exist_ok=True)
+                source_content = target.read_text(encoding="utf-8")
+                prompt = make_naive_cpp_optimization_prompt(target.stem, headers, source_content)
+                (target_dir / "prompt.txt").write_text(prompt, encoding="utf-8")
+                
+                target_meta = {
+                    "input_file": str(target),
+                    "input_sha256": get_file_sha256(target),
+                    "prompt_sha256": sha256_sum(prompt)
+                }
+
+                print(f"Optimizing {target.name} with {model_name}...")
+                
+                # 1. Baseline Build
+                baseline_dir = target_dir / "baseline"
+                baseline_res = compile_replacement_artifact_for_check(
+                    baseline_dir, target.name, target, "cpp", CLANG_CXX_COMPILER, 
+                    LLM_OUTPUT_COMPILE_OPTIMIZATION_LEVEL, SUT_DIR, PROJECT_ROOT, 
+                    LLM_COMPILE_TIMEOUT_SECONDS, other_sources_for_replacement(target.name)
+                )
+                
+                if not baseline_res.libsut_path:
+                    print(f"  Baseline compilation failed for {target.name}")
+                    target_meta["status"] = "baseline_compile_failed"
+                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    continue
+                
+                # 2. Baseline ABI Check
+                baseline_abi_cmd = run_abi_symbol_check(baseline_dir, baseline_res.libsut_path)
+                baseline_abi_outcome = load_abi_check_outcome(baseline_dir, baseline_abi_cmd)
+                if not baseline_abi_outcome.success:
+                    print(f"  Baseline ABI check failed for {target.name}: {baseline_abi_outcome.error}")
+                    target_meta["status"] = "baseline_abi_failed"
+                    target_meta["abi_error"] = baseline_abi_outcome.error
+                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    continue
+
+                # 3. LLM Call
+                task_start_time = time.perf_counter()
+                llm_call_start = time.perf_counter()
+                llm_result = call_llm(model_name, prompt, seed=args.seed)
+                llm_call_duration = time.perf_counter() - llm_call_start
+                
+                resp_file = save_llm_call(target_dir, "optimization", llm_result)
+                target_meta["raw_response_file"] = resp_file
+                target_meta["raw_response_sha256"] = sha256_sum(llm_result.content)
+                target_meta["llm_result"] = {
+                    "finish_reason": llm_result.finish_reason,
+                    "prompt_tokens": llm_result.prompt_tokens,
+                    "completion_tokens": llm_result.completion_tokens,
+                    "total_tokens": llm_result.total_tokens,
+                    "request_started_at": datetime.fromtimestamp(time.time() - llm_call_duration).isoformat(),
+                    "request_finished_at": datetime.now().isoformat(),
+                    "duration_seconds": llm_call_duration
+                }
+                target_meta["optimization_inference_seconds"] = llm_call_duration
+
+                if llm_result.finish_reason == "length":
+                    print(f"  Truncated response for {target.name}")
+                    target_meta["status"] = "response_truncated"
+                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    continue
+
+                # 4. Source Extraction & Preflight
+                new_source = extract_code_block(llm_result.content)
+                if not new_source.strip():
+                    target_meta["status"] = "source_extraction_failed"
+                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    continue
+                
+                if not contains_target_function_definition(new_source, target.name):
+                    target_meta["status"] = "preflight_failed"
+                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    continue
+
+                optimized_source_file = target_dir / "optimized.cpp"
+                optimized_source_file.write_text(new_source, encoding="utf-8")
+                
+                # 5. Candidate Build
+                candidate_dir = target_dir / "candidate"
+                candidate_res = compile_replacement_artifact_for_check(
+                    candidate_dir, target.name, optimized_source_file, "cpp", CLANG_CXX_COMPILER, 
+                    LLM_OUTPUT_COMPILE_OPTIMIZATION_LEVEL, SUT_DIR, PROJECT_ROOT, 
+                    LLM_COMPILE_TIMEOUT_SECONDS, other_sources_for_replacement(target.name)
+                )
+                
+                if not candidate_res.libsut_path:
+                    print(f"  Candidate compilation failed for {target.name}")
+                    target_meta["status"] = "candidate_compile_failed"
+                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    continue
+                
+                # 6. Candidate ABI Check
+                candidate_abi_cmd = run_abi_symbol_check(candidate_dir, candidate_res.libsut_path)
+                candidate_abi_outcome = load_abi_check_outcome(candidate_dir, candidate_abi_cmd)
+                if not candidate_abi_outcome.success:
+                    print(f"  Candidate ABI check failed for {target.name}: {candidate_abi_outcome.error}")
+                    target_meta["status"] = "candidate_abi_failed"
+                    target_meta["abi_error"] = candidate_abi_outcome.error
+                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    continue
+
+                # 7. Benchmarking
+                cand_stats, base_stats, order = run_benchmarks_paired(
+                    candidate_res.libsut_path, baseline_res.libsut_path, target.stem, 
+                    repetitions=args.benchmark_repetitions, seed=args.seed
+                )
+                
+                target_meta["benchmark_stats"] = cand_stats
+                target_meta["baseline_stats"] = base_stats
+                target_meta["benchmark_order"] = order
+                target_meta["performance"] = classify_performance(cand_stats, base_stats, noise_threshold=args.noise_threshold_percent / 100.0)
+                
+                if cand_stats.get("incomplete") or base_stats.get("incomplete"):
+                    target_meta["status"] = "candidate_benchmark_failed"
+                else:
+                    target_meta["status"] = "completed"
+                    
+                # 8. Full regression check
+                if base_stats.get("median_calls_per_second", 0) > 0:
+                    improvement = (cand_stats.get("median_calls_per_second", 0) - base_stats["median_calls_per_second"]) / base_stats["median_calls_per_second"]
+                    if args.full_regression_check or improvement * 100 > args.full_regression_threshold_percent:
+                        print(f"  Promising candidate (+{improvement*100:.1f}%). Running full regression check...")
+                        full_res = run_benchmarks_for_lib(candidate_dir, candidate_res.libsut_path, run_all=True)
+                        target_meta["full_regression"] = [asdict(r.command_result) for r in full_res]
+                
+                target_meta["total_inference_seconds"] = target_meta.get("optimization_inference_seconds", 0)
+                target_meta["total_task_seconds"] = time.perf_counter() - task_start_time
+                write_json_atomic(target_dir / "summary.json", target_meta)
+                
+        finally:
+            stop_process(server_process)
+
+if __name__ == "__main__":
+    main()

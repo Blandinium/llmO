@@ -14,7 +14,7 @@ from typing import Any, Optional
 from llmo.config import *
 from llmo.command import CommandResult, run_command, write_json, sanitize_name
 from llmo.abi import run_abi_symbol_check
-from llmo.benchmark import run_benchmarks_for_lib, try_write_benchmark_json
+from llmo.benchmark import run_benchmarks_for_lib, try_write_benchmark_json, BenchmarkRunResult
 from llmo.project import all_sut_cpp_files, other_sources_for_replacement
 from llmo.llvm import verify_llvm_ir
 from llmo.build import compile_replacement_artifact_for_check
@@ -57,7 +57,7 @@ class ArtifactBenchmarkMetadata:
     verify: CommandResult
     compile: CommandResult
     abi_check: Optional[CommandResult]
-    benchmarks: list[CommandResult]
+    benchmarks: list[BenchmarkRunResult]
     libsut_path: Optional[str]
     runner_path: str
     total_duration_seconds: float
@@ -173,9 +173,8 @@ def benchmark_artifact(artifact: IrArtifact, output_root: Path) -> ArtifactBench
     total_start = time.perf_counter()
     libsut_path = build_dir / "libSUT.so"
     verify_result = verify_llvm_ir(build_dir, artifact.ir_file)
-
     abi_result: Optional[CommandResult] = None
-    benchmark_results: list[CommandResult] = []
+    benchmark_results: list[BenchmarkRunResult] = []
 
     if verify_result.returncode != 0:
         compile_result = CommandResult(
@@ -311,7 +310,7 @@ def main() -> int:
             compile_ok = metadata.compile.returncode == 0
             abi_ok = metadata.abi_check is not None and metadata.abi_check.returncode == 0
             benchmark_ok = bool(metadata.benchmarks) and all(
-                result.returncode == 0 for result in metadata.benchmarks
+                result.command_result.returncode == 0 for result in metadata.benchmarks
             )
             print(f"verify:    {'ok' if verify_ok else 'failed'}")
             print(f"compile:   {'ok' if compile_ok else 'failed'}")
@@ -333,7 +332,7 @@ def main() -> int:
                         metadata.abi_check.returncode if metadata.abi_check else None
                     ),
                     "benchmark_returncodes": [
-                        result.returncode for result in metadata.benchmarks
+                        result.command_result.returncode for result in metadata.benchmarks
                     ],
                     "total_duration_seconds": metadata.total_duration_seconds,
                     "build_dir": metadata.build_dir,

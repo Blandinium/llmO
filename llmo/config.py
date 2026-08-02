@@ -9,6 +9,7 @@ BUILD_ROOT = PROJECT_ROOT / "benchmark-builds"
 CLANG_C_COMPILER = os.environ.get("CLANG_C_COMPILER", "clang")
 CLANG_CXX_COMPILER = os.environ.get("CLANG_CXX_COMPILER", "clang++")
 LLVM_OPT_TOOL = os.environ.get("LLVM_OPT_TOOL", "opt")
+LLVM_AS_TOOL = os.environ.get("LLVM_AS_TOOL", "llvm-as")
 CMAKE_GENERATOR: Optional[str] = "Ninja"
 
 OPTIMIZATION_LEVELS = ["-O0", "-O1", "-O2", "-O3", "-Ofast", "-Os", "-Oz"]

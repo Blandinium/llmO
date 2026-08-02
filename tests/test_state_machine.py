@@ -9,6 +9,7 @@ import os
 import run_iterative_cpp_optimization as script
 from llmo.command import CommandResult
 from llmo.llama import LlmModelConfig, LlmCallResult
+from tests.test_utils import make_benchmark_result, mock_abi_check_success
 
 class TestStateMachine(unittest.TestCase):
     def setUp(self):
@@ -31,12 +32,13 @@ class TestStateMachine(unittest.TestCase):
         mock_build.return_value = CommandResult([], "", 0, 0.1, str(self.temp_dir/"stdout.txt"), str(self.temp_dir/"stderr.txt"))
         mock_find_libsut.return_value = self.temp_dir / "libSUT.so"
         (self.temp_dir / "libSUT.so").write_text("dummy", encoding="utf-8")
-        mock_abi.return_value = CommandResult(["nm"], ".", 0, 0.1, str(self.temp_dir/"abi_stdout.txt"), str(self.temp_dir/"abi_stderr.txt"))
+        
+        def mock_abi_impl(build_dir, libsut, required_symbols=None):
+            return mock_abi_check_success(build_dir)
+        mock_abi.side_effect = mock_abi_impl
         
         def mock_bench_baseline(build_dir, libsut, target, run_all):
-            res_file = build_dir / f"benchmark_0_fibonacci_results.json"
-            res_file.write_text(json.dumps({"calls_per_second": 100.0}), encoding="utf-8")
-            return [CommandResult([], "", 0, 0.1, str(res_file.with_suffix(".txt")), "")]
+            return [make_benchmark_result(build_dir, function_name=target, calls_per_second=100.0)]
         mock_bench.side_effect = mock_bench_baseline
 
     def _setup_iteration_mocks(self, mock_compile, mock_parse):
@@ -55,22 +57,26 @@ class TestStateMachine(unittest.TestCase):
     @patch("run_iterative_cpp_optimization.find_libsut")
     def test_successful_optimization_hill_climbing(self, mock_find_libsut, mock_bench, mock_abi, mock_build, mock_llm, mock_compile, mock_parse):
         from llmo.remarks import Remark
+        from llmo.llama import ChatCompletionResult
         self._setup_baseline_mocks(mock_build, mock_find_libsut, mock_abi, mock_bench)
         self._setup_iteration_mocks(mock_compile, mock_parse)
         
         # Iteration 1: 150 calls/s (better)
         mock_compile.return_value = CommandResult([], "", 0, 0.1, str(self.temp_dir/"stdout.txt"), str(self.temp_dir/"stderr.txt"))
         mock_parse.return_value = [Remark("Missed", "p", "n", "fibonacci", "fibonacci.cpp", 10, 1, "msg", "RAW")]
-        mock_llm.return_value = "```cpp\nuint64_t fibonacci(int n) { return n + 1; }\n```"
+        
+        mock_llm.return_value = ChatCompletionResult(
+            content="```cpp\nuint64_t fibonacci(int n) { return n + 1; }\n```",
+            finish_reason="stop",
+            prompt_tokens=100, completion_tokens=100, total_tokens=200,
+            raw_response={}
+        )
         
         orig_bench_side_effect = mock_bench.side_effect
         def mock_bench_iterative(build_dir, libsut, target, run_all):
             if "baseline" in str(build_dir):
                 return orig_bench_side_effect(build_dir, libsut, target, run_all)
-            cps = 150.0
-            res_file = build_dir / f"benchmark_0_fibonacci_results.json"
-            res_file.write_text(json.dumps({"calls_per_second": cps}), encoding="utf-8")
-            return [CommandResult([], "", 0, 0.1, str(res_file.with_suffix(".txt")), "")]
+            return [make_benchmark_result(build_dir, function_name=target, calls_per_second=150.0)]
         mock_bench.side_effect = mock_bench_iterative
 
         res = script.optimize_target(
@@ -92,22 +98,26 @@ class TestStateMachine(unittest.TestCase):
     @patch("run_iterative_cpp_optimization.find_libsut")
     def test_rejected_slower_candidate(self, mock_find_libsut, mock_bench, mock_abi, mock_build, mock_llm, mock_compile, mock_parse):
         from llmo.remarks import Remark
+        from llmo.llama import ChatCompletionResult
         self._setup_baseline_mocks(mock_build, mock_find_libsut, mock_abi, mock_bench)
         self._setup_iteration_mocks(mock_compile, mock_parse)
         
         # Iteration 1: 80 calls/s (worse)
         mock_compile.return_value = CommandResult([], "", 0, 0.1, str(self.temp_dir/"stdout.txt"), str(self.temp_dir/"stderr.txt"))
         mock_parse.return_value = [Remark("Missed", "p", "n", "fibonacci", "fibonacci.cpp", 10, 1, "msg", "RAW")]
-        mock_llm.return_value = "```cpp\nuint64_t fibonacci(int n) { return n - 1; }\n```"
+        
+        mock_llm.return_value = ChatCompletionResult(
+            content="```cpp\nuint64_t fibonacci(int n) { return n - 1; }\n```",
+            finish_reason="stop",
+            prompt_tokens=100, completion_tokens=100, total_tokens=200,
+            raw_response={}
+        )
         
         orig_bench_side_effect = mock_bench.side_effect
         def mock_bench_iterative(build_dir, libsut, target, run_all):
             if "baseline" in str(build_dir):
                 return orig_bench_side_effect(build_dir, libsut, target, run_all)
-            cps = 80.0
-            res_file = build_dir / f"benchmark_0_fibonacci_results.json"
-            res_file.write_text(json.dumps({"calls_per_second": cps}), encoding="utf-8")
-            return [CommandResult([], "", 0, 0.1, str(res_file.with_suffix(".txt")), "")]
+            return [make_benchmark_result(build_dir, function_name=target, calls_per_second=80.0)]
         mock_bench.side_effect = mock_bench_iterative
 
         res = script.optimize_target(
@@ -126,6 +136,7 @@ class TestStateMachine(unittest.TestCase):
     @patch("run_iterative_cpp_optimization.call_llm")
     def test_no_change_immediate_stop(self, mock_llm, mock_compile, mock_parse):
         from llmo.remarks import Remark
+        from llmo.llama import ChatCompletionResult
         # We need to mock baseline first
         with patch("run_iterative_cpp_optimization.build_full_library") as mock_build, \
              patch("run_iterative_cpp_optimization.find_libsut") as mock_find, \
@@ -137,7 +148,12 @@ class TestStateMachine(unittest.TestCase):
             
             mock_parse.return_value = [Remark("Missed", "p", "n", "fibonacci", "fibonacci.cpp", 10, 1, "msg", "RAW")]
             # Return identical source
-            mock_llm.return_value = "uint64_t fibonacci(int n) { return n; }"
+            mock_llm.return_value = ChatCompletionResult(
+                content="uint64_t fibonacci(int n) { return n; }",
+                finish_reason="stop",
+                prompt_tokens=100, completion_tokens=100, total_tokens=200,
+                raw_response={}
+            )
             
             res = script.optimize_target(
                 self.model_config, self.target_source, 3, self.temp_dir / "output", 
@@ -157,6 +173,7 @@ class TestStateMachine(unittest.TestCase):
     @patch("run_iterative_cpp_optimization.count_tokens")
     def test_regression_after_improvement_hill_climbing(self, mock_count, mock_find_libsut, mock_bench, mock_abi, mock_build, mock_llm, mock_compile, mock_parse):
         from llmo.remarks import Remark
+        from llmo.llama import ChatCompletionResult
         self._setup_baseline_mocks(mock_build, mock_find_libsut, mock_abi, mock_bench)
         self._setup_iteration_mocks(mock_compile, mock_parse)
         mock_count.return_value = 10
@@ -165,20 +182,25 @@ class TestStateMachine(unittest.TestCase):
         # Iteration 2: 120 calls/s (worse than 150)
         # Iteration 3: 180 calls/s (better than 150)
         
+        def make_res(content):
+            return ChatCompletionResult(
+                content=content,
+                finish_reason="stop",
+                prompt_tokens=100, completion_tokens=100, total_tokens=200,
+                raw_response={}
+            )
+        
         mock_llm.side_effect = [
-            "uint64_t fibonacci(int n) { return n + 1; }", # Iter 1
-            "uint64_t fibonacci(int n) { return n + 2; }", # Iter 2
-            "uint64_t fibonacci(int n) { return n + 3; }"  # Iter 3
+            make_res("uint64_t fibonacci(int n) { return n + 1; }"), # Iter 1
+            make_res("uint64_t fibonacci(int n) { return n + 2; }"), # Iter 2
+            make_res("uint64_t fibonacci(int n) { return n + 3; }")  # Iter 3
         ]
         
         cps_values = [100.0, 150.0, 120.0, 180.0]
         cps_iter = iter(cps_values)
         
         def mock_bench_hill(build_dir, libsut, target, run_all):
-            cps = next(cps_iter)
-            res_file = build_dir / f"benchmark_0_fibonacci_results.json"
-            res_file.write_text(json.dumps({"calls_per_second": cps}), encoding="utf-8")
-            return [CommandResult([], "", 0, 0.1, str(res_file.with_suffix(".txt")), "")]
+            return [make_benchmark_result(build_dir, function_name=target, calls_per_second=next(cps_iter))]
         mock_bench.side_effect = mock_bench_hill
 
         sources_compiled = []
@@ -223,10 +245,13 @@ class TestStateMachine(unittest.TestCase):
         mock_build.return_value = CommandResult([], "", 0, 0.1, "", "")
         mock_find_libsut.return_value = self.temp_dir / "libSUT.so"
         (self.temp_dir / "libSUT.so").write_text("dummy", encoding="utf-8")
-        mock_abi.return_value = CommandResult([], "", 0, 0.1, "", "")
+        
+        def mock_abi_impl(build_dir, libsut, required_symbols=None):
+             return mock_abi_check_success(build_dir)
+        mock_abi.side_effect = mock_abi_impl
         
         # Benchmark command exits non-zero
-        mock_bench.return_value = [CommandResult(["runner"], ".", 1, 0.1, str(self.temp_dir/"stdout.txt"), "")]
+        mock_bench.return_value = [make_benchmark_result(self.temp_dir, returncode=1, calls_per_second=None)]
         
         res = script.optimize_target(
             self.model_config, self.target_source, 1, self.temp_dir / "output", 
@@ -246,10 +271,13 @@ class TestStateMachine(unittest.TestCase):
         mock_build.return_value = CommandResult([], "", 0, 0.1, "", "")
         mock_find_libsut.return_value = self.temp_dir / "libSUT.so"
         (self.temp_dir / "libSUT.so").touch()
-        mock_abi.return_value = CommandResult([], "", 0, 0.1, "", "")
+        
+        def mock_abi_impl(build_dir, libsut, required_symbols=None):
+             return mock_abi_check_success(build_dir)
+        mock_abi.side_effect = mock_abi_impl
         
         # Benchmark command succeeds but no JSON file is created
-        mock_bench.return_value = [CommandResult(["runner"], ".", 0, 0.1, str(self.temp_dir/"stdout.txt"), "")]
+        mock_bench.return_value = [make_benchmark_result(self.temp_dir, calls_per_second=None)]
         
         res = script.optimize_target(
             self.model_config, self.target_source, 1, self.temp_dir / "output", 
@@ -268,12 +296,13 @@ class TestStateMachine(unittest.TestCase):
         mock_build.return_value = CommandResult([], "", 0, 0.1, "", "")
         mock_find_libsut.return_value = self.temp_dir / "libSUT.so"
         (self.temp_dir / "libSUT.so").write_text("dummy", encoding="utf-8")
-        mock_abi.return_value = CommandResult([], "", 0, 0.1, "", "")
+        
+        def mock_abi_impl(build_dir, libsut, required_symbols=None):
+             return mock_abi_check_success(build_dir)
+        mock_abi.side_effect = mock_abi_impl
         
         def mock_bench_invalid(build_dir, libsut, target, run_all):
-            res_file = build_dir / f"benchmark_0_fibonacci_results.json"
-            res_file.write_text(json.dumps({"calls_per_second": -5.0}), encoding="utf-8")
-            return [CommandResult([], "", 0, 0.1, str(res_file.with_suffix(".txt")), "")]
+            return [make_benchmark_result(build_dir, function_name=target, calls_per_second=-5.0)]
         mock_bench.side_effect = mock_bench_invalid
         
         res = script.optimize_target(
@@ -293,11 +322,17 @@ class TestStateMachine(unittest.TestCase):
     @patch("run_iterative_cpp_optimization.find_libsut")
     def test_repaired_candidate_performance_check(self, mock_find_libsut, mock_bench, mock_abi, mock_build, mock_llm, mock_compile, mock_parse):
         from llmo.remarks import Remark
+        from llmo.llama import ChatCompletionResult
         self._setup_baseline_mocks(mock_build, mock_find_libsut, mock_abi, mock_bench)
         self._setup_iteration_mocks(mock_compile, mock_parse)
         
         mock_parse.return_value = [Remark("Missed", "p", "n", "fibonacci", "fib.cpp", 1, 1, "msg", "RAW")]
-        mock_llm.return_value = "```cpp\nsyntax error\n```"
+        mock_llm.return_value = ChatCompletionResult(
+            content="```cpp\nsyntax error\n```",
+            finish_reason="stop",
+            prompt_tokens=100, completion_tokens=100, total_tokens=200,
+            raw_response={}
+        )
         
         # Build fails for candidate
         mock_build.side_effect = [
@@ -319,10 +354,7 @@ class TestStateMachine(unittest.TestCase):
             # 80 calls/s for repaired candidate (baseline is 100)
             cps_iter = iter([100.0, 80.0])
             def mock_bench_cps(build_dir, libsut, target, run_all):
-                cps = next(cps_iter)
-                res_file = build_dir / f"benchmark_0_fibonacci_results.json"
-                res_file.write_text(json.dumps({"calls_per_second": cps}), encoding="utf-8")
-                return [CommandResult([], "", 0, 0.1, str(res_file.with_suffix(".txt")), "")]
+                return [make_benchmark_result(build_dir, function_name=target, calls_per_second=next(cps_iter))]
             mock_bench.side_effect = mock_bench_cps
 
             res = script.optimize_target(
@@ -346,6 +378,7 @@ class TestStateMachine(unittest.TestCase):
     @patch("run_iterative_cpp_optimization.find_libsut")
     def test_remark_consumption_after_rejection(self, mock_find_libsut, mock_bench, mock_abi, mock_build, mock_llm, mock_compile, mock_parse):
         from llmo.remarks import Remark
+        from llmo.llama import ChatCompletionResult
         self._setup_baseline_mocks(mock_build, mock_find_libsut, mock_abi, mock_bench)
         self._setup_iteration_mocks(mock_compile, mock_parse)
         
@@ -361,16 +394,18 @@ class TestStateMachine(unittest.TestCase):
         prompts = []
         def mock_llm_capture(model, prompt, system=None):
             prompts.append(prompt)
-            return "uint64_t fibonacci(int n) { return n - 1; }"
+            return ChatCompletionResult(
+                content="uint64_t fibonacci(int n) { return n - 1; }",
+                finish_reason="stop",
+                prompt_tokens=100, completion_tokens=100, total_tokens=200,
+                raw_response={}
+            )
         mock_llm.side_effect = mock_llm_capture
         
         # All candidates are 80 calls/s (rejected)
         cps_iter = iter([100.0, 80.0, 80.0])
         def mock_bench_cps(build_dir, libsut, target, run_all):
-            cps = next(cps_iter)
-            res_file = build_dir / f"benchmark_0_fibonacci_results.json"
-            res_file.write_text(json.dumps({"calls_per_second": cps}), encoding="utf-8")
-            return [CommandResult([], "", 0, 0.1, str(res_file.with_suffix(".txt")), "")]
+            return [make_benchmark_result(build_dir, function_name=target, calls_per_second=next(cps_iter))]
         mock_bench.side_effect = mock_bench_cps
 
         script.optimize_target(

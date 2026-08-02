@@ -9,6 +9,7 @@ import run_iterative_cpp_optimization as script
 from llmo.command import CommandResult
 from llmo.remarks import Remark
 from run_iterative_cpp_optimization import IterationResult
+from tests.test_utils import make_benchmark_result
 
 class TestRegressionFixes(unittest.TestCase):
     def setUp(self):
@@ -30,12 +31,15 @@ class TestRegressionFixes(unittest.TestCase):
         mock_build.return_value = CommandResult([], "", 0, 0.1, str(self.temp_dir/"stdout.txt"), str(self.temp_dir/"stderr.txt"))
         mock_find_libsut.return_value = self.temp_dir / "libSUT.so"
         (self.temp_dir / "libSUT.so").touch()
-        mock_abi.return_value = CommandResult(["nm"], ".", 0, 0.1, str(self.temp_dir/"abi_stdout.txt"), str(self.temp_dir/"abi_stderr.txt"))
+        
+        def mock_abi_impl(build_dir, libsut, required_symbols=None):
+            (build_dir / "abi_symbols.json").write_text('{"success": true}', encoding="utf-8")
+            return CommandResult(["nm"], ".", 0, 0.1, str(self.temp_dir/"abi_stdout.txt"), str(self.temp_dir/"abi_stderr.txt"))
+        mock_abi.side_effect = mock_abi_impl
+        
         if mock_bench:
             def mock_bench_baseline(build_dir, libsut, target, run_all):
-                res_file = build_dir / f"benchmark_0_fibonacci_results.json"
-                res_file.write_text(json.dumps({"calls_per_second": 100.0}), encoding="utf-8")
-                return [CommandResult([], "", 0, 0.1, str(res_file.with_suffix(".txt")), "")]
+                return [make_benchmark_result(build_dir, function_name=target, calls_per_second=100.0)]
             mock_bench.side_effect = mock_bench_baseline
 
     @patch("run_iterative_cpp_optimization.call_llm")
@@ -49,7 +53,13 @@ class TestRegressionFixes(unittest.TestCase):
         (self.temp_dir/"abi_out.txt").write_text("missing symbol: fibonacci", encoding="utf-8")
         (self.temp_dir/"abi_err.txt").write_text("ABI check failed", encoding="utf-8")
         
-        mock_llm.return_value = "uint64_t fibonacci(int n) { return n; }"
+        from llmo.llama import ChatCompletionResult
+        mock_llm.return_value = ChatCompletionResult(
+            content="uint64_t fibonacci(int n) { return n; }",
+            finish_reason="stop",
+            prompt_tokens=100, completion_tokens=100, total_tokens=200,
+            raw_response={}
+        )
         
         repair_dir = self.temp_dir / "repair"
         script.run_repair_step(

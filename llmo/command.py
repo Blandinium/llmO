@@ -1,6 +1,7 @@
 import json
 import subprocess
 import time
+import hashlib
 from dataclasses import dataclass, is_dataclass, asdict
 from pathlib import Path
 from typing import Any, Optional
@@ -58,6 +59,17 @@ def run_command(
 def write_json(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2, sort_keys=True, cls=LLMoJsonEncoder), encoding="utf-8")
+
+def write_json_atomic(path: Path, data: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = path.with_suffix(path.suffix + ".tmp")
+    write_json(temp_path, data)
+    temp_path.replace(path)
+
+def sha256_sum(content: str | bytes) -> str:
+    if isinstance(content, str):
+        content = content.encode("utf-8")
+    return hashlib.sha256(content).hexdigest()
 
 def sanitize_name(value: str) -> str:
     # Combining sanitization logic from both scripts

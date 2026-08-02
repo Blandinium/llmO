@@ -39,6 +39,47 @@ LLVM IR is the language on which the compiler runs the optimizations. These meas
 the results that matter to determine the usefullness of the current local models in the
 optimization process.
 
+## Usage
+
+### LLVM IR Optimization Runner
+This experiment measures the quality of LLVM IR transformations emitted by the LLM. It supports two backend pipelines for every candidate:
+- **Direct IR Mode (-O0)**: Compiles the modified IR without further LLVM optimizations to isolate the LLM's contribution.
+- **LLM plus LLVM Mode (-O3)**: Compiles the modified IR with full LLVM optimizations to see if the LLM transformation aids the conventional optimizer.
+
+Run one model and one benchmark:
+```bash
+./run_ir_optimization.py --model qwen3-14b-q4km --only fibonacci --backend-opt-level both --benchmark-repetitions 1
+```
+
+Full run for the specialized LLM-compiler models:
+```bash
+./run_ir_optimization.py --model llm-compiler-7b-q4km --model llm-compiler-13b-q4km --benchmark-repetitions 3
+```
+
+### Naïve C++ Optimization Runner
+Single-shot C++ optimization without feedback.
+```bash
+./run_naive_cpp_optimization.py --model qwen3-14b-q4km --only fibonacci
+```
+
+### Iterative C++ Optimization Runner
+Feedback-driven optimization using compiler remarks.
+```bash
+./run_iterative_cpp_optimization.py --model qwen3-14b-q4km --only fibonacci
+```
+
+### Resuming an Interrupted Run
+Use the `--resume` flag to skip already completed artifacts (those that reached a terminal status in all requested backend modes):
+```bash
+./run_ir_optimization.py --resume
+```
+
+### Unique Run Directories
+Each run now creates a unique timestamped directory under the output root. You can specify a custom ID with:
+```bash
+./run_ir_optimization.py --run-id my-special-experiment
+```
+
 ## Models
 I've been testing with some models of simmilar size:
 - gemma-4-12b

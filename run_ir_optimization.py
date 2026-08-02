@@ -1,0 +1,490 @@
+#!/usr/bin/env python3
+
+import argparse
+import sys
+import time
+import shutil
+import random
+import json
+import hashlib
+import platform
+from datetime import datetime
+from pathlib import Path
+from typing import List, Optional, Dict, Any, Tuple
+from dataclasses import asdict
+
+from llmo.config import *
+from llmo.command import sanitize_name, write_json, write_json_atomic, sha256_sum, CommandResult
+from llmo.project import llm_target_source_files, other_sources_for_replacement, source_function_name
+from llmo.source import extract_code_block, validate_llvm_ir_module, ValidationResult, read_support_headers
+from llmo.abi import run_abi_symbol_check, load_abi_check_outcome
+from llmo.benchmark import run_benchmarks_for_lib, calculate_benchmark_statistics, classify_performance, BenchmarkRunResult, run_benchmarks_paired
+from llmo import llama
+from llmo.llama import (
+    LlmModelConfig, start_llama_server, stop_process, 
+    wait_for_llama_ready, call_llm, warm_up_llm, calculate_token_budget, count_tokens, ChatCompletionResult, TokenBudget, save_llm_call
+)
+from llmo.build import find_libsut, CompileResult
+from llmo.llvm import generate_llvm_ir, verify_llvm_ir, compile_llvm_ir_to_lib, cleanup_llvm_ir, IrOperationResult
+from llmo.metadata import get_run_metadata, get_file_sha256
+
+def make_ir_optimization_prompt(ir_module: str) -> str:
+    return f"""You are an expert LLVM IR performance engineer.
+Task: optimize the following LLVM IR module for maximum runtime performance.
+
+Only rewrite the module when you identify a concrete optimization that is
+unlikely to be recovered automatically by LLVM -O3. If no such safe
+transformation exists, return the original module unchanged.
+
+Prioritize:
+1. Algorithmic improvements.
+2. Better data structures.
+3. Reduced allocation or copying.
+4. Removal of unnecessary library/runtime work.
+5. Safe specialization based only on guaranteed semantics.
+6. Only then low-level loop or SSA transformations.
+
+De-emphasize transformations LLVM already performs reliably, such as:
+- ordinary common-subexpression elimination
+- routine branch simplification
+- basic dead-code elimination
+- trivial inlining
+- simple loop cleanup
+
+Warning: Do not manually expand standard-library implementations or replace concise library calls with larger hand-written IR unless there is a concrete algorithmic or allocation advantage.
+
+Environment:
+- LLVM/Clang version 20.1.8
+- Input generated from C++ at -O1
+- x86-64 target
+- The target triple and datalayout must remain unchanged
+- The exported ABI must remain unchanged
+
+Hard requirements:
+- Return one complete raw LLVM IR module.
+- No Markdown, explanation, notes, or code fences.
+- No prose before or after the module.
+
+Input IR:
+{ir_module}
+"""
+
+def make_ir_repair_prompt(invalid_ir: str, errors: str) -> str:
+    return f"""You are an expert LLVM IR performance engineer.
+The following LLVM IR module is invalid according to the LLVM verifier.
+
+Task: repair the validity of the module.
+- Repair validity only.
+- Preserve the intended transformation and external ABI.
+- Return one complete raw LLVM module with no Markdown or explanation.
+
+LLVM version: 20.1.8
+
+Verifier error output:
+{errors}
+
+Invalid IR:
+{invalid_ir}
+"""
+
+
+def is_terminal_summary(summary: Dict[str, Any], requested_backend_levels: List[str]) -> bool:
+    terminal_statuses = {
+        "completed", "context_insufficient", "response_truncated", 
+        "module_extraction_failed", "invalid_after_repair", "preflight_failed", "response_empty",
+        "repair_unchanged_invalid", "repair_context_insufficient", "repair_response_truncated",
+        "repair_module_extraction_failed", "repair_preflight_failed"
+    }
+    status = summary.get("status")
+    if status not in terminal_statuses:
+        return False
+    
+    if status == "completed":
+        backend_results = summary.get("backend_results", {})
+        for lvl in requested_backend_levels:
+            if lvl not in backend_results:
+                return False
+            # If it's a success, it must have stats or a specific error
+            res = backend_results[lvl]
+            if "error" not in res and "candidate_stats" not in res:
+                return False
+    return True
+
+
+def main():
+    parser = argparse.ArgumentParser(description="LLVM IR optimization using LLM.")
+    parser.add_argument("--model", action="append", help="Run only for these models.")
+    parser.add_argument("--only", action="append", help="Optimize only this target function.")
+    parser.add_argument("--output-root", type=Path, default=BUILD_ROOT / "llm-ir-opt", help="Output directory.")
+    parser.add_argument("--resume", action="store_true", help="Resume an interrupted run.")
+    parser.add_argument("--seed", type=int, default=LLM_SEED, help="Random seed.")
+    parser.add_argument("--backend-opt-level", choices=["O0", "-O0", "O3", "-O3", "both"], default="both", help="Backend optimization level.")
+    parser.add_argument("--prompt-ir-cleanup", action="store_true", help="Clean up dead prototypes/DCE before prompting.")
+    parser.add_argument("--benchmark-repetitions", type=int, default=3, help="Number of benchmark repetitions.")
+    parser.add_argument("--noise-threshold-percent", type=float, default=2.0, help="Noise threshold for performance classification.")
+    parser.add_argument("--full-regression-threshold-percent", type=float, default=2.0, help="Minimum improvement to run full regression check.")
+    parser.add_argument("--full-regression-check", action="store_true", help="Always run full regression check.")
+    parser.add_argument("--run-id", help="Explicit run ID (timestamp used if omitted).")
+    parser.add_argument("--max-output-tokens", type=int, default=16384, help="Maximum completion tokens for optimization.")
+    args = parser.parse_args()
+
+    run_id = args.run_id or datetime.now().strftime("%Y%m%dT%H%M%S_%f")
+    output_root = args.output_root / run_id
+    
+    if args.run_id and output_root.exists() and not args.resume:
+         print(f"Error: Run ID '{args.run_id}' already exists. Use --resume to continue or choose a different ID.")
+         return 1
+
+    output_root.mkdir(parents=True, exist_ok=True)
+    
+    run_meta = get_run_metadata()
+    run_meta["args"] = vars(args)
+    write_json(output_root / "run_metadata.json", run_meta)
+
+    targets = llm_target_source_files()
+    if args.only:
+        targets = [t for t in targets if t.stem in args.only]
+        
+    models_configs = [LlmModelConfig(**m) for m in LLM_MODELS]
+    if args.model:
+        models_configs = [m for m in models_configs if m.name in args.model or m.alias in args.model]
+        
+    backend_levels = []
+    if args.backend_opt_level == "both":
+        backend_levels = ["-O0", "-O3"]
+    else:
+        lvl = args.backend_opt_level if args.backend_opt_level.startswith("-") else "-" + args.backend_opt_level
+        backend_levels = [lvl]
+
+    for model in models_configs:
+        model_name = model.alias or model.name
+        model_dir = output_root / sanitize_name(model.name)
+        model_dir.mkdir(parents=True, exist_ok=True)
+        
+        server_process = None
+        try:
+            server_process, server_command = start_llama_server(model, model_dir)
+            wait_for_llama_ready(server_process, model_dir)
+            warm_up_llm(model_name, model_dir)
+            
+            from llmo import llama
+            run_meta.setdefault("models", {})[model_name] = {
+                "model_name": model.name,
+                "alias": model.alias,
+                "hf_repo": model.hf_repo,
+                "llama_server_command": server_command,
+                "effective_context_size": llama.EFFECTIVE_LLAMA_CTX_SIZE,
+            }
+            write_json_atomic(output_root / "run_metadata.json", run_meta)
+            
+            for target_source in targets:
+                target_dir = model_dir / sanitize_name(target_source.name)
+                if args.resume and (target_dir / "summary.json").exists():
+                    try:
+                        existing_summary = json.loads((target_dir / "summary.json").read_text())
+                        if is_terminal_summary(existing_summary, backend_levels):
+                            print(f"Skipping {target_source.name} for {model_name} (already completed)")
+                            continue
+                    except Exception:
+                        pass
+                
+                target_dir.mkdir(parents=True, exist_ok=True)
+                
+                # 1. Generate Input IR
+                input_ir_res = generate_llvm_ir(target_dir, target_source)
+                if not input_ir_res.output_path:
+                    print(f"  Error generating IR for {target_source.name}")
+                    write_json_atomic(target_dir / "summary.json", {"status": "input_ir_generation_failed", "error": input_ir_res.command_result.stderr_file})
+                    continue
+                
+                input_ir_path = input_ir_res.output_path
+                
+                prompt_ir_path = input_ir_path
+                if args.prompt_ir_cleanup:
+                    cleanup_res = cleanup_llvm_ir(target_dir / "cleanup", input_ir_path)
+                    if cleanup_res.output_path:
+                        prompt_ir_path = cleanup_res.output_path
+                    else:
+                        print(f"  Error cleaning up IR for {target_source.name}")
+                        write_json_atomic(target_dir / "summary.json", {"status": "prompt_ir_cleanup_failed", "error": cleanup_res.command_result.stderr_file})
+                        continue
+                
+                ir_content = prompt_ir_path.read_text(encoding="utf-8")
+                
+                # 2. Token Budgeting
+                input_tokens = count_tokens(ir_content)
+                min_output_tokens = max(4096, int(input_tokens * 0.8))
+                
+                prompt = make_ir_optimization_prompt(ir_content)
+                system_prompt = "You are a compiler and LLVM IR optimization assistant. Return only the requested IR module."
+                
+                budget = calculate_token_budget(prompt, system_prompt, args.max_output_tokens, minimum_expected_output_tokens=min_output_tokens)
+                
+                target_meta = {
+                    "input_file": str(target_source),
+                    "input_sha256": get_file_sha256(target_source),
+                    "input_ir_sha256": get_file_sha256(prompt_ir_path),
+                    "prompt_sha256": sha256_sum(prompt),
+                    "token_budget": asdict(budget),
+                    "min_output_tokens": min_output_tokens,
+                    "configured_max_output_tokens": args.max_output_tokens
+                }
+                
+                if not budget.can_fit_minimum_expected_output:
+                    print(f"  Skipping {target_source.name}: insufficient context ({budget.available_output_tokens} < {min_output_tokens})")
+                    target_meta["status"] = "context_insufficient"
+                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    continue
+                
+                # 3. LLM Call
+                print(f"Optimizing {target_source.name} IR with {model_name}...")
+                task_start_time = time.perf_counter()
+                
+                requested_max = min(args.max_output_tokens, budget.available_output_tokens)
+                
+                validation_state = {
+                    "response_received": False,
+                    "response_complete": False,
+                    "module_extracted": False,
+                    "preflight_passed": False,
+                    "initial_verification_passed": False,
+                    "repair_attempted": False,
+                    "repair_response_received": False,
+                    "repair_response_complete": False,
+                    "repair_module_extracted": False,
+                    "repair_preflight_passed": False,
+                    "repair_verification_passed": False,
+                }
+                
+                llm_call_start = time.perf_counter()
+                llm_result = call_llm(model_name, prompt, system_prompt, max_tokens=requested_max, seed=args.seed)
+                llm_call_duration = time.perf_counter() - llm_call_start
+                
+                validation_state["response_received"] = True
+                if llm_result.finish_reason != "length":
+                    validation_state["response_complete"] = True
+
+                resp_file = save_llm_call(target_dir, "optimization", llm_result)
+                target_meta["raw_response_file"] = resp_file
+                target_meta["raw_response_sha256"] = sha256_sum(llm_result.content)
+                target_meta["llm_result"] = {
+                    "finish_reason": llm_result.finish_reason,
+                    "prompt_tokens": llm_result.prompt_tokens,
+                    "completion_tokens": llm_result.completion_tokens,
+                    "total_tokens": llm_result.total_tokens,
+                    "requested_max_tokens": requested_max,
+                    "request_started_at": datetime.fromtimestamp(time.time() - llm_call_duration).isoformat(),
+                    "request_finished_at": datetime.now().isoformat(),
+                    "duration_seconds": llm_call_duration
+                }
+                target_meta["optimization_inference_seconds"] = llm_call_duration
+                
+                if llm_result.finish_reason == "length":
+                    print(f"  Truncated response for {target_source.name}")
+                    target_meta["status"] = "response_truncated"
+                    target_meta["validation"] = validation_state
+                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    continue
+                
+                # 4. Extraction & Validation
+                extracted_ir = extract_code_block(llm_result.content)
+                if not extracted_ir.strip():
+                    target_meta["status"] = "response_empty"
+                    target_meta["validation"] = validation_state
+                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    continue
+                
+                validation_state["module_extracted"] = True
+                extracted_ir_path = target_dir / "extracted.ll"
+                extracted_ir_path.write_text(extracted_ir, encoding="utf-8")
+                initial_ir_sha256 = get_file_sha256(extracted_ir_path)
+                target_meta["extracted_module_sha256"] = initial_ir_sha256
+                
+                val_res = validate_llvm_ir_module(extracted_ir, target_source.stem, raw_response=llm_result.content)
+                if val_res.preflight_passed:
+                    validation_state["preflight_passed"] = True
+
+                target_meta["validation_details"] = asdict(val_res) # Rename to avoid confusion
+                
+                optimized_ir_path = target_dir / "optimized.ll"
+                
+                status = "unknown"
+                if validation_state["preflight_passed"]:
+                    verify_res = verify_llvm_ir(target_dir / "verify", extracted_ir_path)
+                    target_meta["verify_first_attempt"] = asdict(verify_res)
+                    target_meta["initial_verifier_stderr_path"] = verify_res.stderr_file
+                    
+                    if verify_res.returncode == 0:
+                        validation_state["initial_verification_passed"] = True
+                        status = "valid_on_first_attempt"
+                        shutil.copy2(extracted_ir_path, optimized_ir_path)
+                    else:
+                        # 5. Repair Attempt
+                        validation_state["repair_attempted"] = True
+                        print(f"  IR invalid. Attempting repair...")
+                        err_text = Path(verify_res.stderr_file).read_text(encoding="utf-8")
+                        target_meta["initial_verifier_error_excerpt"] = err_text[:1000]
+                        repair_prompt = make_ir_repair_prompt(extracted_ir, err_text)
+                        
+                        repair_budget = calculate_token_budget(repair_prompt, system_prompt, args.max_output_tokens, minimum_expected_output_tokens=min_output_tokens)
+                        target_meta["repair_token_budget"] = asdict(repair_budget)
+                        
+                        if not repair_budget.can_fit_minimum_expected_output:
+                            status = "repair_context_insufficient"
+                        else:
+                            repair_llm_start = time.perf_counter()
+                            repair_requested_max = min(args.max_output_tokens, repair_budget.available_output_tokens)
+                            repair_result = call_llm(model_name, repair_prompt, system_prompt, max_tokens=repair_requested_max, seed=args.seed)
+                            repair_llm_duration = time.perf_counter() - repair_llm_start
+                            
+                            validation_state["repair_response_received"] = True
+                            if repair_result.finish_reason != "length":
+                                validation_state["repair_response_complete"] = True
+
+                            repair_resp_file = save_llm_call(target_dir, "repair", repair_result)
+                            target_meta["repair_raw_response_file"] = repair_resp_file
+                            target_meta["repair_result"] = {
+                                "finish_reason": repair_result.finish_reason,
+                                "prompt_tokens": repair_result.prompt_tokens,
+                                "completion_tokens": repair_result.completion_tokens,
+                                "total_tokens": repair_result.total_tokens,
+                                "requested_max_tokens": repair_requested_max,
+                                "request_started_at": datetime.fromtimestamp(time.time() - repair_llm_duration).isoformat(),
+                                "request_finished_at": datetime.now().isoformat(),
+                                "duration_seconds": repair_llm_duration
+                            }
+                            target_meta["repair_inference_seconds"] = repair_llm_duration
+                            target_meta["repair_response_sha256"] = sha256_sum(repair_result.content)
+                            
+                            if repair_result.finish_reason == "length":
+                                status = "repair_response_truncated"
+                            else:
+                                repaired_ir = extract_code_block(repair_result.content)
+                                if not repaired_ir.strip():
+                                    status = "repair_module_extraction_failed"
+                                else:
+                                    validation_state["repair_module_extracted"] = True
+                                    repaired_ir_path = target_dir / "repaired.ll"
+                                    repaired_ir_path.write_text(repaired_ir, encoding="utf-8")
+                                    repair_ir_sha256 = get_file_sha256(repaired_ir_path)
+                                    target_meta["repair_module_sha256"] = repair_ir_sha256
+                                    
+                                    repair_val = validate_llvm_ir_module(repaired_ir, target_source.stem, raw_response=repair_result.content)
+                                    if repair_val.preflight_passed:
+                                        validation_state["repair_preflight_passed"] = True
+                                        
+                                        repair_verify = verify_llvm_ir(target_dir / "repair_verify", repaired_ir_path)
+                                        target_meta["verify_repair_attempt"] = asdict(repair_verify)
+                                        target_meta["repair_verifier_stderr_path"] = repair_verify.stderr_file
+                                        
+                                        if repair_verify.returncode == 0:
+                                            validation_state["repair_verification_passed"] = True
+                                            status = "valid_after_repair"
+                                            shutil.copy2(repaired_ir_path, optimized_ir_path)
+                                        else:
+                                            repair_err_text = Path(repair_verify.stderr_file).read_text(encoding="utf-8")
+                                            target_meta["repair_verifier_error_excerpt"] = repair_err_text[:1000]
+                                            
+                                            if repair_ir_sha256 == initial_ir_sha256:
+                                                status = "repair_unchanged_invalid"
+                                                target_meta["repair_module_changed"] = False
+                                            else:
+                                                status = "invalid_after_repair"
+                                                target_meta["repair_module_changed"] = True
+                                    else:
+                                        status = "repair_preflight_failed"
+                else:
+                    if not validation_state["module_extracted"]:
+                        status = "module_extraction_failed"
+                    else:
+                        status = "preflight_failed"
+                
+                target_meta["status"] = status
+                target_meta["validation"] = validation_state
+                
+                # 6. Backend & Benchmarking
+                if status in ["valid_on_first_attempt", "valid_after_repair"]:
+                    other_sources = other_sources_for_replacement(target_source.name)
+                    
+                    backend_results = {}
+                    for opt_level in backend_levels:
+                        print(f"  Benchmarking with {opt_level}...")
+                        level_dir = target_dir / f"backend_{sanitize_name(opt_level)}"
+                        
+                        # Baseline build
+                        baseline_build_dir = level_dir / "baseline"
+                        baseline_comp = compile_llvm_ir_to_lib(baseline_build_dir, prompt_ir_path, other_sources, opt_level=opt_level)
+                        
+                        # Candidate build
+                        candidate_build_dir = level_dir / "candidate"
+                        candidate_comp = compile_llvm_ir_to_lib(candidate_build_dir, optimized_ir_path, other_sources, opt_level=opt_level)
+                        
+                        if baseline_comp.output_path and candidate_comp.output_path:
+                            # ABI Check (Requirement 7)
+                            baseline_abi_cmd = run_abi_symbol_check(baseline_build_dir, baseline_comp.output_path)
+                            candidate_abi_cmd = run_abi_symbol_check(candidate_build_dir, candidate_comp.output_path)
+                            
+                            baseline_abi_outcome = load_abi_check_outcome(baseline_build_dir, baseline_abi_cmd)
+                            candidate_abi_outcome = load_abi_check_outcome(candidate_build_dir, candidate_abi_cmd)
+                            
+                            if baseline_abi_outcome.success and candidate_abi_outcome.success:
+                                cand_stats, base_stats, order = run_benchmarks_paired(
+                                    candidate_comp.output_path, baseline_comp.output_path, target_source.stem, 
+                                    repetitions=args.benchmark_repetitions, seed=args.seed
+                                )
+                                
+                                performance = classify_performance(cand_stats, base_stats, noise_threshold=args.noise_threshold_percent / 100.0)
+                                
+                                backend_results[opt_level] = {
+                                    "candidate_stats": cand_stats,
+                                    "baseline_stats": base_stats,
+                                    "performance": performance,
+                                    "benchmark_order": order,
+                                    "requested_repetitions": args.benchmark_repetitions
+                                }
+                                
+                                if cand_stats.get("incomplete") or base_stats.get("incomplete"):
+                                    backend_results[opt_level]["status"] = "benchmark_incomplete"
+                                
+                                # Regression check
+                                if base_stats.get("median_calls_per_second", 0) > 0:
+                                    improvement = (cand_stats.get("median_calls_per_second", 0) - base_stats["median_calls_per_second"]) / base_stats["median_calls_per_second"]
+                                    if args.full_regression_check or improvement * 100 > args.full_regression_threshold_percent:
+                                        print(f"  Promising candidate (+{improvement*100:.1f}%). Running full regression check...")
+                                        full_res = run_benchmarks_for_lib(candidate_build_dir, candidate_comp.output_path, run_all=True)
+                                        backend_results[opt_level]["full_regression"] = [asdict(r.command_result) for r in full_res]
+                            else:
+                                backend_results[opt_level] = {
+                                    "error": "abi_check_failed",
+                                    "baseline_abi_ok": baseline_abi_outcome.success,
+                                    "candidate_abi_ok": candidate_abi_outcome.success,
+                                    "baseline_abi_error": baseline_abi_outcome.error,
+                                    "candidate_abi_error": candidate_abi_outcome.error,
+                                    "baseline_abi_res": asdict(baseline_abi_outcome.command_result),
+                                    "candidate_abi_res": asdict(candidate_abi_outcome.command_result)
+                                }
+                        else:
+                            backend_results[opt_level] = {
+                                "error": "compilation_failed",
+                                "baseline_comp": asdict(baseline_comp.command_result),
+                                "candidate_comp": asdict(candidate_comp.command_result)
+                            }
+                    
+                    target_meta["backend_results"] = backend_results
+                    if any(res.get("error") for res in backend_results.values()):
+                         if not any("candidate_stats" in res for res in backend_results.values()):
+                             target_meta["status"] = "failed"
+                         else:
+                             target_meta["status"] = "completed_with_errors"
+                    else:
+                        target_meta["status"] = "completed"
+                
+                target_meta["total_inference_seconds"] = target_meta.get("optimization_inference_seconds", 0) + target_meta.get("repair_inference_seconds", 0)
+                target_meta["total_task_seconds"] = time.perf_counter() - task_start_time
+                write_json_atomic(target_dir / "summary.json", target_meta)
+
+        finally:
+            stop_process(server_process)
+
+if __name__ == "__main__":
+    main()

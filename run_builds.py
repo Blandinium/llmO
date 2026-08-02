@@ -442,7 +442,7 @@ def benchmark_llm_artifacts(llm_results: list[dict[str, Any]]) -> list[dict[str,
             metadata = build_and_benchmark_direct_llm_variant(variant_name, output_file, source_kind, target_source, model_name, task)
             compile_ok = metadata.compile.returncode == 0
             abi_ok = metadata.abi_check is not None and metadata.abi_check.returncode == 0
-            benchmark_ok = bool(metadata.benchmark) and all(item.returncode == 0 for item in metadata.benchmark)
+            benchmark_ok = bool(metadata.benchmark) and all(item.command_result.returncode == 0 for item in metadata.benchmark)
             print(f"compile:   {'ok' if compile_ok else 'failed'}")
             print(f"abi:       {'ok' if abi_ok else 'failed'}")
             print(f"benchmark: {'ok' if benchmark_ok else 'failed'}")
@@ -456,7 +456,7 @@ def benchmark_llm_artifacts(llm_results: list[dict[str, Any]]) -> list[dict[str,
                 "compile_returncode": metadata.compile.returncode,
                 "ir_verify_returncode": metadata.ir_verify.returncode if metadata.ir_verify else None,
                 "abi_returncode": metadata.abi_check.returncode if metadata.abi_check else None,
-                "benchmark_returncodes": [item.returncode for item in metadata.benchmark],
+                "benchmark_returncodes": [item.command_result.returncode for item in metadata.benchmark],
                 "total_duration_seconds": metadata.total_duration_seconds,
                 "build_dir": metadata.build_dir,
                 "metadata_file": str(Path(metadata.build_dir) / "build_metadata.json"),
@@ -532,7 +532,7 @@ def run_build_benchmarks() -> tuple[int, list[dict[str, Any]]]:
         configure_ok = metadata.configure.returncode == 0
         build_ok = metadata.build.returncode == 0
         abi_ok = metadata.abi_check is not None and metadata.abi_check.returncode == 0
-        benchmark_ok = bool(metadata.benchmark) and all(result.returncode == 0 for result in metadata.benchmark)
+        benchmark_ok = bool(metadata.benchmark) and all(result.command_result.returncode == 0 for result in metadata.benchmark)
         print(f"configure: {'ok' if configure_ok else 'failed'}")
         print(f"build:     {'ok' if build_ok else 'failed'}")
         print(f"abi:       {'ok' if abi_ok else 'failed'}")
@@ -544,7 +544,7 @@ def run_build_benchmarks() -> tuple[int, list[dict[str, Any]]]:
             "configure_returncode": metadata.configure.returncode,
             "build_returncode": metadata.build.returncode,
             "abi_returncode": metadata.abi_check.returncode if metadata.abi_check else None,
-            "benchmark_returncodes": [result.returncode for result in metadata.benchmark],
+            "benchmark_returncodes": [result.command_result.returncode for result in metadata.benchmark],
             "total_duration_seconds": metadata.total_duration_seconds,
             "build_dir": metadata.build_dir,
             "metadata_file": str(Path(metadata.build_dir) / "build_metadata.json"),
