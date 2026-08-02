@@ -3,7 +3,8 @@ import llmo.llama
 from pathlib import Path
 from llmo.llama import ChatCompletionResult
 from llmo.source import extract_code_block, validate_llvm_ir_module
-from llmo.benchmark import calculate_benchmark_statistics, classify_performance, parse_key_value_lines
+from llmo.benchmark import calculate_benchmark_statistics, compare_benchmarks, parse_key_value_lines
+from llmo.benchmark_protocol import BenchmarkMeasurement, BenchmarkStatistics
 from llmo.project import source_function_name
 
 def test_completion_metadata_parsing():
@@ -80,23 +81,29 @@ def test_incomplete_module_rejection():
     assert any("triple" in e.lower() for e in val.errors)
 
 def test_performance_summary_and_noise():
-    results = [
-        {"calls_per_second": 100.0, "wall_time_s": 1.0},
-        {"calls_per_second": 110.0, "wall_time_s": 0.9},
-        {"calls_per_second": 105.0, "wall_time_s": 0.95},
-    ]
-    stats = calculate_benchmark_statistics(results)
-    assert stats["median_calls_per_second"] == 105.0
-    assert stats["min_calls_per_second"] == 100.0
-    assert stats["max_calls_per_second"] == 110.0
+    m1 = BenchmarkMeasurement("a", 0, "fib", 0, 0, 100.0, 1, 1, 0, 0, {}, "out", "err")
+    m2 = BenchmarkMeasurement("a", 0, "fib", 1, 1, 110.0, 1, 1, 0, 0, {}, "out", "err")
+    m3 = BenchmarkMeasurement("a", 0, "fib", 2, 2, 105.0, 1, 1, 0, 0, {}, "out", "err")
     
-    baseline_stats = {"median_calls_per_second": 100.0}
+    stats = calculate_benchmark_statistics([m1, m2, m3])
+    assert stats.median_calls_per_second == 105.0
+    assert stats.minimum_calls_per_second == 100.0
+    assert stats.maximum_calls_per_second == 110.0
+    
+    baseline_stats = BenchmarkStatistics(3, 3, 100.0)
     # 105 vs 100 -> 5% improvement. Noise threshold 2%.
-    assert classify_performance(stats, baseline_stats, noise_threshold=0.02) == "improved"
+    comp = compare_benchmarks(stats, baseline_stats, 2.0, "base", "cand", [])
+    assert comp.classification == "improved"
+    
     # 101 vs 100 -> 1% improvement. Noise threshold 2%.
-    assert classify_performance({"median_calls_per_second": 101.0}, baseline_stats, noise_threshold=0.02) == "unchanged_within_noise"
+    cand_stats_low = BenchmarkStatistics(3, 3, 101.0)
+    comp_low = compare_benchmarks(cand_stats_low, baseline_stats, 2.0, "base", "cand", [])
+    assert comp_low.classification == "unchanged_within_noise"
+    
     # 95 vs 100 -> 5% regression.
-    assert classify_performance({"median_calls_per_second": 95.0}, baseline_stats, noise_threshold=0.02) == "regressed"
+    cand_stats_reg = BenchmarkStatistics(3, 3, 95.0)
+    comp_reg = compare_benchmarks(cand_stats_reg, baseline_stats, 2.0, "base", "cand", [])
+    assert comp_reg.classification == "regressed"
 
 def test_source_to_benchmark_mapping():
     path = Path("SUT/fibonacci.cpp")

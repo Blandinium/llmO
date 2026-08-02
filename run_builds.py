@@ -12,11 +12,13 @@ from pathlib import Path
 from typing import Any, Optional
 
 from llmo.config import *
-from llmo.command import CommandResult, run_command, write_json, sanitize_name
+from llmo.command import CommandResult, run_command, write_json, sanitize_name, write_json_atomic
 from llmo.build import BuildVariant, BuildMetadata, DirectBuildMetadata, find_libsut, compile_replacement_artifact_for_check
 from llmo.llama import LlmModelConfig, LlmCallResult, start_llama_server, stop_process, wait_for_llama_ready, call_llm, warm_up_llm
-from llmo.abi import run_abi_symbol_check
-from llmo.benchmark import run_benchmarks_for_lib, try_write_benchmark_json
+from llmo.abi import run_abi_symbol_check, load_abi_check_outcome
+from llmo.benchmark import run_benchmarks_for_lib, try_write_benchmark_json, get_randomized_balanced_sequence
+from llmo.benchmark_protocol import BenchmarkProtocol, BenchmarkMeasurement, calculate_benchmark_statistics, compare_benchmarks
+from llmo.naming import make_run_id, make_artifact_id, get_standard_path
 from llmo.project import all_sut_cpp_files, llm_target_source_files, other_sources_for_replacement, source_function_name
 from llmo.source import extract_code_block, contains_target_function_definition, read_support_headers
 from llmo.llvm import generate_llvm_ir, verify_llvm_ir
@@ -469,9 +471,9 @@ def benchmark_llm_artifacts(llm_results: list[dict[str, Any]]) -> list[dict[str,
     return benchmark_summary
 
 
-def build_and_benchmark_variant(variant: BuildVariant) -> BuildMetadata:
-    build_dir = BUILD_ROOT / variant.name
-    if CLEAN_BEFORE_BUILD and build_dir.exists():
+def build_and_benchmark_variant(variant: BuildVariant, run_dir: Path) -> BuildMetadata:
+    build_dir = run_dir / "artifacts" / variant.name
+    if build_dir.exists():
         shutil.rmtree(build_dir)
     build_dir.mkdir(parents=True, exist_ok=True)
     total_start = time.perf_counter()
@@ -491,7 +493,7 @@ def build_and_benchmark_variant(variant: BuildVariant) -> BuildMetadata:
     configure_result = run_command(configure_command, PROJECT_ROOT, build_dir / "configure_stdout.txt", build_dir / "configure_stderr.txt")
 
     build_result = CommandResult([], str(PROJECT_ROOT), -1, 0.0, str(build_dir / "build_stdout.txt"), str(build_dir / "build_stderr.txt"))
-    benchmark_results: list[CommandResult] = []
+    benchmark_results: list[BenchmarkMeasurement] = []
     abi_check: Optional[CommandResult] = None
     libsut_path: Optional[Path] = None
     runner_path: Optional[Path] = None
@@ -506,76 +508,182 @@ def build_and_benchmark_variant(variant: BuildVariant) -> BuildMetadata:
         libsut_path = find_libsut(build_dir)
         if libsut_path is not None:
             abi_check = run_abi_symbol_check(build_dir, libsut_path)
-            if abi_check.returncode == 0:
-                benchmark_results = run_benchmarks_for_lib(build_dir, libsut_path)
+            # We don't benchmark here anymore, we do it in a separate sweep
+            pass
 
-    metadata = BuildMetadata(variant, str(PROJECT_ROOT), str(build_dir), CLANG_C_COMPILER, CLANG_CXX_COMPILER, CMAKE_GENERATOR, configure_result, build_result, benchmark_results, abi_check, str(libsut_path) if libsut_path else None, str(runner_path) if runner_path else None, time.perf_counter() - total_start)
+    metadata = BuildMetadata(variant, str(PROJECT_ROOT), str(build_dir), CLANG_C_COMPILER, CLANG_CXX_COMPILER, CMAKE_GENERATOR, configure_result, build_result, [], abi_check, str(libsut_path) if libsut_path else None, str(runner_path) if runner_path else None, time.perf_counter() - total_start)
     write_json(build_dir / "build_metadata.json", asdict(metadata))
     return metadata
 
-
-def run_build_benchmarks() -> tuple[int, list[dict[str, Any]]]:
+def run_build_benchmarks(args: argparse.Namespace) -> tuple[int, list[dict[str, Any]]]:
     if not (PROJECT_ROOT / "CMakeLists.txt").exists():
         print(f"Error: no CMakeLists.txt found in {PROJECT_ROOT}", file=sys.stderr)
         return 2, []
-    BUILD_ROOT.mkdir(parents=True, exist_ok=True)
-    variants = [BuildVariant(f"clang_{sanitize_variant_name(opt)}", opt) for opt in OPTIMIZATION_LEVELS]
-    summary: list[dict[str, Any]] = []
+    
+    run_id = make_run_id(args.run_id)
+    run_dir = get_standard_path(args.output_root, "llvm", run_id)
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    variants = [BuildVariant(make_artifact_id("llvm", sanitize_variant_name(opt)), opt) for opt in OPTIMIZATION_LEVELS]
+    
+    # 1. Build all variants
+    builds = []
     for variant in variants:
-        print(f"\n=== {variant.name} ({variant.clang_optimization_flag}) ===")
+        print(f"\n=== Building {variant.name} ({variant.clang_optimization_flag}) ===")
         try:
-            metadata = build_and_benchmark_variant(variant)
+            metadata = build_and_benchmark_variant(variant, run_dir)
+            builds.append(metadata)
         except Exception as exc:
-            print(f"failed: {exc}", file=sys.stderr)
-            summary.append({"variant": asdict(variant), "failed": True, "error": str(exc)})
-            continue
-        configure_ok = metadata.configure.returncode == 0
-        build_ok = metadata.build.returncode == 0
-        abi_ok = metadata.abi_check is not None and metadata.abi_check.returncode == 0
-        benchmark_ok = bool(metadata.benchmark) and all(result.command_result.returncode == 0 for result in metadata.benchmark)
-        print(f"configure: {'ok' if configure_ok else 'failed'}")
-        print(f"build:     {'ok' if build_ok else 'failed'}")
-        print(f"abi:       {'ok' if abi_ok else 'failed'}")
-        print(f"benchmark: {'ok' if benchmark_ok else 'failed'}")
-        print(f"folder:    {metadata.build_dir}")
+            print(f"Build failed for {variant.name}: {exc}", file=sys.stderr)
+
+    # 2. Benchmark variants using randomized balanced schedule
+    protocol = BenchmarkProtocol(
+        repetitions=args.benchmark_repetitions,
+        seed=args.seed,
+        noise_threshold_percent=args.noise_threshold_percent,
+        ordering="randomized"
+    )
+    
+    valid_builds = [b for b in builds if b.build.returncode == 0 and b.libsut_path and Path(b.libsut_path).exists()]
+    artifact_ids = [b.variant.name for b in valid_builds]
+    
+    if not artifact_ids:
+        print("No valid builds to benchmark.")
+        return 1, []
+
+    sequence = get_randomized_balanced_sequence(artifact_ids, protocol.repetitions, protocol.seed)
+    
+    all_measurements: List[BenchmarkMeasurement] = []
+    reps = {aid: 0 for aid in artifact_ids}
+    
+    for i, aid in enumerate(sequence):
+        build = next(b for b in valid_builds if b.variant.name == aid)
+        libsut = Path(build.libsut_path)
+        iteration = reps[aid]
+        reps[aid] += 1
+        
+        print(f"[{i+1}/{len(sequence)}] Benchmarking {aid} (rep {iteration})...")
+        measurements = run_benchmarks_for_lib(
+            Path(build.build_dir), libsut, 
+            run_all=True, 
+            iteration=iteration,
+            artifact_id=aid,
+            sequence_index=i
+        )
+        all_measurements.extend(measurements)
+
+    # 3. Summarize results
+    summary = []
+    
+    # Also produce comparisons against a reference level (default O1)
+    ref_level = args.comparison_baseline or "-O1"
+    ref_aid = make_artifact_id("llvm", sanitize_variant_name(ref_level))
+    
+    for aid in artifact_ids:
+        build = next(b for b in builds if b.variant.name == aid)
+        variant_measurements = [m for m in all_measurements if m.artifact_id == aid]
+        
+        # We need to group by benchmark function
+        by_bench = {}
+        for m in variant_measurements:
+            by_bench.setdefault(m.benchmark_name, []).append(m)
+            
+        bench_stats = {}
+        for bname, ms in by_bench.items():
+            stats = calculate_benchmark_statistics(ms, protocol.repetitions)
+            bench_stats[bname] = asdict(stats)
+            
         summary.append({
-            "variant": asdict(variant),
-            "failed": not benchmark_ok,
-            "configure_returncode": metadata.configure.returncode,
-            "build_returncode": metadata.build.returncode,
-            "abi_returncode": metadata.abi_check.returncode if metadata.abi_check else None,
-            "benchmark_returncodes": [result.command_result.returncode for result in metadata.benchmark],
-            "total_duration_seconds": metadata.total_duration_seconds,
-            "build_dir": metadata.build_dir,
-            "metadata_file": str(Path(metadata.build_dir) / "build_metadata.json"),
+            "artifact_id": aid,
+            "variant": asdict(build.variant),
+            "build_dir": build.build_dir,
+            "benchmark_statistics": bench_stats,
+            "metadata_file": str(Path(build.build_dir) / "build_metadata.json"),
         })
-    write_json(BUILD_ROOT / "summary.json", summary)
-    print(f"\nSummary written to: {BUILD_ROOT / 'summary.json'}")
-    failed = [result for result in summary if result.get("failed")]
-    return (1 if failed else 0), summary
+        
+        art_meta = {
+            "schema_version": 2,
+            "artifact_id": aid,
+            "run_id": run_id,
+            "experiment_type": "llvm",
+            "benchmark_name": "all", # pure llvm builds contain all benchmarks
+            "pipeline_id": f"cpp-clang-{sanitize_variant_name(build.variant.clang_optimization_flag)}",
+            "compile_flags": build.variant.clang_optimization_flag,
+            "paths": {
+                "build_dir": build.build_dir,
+                "libsut": build.libsut_path
+            },
+            "benchmark_statistics": bench_stats
+        }
+        
+        # If we have a reference, add comparison
+        if ref_aid in artifact_ids and aid != ref_aid:
+            ref_measurements = [m for m in all_measurements if m.artifact_id == ref_aid]
+            ref_by_bench = {}
+            for m in ref_measurements:
+                ref_by_bench.setdefault(m.benchmark_name, []).append(m)
+            
+            comparisons = {}
+            for bname, ms in by_bench.items():
+                if bname in ref_by_bench:
+                    comp = compare_benchmarks(
+                        calculate_benchmark_statistics(ms, protocol.repetitions),
+                        calculate_benchmark_statistics(ref_by_bench[bname], protocol.repetitions),
+                        protocol.noise_threshold_percent,
+                        ref_aid,
+                        aid,
+                        sequence
+                    )
+                    comparisons[bname] = asdict(comp)
+            summary[-1]["comparisons_vs_baseline"] = comparisons
+            art_meta["comparisons_vs_baseline"] = comparisons
+
+        # Keep build-local metadata for compatibility and also publish a canonical
+        # artifact directory so the final matrix can discover every LLVM variant.
+        write_json_atomic(Path(build.build_dir) / "artifact.json", art_meta)
+        artifact_dir = run_dir / "artifacts" / aid
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+        if build.libsut_path and Path(build.libsut_path).exists():
+            shutil.copy2(build.libsut_path, artifact_dir / "libSUT.so")
+            art_meta["paths"]["canonical_libsut"] = str(artifact_dir / "libSUT.so")
+        write_json_atomic(artifact_dir / "artifact.json", art_meta)
+        write_json_atomic(artifact_dir / "benchmark-statistics.json", bench_stats)
+
+    write_json_atomic(run_dir / "summary.json", summary)
+    
+    # Run level metadata
+    from llmo.metadata import get_run_metadata
+    run_meta = get_run_metadata()
+    run_meta.update({
+        "run_id": run_id,
+        "experiment_type": "llvm",
+        "benchmark_protocol": asdict(protocol),
+        "comparison_baseline": ref_level
+    })
+    write_json_atomic(run_dir / "run.json", run_meta)
+    
+    print(f"\nSummary written to: {run_dir / 'summary.json'}")
+    return 0, summary
 
 
-def run_overnight_benchmarks() -> int:
-    clang_status, clang_summary = run_build_benchmarks()
-    all_summary: list[dict[str, Any]] = [{"variant_type": "clang", **item} for item in clang_summary]
-    models = configured_llm_models()
-    if models:
-        print(f"\nConfigured LLM models: {len(models)}")
-        print("LLM target files:", ", ".join(path.name for path in llm_target_source_files_local()))
-        llm_generation_status, llm_results = run_llm_artifact_generation()
-        llm_benchmark_summary = benchmark_llm_artifacts(llm_results)
-        all_summary.extend(llm_benchmark_summary)
-        status = 1 if (clang_status or llm_generation_status or any(item.get("failed") for item in llm_benchmark_summary)) else 0
-    else:
-        print("\nNo LLM models configured; ran Clang benchmark sweep only.")
-        status = clang_status
-    write_json(BUILD_ROOT / "summary_all.json", all_summary)
-    print(f"Combined summary written to: {BUILD_ROOT / 'summary_all.json'}")
-    return status
-
+def run_overnight_benchmarks(args: argparse.Namespace) -> int:
+    clang_status, clang_summary = run_build_benchmarks(args)
+    # The overnight part is mostly for legacy support or broad sweeps.
+    # We skip LLM generation here to keep it simple and focused on the new runners.
+    return clang_status
 
 def main() -> int:
-    return run_overnight_benchmarks()
+    import argparse
+    parser = argparse.ArgumentParser(description="Build and benchmark pure LLVM optimization levels.")
+    parser.add_argument("--benchmark-repetitions", type=int, default=3)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--noise-threshold-percent", type=float, default=2.0)
+    parser.add_argument("--comparison-baseline", default="-O1", help="Optimization level to use as baseline (e.g. -O1).")
+    parser.add_argument("--run-id", help="Explicit run ID.")
+    parser.add_argument("--output-root", type=Path, default=PROJECT_ROOT / "results")
+    args = parser.parse_args()
+    
+    return run_overnight_benchmarks(args)
 
 
 if __name__ == "__main__":

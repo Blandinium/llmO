@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Any, Optional
-from llmo.benchmark import BenchmarkRunResult
+from llmo.benchmark_protocol import BenchmarkMeasurement
 from llmo.command import CommandResult
 
 def make_benchmark_result(
@@ -11,9 +11,11 @@ def make_benchmark_result(
     returncode: int = 0,
     calls_per_second: float | None = 100.0,
     iteration: int = 0,
-) -> BenchmarkRunResult:
-    stdout_file = tmp_path / f"benchmark_{function_id}_{function_name}_iter{iteration}_stdout.txt"
-    stderr_file = tmp_path / f"benchmark_{function_id}_{function_name}_iter{iteration}_stderr.txt"
+    artifact_id: str = "unknown",
+    sequence_index: int = 0
+) -> BenchmarkMeasurement:
+    stdout_file = tmp_path / f"benchmark_{function_name}_seq{sequence_index:03d}_stdout.txt"
+    stderr_file = tmp_path / f"benchmark_{function_name}_seq{sequence_index:03d}_stderr.txt"
     
     parsed_result = None
     if returncode == 0 and calls_per_second is not None:
@@ -29,25 +31,26 @@ def make_benchmark_result(
             encoding="utf-8"
         )
     else:
+        stdout_file.parent.mkdir(parents=True, exist_ok=True)
         stdout_file.write_text("failure", encoding="utf-8")
         
+    stderr_file.parent.mkdir(parents=True, exist_ok=True)
     stderr_file.write_text("", encoding="utf-8")
     
-    cmd_res = CommandResult(
-        command=["runner", "dummy.so", str(function_id)],
-        cwd=str(tmp_path),
+    return BenchmarkMeasurement(
+        artifact_id=artifact_id,
+        benchmark_id=function_id,
+        benchmark_name=function_name,
+        repetition=iteration,
+        sequence_index=sequence_index,
+        calls_per_second=calls_per_second,
+        wall_us=1000000 if returncode == 0 else None,
+        cpu_us=990000 if returncode == 0 else None,
+        checksum=42 if returncode == 0 else None,
         returncode=returncode,
-        duration_seconds=0.1,
-        stdout_file=str(stdout_file),
-        stderr_file=str(stderr_file)
-    )
-    
-    return BenchmarkRunResult(
-        command_result=cmd_res,
-        function_id=function_id,
-        function_name=function_name,
-        iteration=iteration,
-        parsed_result=parsed_result
+        parsed_result=parsed_result,
+        stdout_path=str(stdout_file),
+        stderr_path=str(stderr_file)
     )
 
 def mock_abi_check_success(build_dir: Path) -> CommandResult:

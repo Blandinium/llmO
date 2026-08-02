@@ -17,7 +17,9 @@ from llmo.command import sanitize_name, write_json, write_json_atomic, sha256_su
 from llmo.project import llm_target_source_files, other_sources_for_replacement, source_function_name
 from llmo.source import extract_code_block, contains_target_function_definition, read_support_headers
 from llmo.abi import run_abi_symbol_check, load_abi_check_outcome
-from llmo.benchmark import run_benchmarks_for_lib, calculate_benchmark_statistics, classify_performance, run_benchmarks_paired
+from llmo.benchmark import run_benchmarks_for_lib, run_benchmarks_paired
+from llmo.benchmark_protocol import BenchmarkProtocol, BenchmarkMeasurement, calculate_benchmark_statistics, compare_benchmarks
+from llmo.naming import make_run_id, make_artifact_id, get_standard_path, sanitize_identifier
 from llmo import llama
 from llmo.llama import (
     LlmModelConfig, start_llama_server, stop_process, 
@@ -66,7 +68,7 @@ def main():
     parser = argparse.ArgumentParser(description="Naïve C++ optimization using LLM.")
     parser.add_argument("--model", action="append", help="Run only for these models.")
     parser.add_argument("--only", action="append", help="Optimize only this target function.")
-    parser.add_argument("--output-root", type=Path, default=BUILD_ROOT / "llm-cpp-naive", help="Output directory.")
+    parser.add_argument("--output-root", type=Path, default=PROJECT_ROOT / "results", help="Output directory.")
     parser.add_argument("--resume", action="store_true", help="Resume an interrupted run.")
     parser.add_argument("--seed", type=int, default=LLM_SEED, help="Random seed.")
     parser.add_argument("--benchmark-repetitions", type=int, default=3, help="Number of benchmark repetitions.")
@@ -76,18 +78,31 @@ def main():
     parser.add_argument("--run-id", help="Explicit run ID (timestamp used if omitted).")
     args = parser.parse_args()
 
-    run_id = args.run_id or datetime.now().strftime("%Y%m%dT%H%M%S_%f")
-    output_root = args.output_root / run_id
+    run_id = make_run_id(args.run_id)
+    experiment_type = "naive-cpp"
     
-    if args.run_id and output_root.exists() and not args.resume:
+    protocol = BenchmarkProtocol(
+        repetitions=args.benchmark_repetitions,
+        seed=args.seed,
+        noise_threshold_percent=args.noise_threshold_percent,
+        ordering="paired"
+    )
+
+    run_dir = get_standard_path(args.output_root, experiment_type, run_id)
+    if args.run_id and run_dir.exists() and not args.resume:
          print(f"Error: Run ID '{args.run_id}' already exists. Use --resume to continue or choose a different ID.")
          return 1
 
-    output_root.mkdir(parents=True, exist_ok=True)
+    run_dir.mkdir(parents=True, exist_ok=True)
     
     run_meta = get_run_metadata()
-    run_meta["args"] = vars(args)
-    write_json(output_root / "run_metadata.json", run_meta)
+    run_meta.update({
+        "run_id": run_id,
+        "experiment_type": experiment_type,
+        "benchmark_protocol": asdict(protocol),
+        "args": vars(args)
+    })
+    write_json_atomic(run_dir / "run.json", run_meta)
 
     targets = llm_target_source_files()
     if args.only:
@@ -101,16 +116,16 @@ def main():
     
     for model in models_configs:
         model_name = model.alias or model.name
-        model_dir = output_root / sanitize_name(model.name)
-        model_dir.mkdir(parents=True, exist_ok=True)
+        model_id = sanitize_identifier(model.name)
+        model_run_dir = run_dir / model_id
+        model_run_dir.mkdir(parents=True, exist_ok=True)
         
         server_process = None
         try:
-            server_process, server_command = start_llama_server(model, model_dir)
-            wait_for_llama_ready(server_process, model_dir)
-            warm_up_llm(model_name, model_dir)
+            server_process, server_command = start_llama_server(model, model_run_dir)
+            wait_for_llama_ready(server_process, model_run_dir)
+            warm_up_llm(model_name, model_run_dir)
             
-            from llmo import llama
             run_meta.setdefault("models", {})[model_name] = {
                 "model_name": model.name,
                 "alias": model.alias,
@@ -118,10 +133,10 @@ def main():
                 "llama_server_command": server_command,
                 "effective_context_size": llama.EFFECTIVE_LLAMA_CTX_SIZE,
             }
-            write_json_atomic(output_root / "run_metadata.json", run_meta)
+            write_json_atomic(run_dir / "run.json", run_meta)
             
             for target in targets:
-                target_dir = model_dir / sanitize_name(target.name)
+                target_dir = model_run_dir / sanitize_name(target.name)
                 if args.resume and (target_dir / "summary.json").exists():
                     try:
                         existing_summary = json.loads((target_dir / "summary.json").read_text())
@@ -136,7 +151,17 @@ def main():
                 prompt = make_naive_cpp_optimization_prompt(target.stem, headers, source_content)
                 (target_dir / "prompt.txt").write_text(prompt, encoding="utf-8")
                 
+                # Artifact ID
+                base_aid = make_artifact_id(experiment_type, target.stem, model_id, suffix="baseline")
+                cand_aid = make_artifact_id(experiment_type, target.stem, model_id, suffix="candidate")
+                final_aid = make_artifact_id(experiment_type, target.stem, model_id, suffix="final")
+
                 target_meta = {
+                    "artifact_id": cand_aid,
+                    "run_id": run_id,
+                    "experiment_type": experiment_type,
+                    "model_id": model_id,
+                    "benchmark_name": target.stem,
                     "input_file": str(target),
                     "input_sha256": get_file_sha256(target),
                     "prompt_sha256": sha256_sum(prompt)
@@ -233,33 +258,53 @@ def main():
                     write_json_atomic(target_dir / "summary.json", target_meta)
                     continue
 
-                # 7. Benchmarking
-                cand_stats, base_stats, order = run_benchmarks_paired(
+                # 7. Selection Benchmarking
+                print(f"  Comparing candidate against baseline...")
+                comparison = run_benchmarks_paired(
                     candidate_res.libsut_path, baseline_res.libsut_path, target.stem, 
-                    repetitions=args.benchmark_repetitions, seed=args.seed
+                    protocol=protocol,
+                    candidate_id=cand_aid,
+                    baseline_id=base_aid
                 )
                 
-                target_meta["benchmark_stats"] = cand_stats
-                target_meta["baseline_stats"] = base_stats
-                target_meta["benchmark_order"] = order
-                target_meta["performance"] = classify_performance(cand_stats, base_stats, noise_threshold=args.noise_threshold_percent / 100.0)
+                target_meta["selection_comparison"] = asdict(comparison)
                 
-                if cand_stats.get("incomplete") or base_stats.get("incomplete"):
+                if comparison.classification == "benchmark_failed":
                     target_meta["status"] = "candidate_benchmark_failed"
                 else:
                     target_meta["status"] = "completed"
                     
-                # 8. Full regression check
-                if base_stats.get("median_calls_per_second", 0) > 0:
-                    improvement = (cand_stats.get("median_calls_per_second", 0) - base_stats["median_calls_per_second"]) / base_stats["median_calls_per_second"]
-                    if args.full_regression_check or improvement * 100 > args.full_regression_threshold_percent:
-                        print(f"  Promising candidate (+{improvement*100:.1f}%). Running full regression check...")
-                        full_res = run_benchmarks_for_lib(candidate_dir, candidate_res.libsut_path, run_all=True)
-                        target_meta["full_regression"] = [asdict(r.command_result) for r in full_res]
+                # 8. Final Confirmation Benchmarking
+                if comparison.classification == "improved":
+                     print(f"  Accepted as improved ({comparison.relative_change_percent:+.1f}%). Performing final confirmation...")
+                     # In naive runner, if only one candidate, final is the same as selection but we record it separately
+                     # or we could run it again with more reps? The requirement says "fresh final confirmation comparison".
+                     # I'll run it again.
+                     final_dir = get_standard_path(args.output_root, experiment_type, run_id, final_aid)
+                     final_dir.mkdir(parents=True, exist_ok=True)
+                     shutil.copy2(optimized_source_file, final_dir / "optimized.cpp")
+                     shutil.copy2(candidate_res.libsut_path, final_dir / "libSUT.so")
+                     
+                     final_comparison = run_benchmarks_paired(
+                        candidate_res.libsut_path, baseline_res.libsut_path, target.stem, 
+                        protocol=protocol,
+                        candidate_id=final_aid,
+                        baseline_id=base_aid
+                     )
+                     target_meta["final_confirmation"] = asdict(final_comparison)
+                
+                # Full regression check if requested or promising
+                if comparison.relative_change_percent and (args.full_regression_check or comparison.relative_change_percent > args.full_regression_threshold_percent):
+                    print(f"  Running full regression check...")
+                    full_res = run_benchmarks_for_lib(candidate_dir, candidate_res.libsut_path, run_all=True)
+                    target_meta["full_regression_measurements"] = [asdict(m) for m in full_res]
                 
                 target_meta["total_inference_seconds"] = target_meta.get("optimization_inference_seconds", 0)
                 target_meta["total_task_seconds"] = time.perf_counter() - task_start_time
                 write_json_atomic(target_dir / "summary.json", target_meta)
+                
+                # Write artifact metadata
+                write_json_atomic(target_dir / "artifact.json", target_meta)
                 
         finally:
             stop_process(server_process)

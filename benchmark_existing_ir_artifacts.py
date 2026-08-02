@@ -13,8 +13,9 @@ from typing import Any, Optional
 
 from llmo.config import *
 from llmo.command import CommandResult, run_command, write_json, sanitize_name
-from llmo.abi import run_abi_symbol_check
-from llmo.benchmark import run_benchmarks_for_lib, try_write_benchmark_json, BenchmarkRunResult
+from llmo.abi import run_abi_symbol_check, load_abi_check_outcome
+from llmo.benchmark import run_benchmarks_for_lib
+from llmo.benchmark_protocol import BenchmarkMeasurement, calculate_benchmark_statistics
 from llmo.project import all_sut_cpp_files, other_sources_for_replacement
 from llmo.llvm import verify_llvm_ir
 from llmo.build import compile_replacement_artifact_for_check
@@ -163,7 +164,7 @@ def variant_name_for_artifact(artifact: IrArtifact) -> str:
     )
 
 
-def benchmark_artifact(artifact: IrArtifact, output_root: Path) -> ArtifactBenchmarkMetadata:
+def benchmark_artifact(artifact: IrArtifact, output_root: Path, repetitions: int = 1) -> ArtifactBenchmarkMetadata:
     variant_name = variant_name_for_artifact(artifact)
     build_dir = output_root / variant_name
     if CLEAN_BEFORE_BUILD and build_dir.exists():
@@ -174,7 +175,7 @@ def benchmark_artifact(artifact: IrArtifact, output_root: Path) -> ArtifactBench
     libsut_path = build_dir / "libSUT.so"
     verify_result = verify_llvm_ir(build_dir, artifact.ir_file)
     abi_result: Optional[CommandResult] = None
-    benchmark_results: list[BenchmarkRunResult] = []
+    all_measurements: list[BenchmarkMeasurement] = []
 
     if verify_result.returncode != 0:
         compile_result = CommandResult(
@@ -198,14 +199,21 @@ def benchmark_artifact(artifact: IrArtifact, output_root: Path) -> ArtifactBench
             other_sources_for_replacement(artifact.function_name)
         )
         if compile_result.returncode == 0 and libsut_path.exists():
-            abi_result = run_abi_symbol_check(build_dir, libsut_path)
-            if abi_result.returncode == 0:
-                benchmark_results = run_benchmarks_for_lib(
-                    build_dir,
-                    libsut_path,
-                    target_function_name=artifact.function_name,
-                    run_all=RUN_ALL_BENCHMARKS
-                )
+            abi_cmd = run_abi_symbol_check(build_dir, libsut_path)
+            abi_outcome = load_abi_check_outcome(build_dir, abi_cmd)
+            abi_result = abi_cmd
+            if abi_outcome.success:
+                for rep in range(repetitions):
+                    measurements = run_benchmarks_for_lib(
+                        build_dir,
+                        libsut_path,
+                        target_function_name=artifact.function_name,
+                        run_all=RUN_ALL_BENCHMARKS,
+                        iteration=rep,
+                        artifact_id=variant_name,
+                        sequence_index=rep
+                    )
+                    all_measurements.extend(measurements)
 
     metadata = ArtifactBenchmarkMetadata(
         variant_name=variant_name,
@@ -218,7 +226,7 @@ def benchmark_artifact(artifact: IrArtifact, output_root: Path) -> ArtifactBench
         verify=verify_result,
         compile=compile_result,
         abi_check=abi_result,
-        benchmarks=benchmark_results,
+        benchmarks=all_measurements,
         libsut_path=str(libsut_path) if libsut_path.exists() else None,
         runner_path=str(RUNNER_EXECUTABLE),
         total_duration_seconds=time.perf_counter() - total_start,
@@ -252,6 +260,7 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="List discovered artifacts without compiling or benchmarking them.",
     )
+    parser.add_argument("--benchmark-repetitions", type=int, default=1)
     return parser.parse_args()
 
 
@@ -305,12 +314,12 @@ def main() -> int:
         variant_name = variant_name_for_artifact(artifact)
         print(f"\n[{index}/{len(artifacts)}] === {variant_name} ===")
         try:
-            metadata = benchmark_artifact(artifact, output_root)
+            metadata = benchmark_artifact(artifact, output_root, repetitions=args.benchmark_repetitions)
             verify_ok = metadata.verify.returncode == 0
             compile_ok = metadata.compile.returncode == 0
             abi_ok = metadata.abi_check is not None and metadata.abi_check.returncode == 0
             benchmark_ok = bool(metadata.benchmarks) and all(
-                result.command_result.returncode == 0 for result in metadata.benchmarks
+                m.returncode == 0 for m in metadata.benchmarks
             )
             print(f"verify:    {'ok' if verify_ok else 'failed'}")
             print(f"compile:   {'ok' if compile_ok else 'failed'}")
@@ -332,7 +341,7 @@ def main() -> int:
                         metadata.abi_check.returncode if metadata.abi_check else None
                     ),
                     "benchmark_returncodes": [
-                        result.command_result.returncode for result in metadata.benchmarks
+                        m.returncode for m in metadata.benchmarks
                     ],
                     "total_duration_seconds": metadata.total_duration_seconds,
                     "build_dir": metadata.build_dir,

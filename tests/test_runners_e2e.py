@@ -6,6 +6,20 @@ from pathlib import Path
 import run_ir_optimization
 import run_naive_cpp_optimization
 
+def _mock_comparison(classification="unchanged_within_noise", change=0.0):
+    from llmo.benchmark_protocol import BenchmarkComparison, BenchmarkStatistics
+    stats = BenchmarkStatistics(1, 1, 100.0, 100.0, 100.0, 100.0, 0.0)
+    return BenchmarkComparison(
+        baseline_artifact_id="baseline",
+        candidate_artifact_id="candidate",
+        baseline_statistics=stats,
+        candidate_statistics=stats,
+        relative_change_percent=change,
+        classification=classification,
+        sequence=["baseline", "candidate"],
+        noise_threshold_percent=2.0,
+    )
+
 @pytest.fixture
 def mock_env(tmp_path, monkeypatch):
     # Mock LLM Models config
@@ -79,16 +93,10 @@ def test_ir_runner_mocked(mock_env, monkeypatch):
     monkeypatch.setattr("run_ir_optimization.run_abi_symbol_check", mock_abi)
     
     # Mock benchmarks
-    from llmo.benchmark import BenchmarkRunResult
-    from llmo.command import CommandResult
-    mock_bench = BenchmarkRunResult(
-        command_result=CommandResult(["runner"], ".", 0, 0.1, "out", "err"),
-        function_id=0,
-        function_name="fibonacci",
-        iteration=0,
-        parsed_result={"calls_per_second": 100.0, "wall_time_s": 1.0}
-    )
-    monkeypatch.setattr("run_ir_optimization.run_benchmarks_for_lib", MagicMock(return_value=[mock_bench]))
+    from llmo.benchmark_protocol import BenchmarkMeasurement
+    mock_m = BenchmarkMeasurement("a", 0, "fibonacci", 0, 0, 100.0, 1, 1, 0, 0, {}, "out", "err")
+    monkeypatch.setattr("run_ir_optimization.run_benchmarks_for_lib", MagicMock(return_value=[mock_m]))
+    monkeypatch.setattr("run_ir_optimization.run_benchmarks_paired", MagicMock(return_value=_mock_comparison()))
 
     # Run main
     args = ["run_ir_optimization.py", "--model", "test-model", "--only", "fibonacci", "--output-root", str(tmp_path), "--backend-opt-level", "O3", "--benchmark-repetitions", "1", "--run-id", "test-run"]
@@ -96,7 +104,7 @@ def test_ir_runner_mocked(mock_env, monkeypatch):
         run_ir_optimization.main()
     
     # Verify results
-    summary_path = tmp_path / "test-run" / "test_model" / "fibonacci_cpp" / "summary.json"
+    summary_path = tmp_path / "llm-ir" / "test-run" / "test-model" / "fibonacci_cpp" / "summary.json"
     assert summary_path.exists()
     summary = json.loads(summary_path.read_text())
     assert summary["status"] == "completed"
@@ -136,15 +144,10 @@ def test_naive_runner_mocked(mock_env, monkeypatch):
     monkeypatch.setattr("run_naive_cpp_optimization.run_abi_symbol_check", mock_abi_naive)
     
     # Mock benchmarks
-    from llmo.benchmark import BenchmarkRunResult
-    mock_bench = BenchmarkRunResult(
-        command_result=CommandResult([], ".", 0, 0.1, "out", "err"),
-        function_id=0,
-        function_name="fibonacci",
-        iteration=0,
-        parsed_result={"calls_per_second": 100.0, "wall_time_s": 1.0}
-    )
-    monkeypatch.setattr("run_naive_cpp_optimization.run_benchmarks_for_lib", MagicMock(return_value=[mock_bench]))
+    from llmo.benchmark_protocol import BenchmarkMeasurement
+    mock_m = BenchmarkMeasurement("a", 0, "fibonacci", 0, 0, 100.0, 1, 1, 0, 0, {}, "out", "err")
+    monkeypatch.setattr("run_naive_cpp_optimization.run_benchmarks_for_lib", MagicMock(return_value=[mock_m]))
+    monkeypatch.setattr("run_naive_cpp_optimization.run_benchmarks_paired", MagicMock(return_value=_mock_comparison()))
 
     # Run main
     args = ["run_naive_cpp_optimization.py", "--model", "test-model", "--only", "fibonacci", "--output-root", str(tmp_path), "--benchmark-repetitions", "1", "--run-id", "test-run-naive"]
@@ -152,7 +155,7 @@ def test_naive_runner_mocked(mock_env, monkeypatch):
         run_naive_cpp_optimization.main()
     
     # Verify results
-    summary_path = tmp_path / "test-run-naive" / "test_model" / "fibonacci_cpp" / "summary.json"
+    summary_path = tmp_path / "naive-cpp" / "test-run-naive" / "test-model" / "fibonacci_cpp" / "summary.json"
     assert summary_path.exists()
     summary = json.loads(summary_path.read_text())
     assert summary["status"] == "completed"
@@ -204,7 +207,7 @@ def test_ir_runner_repair_unchanged(mock_env, monkeypatch):
         run_ir_optimization.main()
     
     # Verify results
-    summary_path = tmp_path / "test-repair-unchanged" / "test_model" / "fibonacci_cpp" / "summary.json"
+    summary_path = tmp_path / "llm-ir" / "test-repair-unchanged" / "test-model" / "fibonacci_cpp" / "summary.json"
     assert summary_path.exists()
     summary = json.loads(summary_path.read_text())
     assert summary["status"] == "repair_unchanged_invalid"
@@ -236,7 +239,8 @@ def test_ir_runner_initial_extraction_fails(mock_env, monkeypatch):
     with patch("sys.argv", args):
         run_ir_optimization.main()
     
-    summary = json.loads((tmp_path / "test-extract-fail" / "test_model" / "fibonacci_cpp" / "summary.json").read_text())
+    summary_path = tmp_path / "llm-ir" / "test-extract-fail" / "test-model" / "fibonacci_cpp" / "summary.json"
+    summary = json.loads(summary_path.read_text())
     assert summary["status"] == "response_empty"
     assert summary["validation"]["module_extracted"] is False
 
@@ -273,7 +277,8 @@ def test_ir_runner_repair_truncated(mock_env, monkeypatch):
     with patch("sys.argv", args):
         run_ir_optimization.main()
     
-    summary = json.loads((tmp_path / "test-repair-truncated" / "test_model" / "fibonacci_cpp" / "summary.json").read_text())
+    summary_path = tmp_path / "llm-ir" / "test-repair-truncated" / "test-model" / "fibonacci_cpp" / "summary.json"
+    summary = json.loads(summary_path.read_text())
     assert summary["status"] == "repair_response_truncated"
     assert summary["validation"]["repair_attempted"] is True
     assert summary["validation"]["repair_response_complete"] is False
@@ -323,14 +328,21 @@ def test_ir_runner_repair_success(mock_env, monkeypatch):
         return CommandResult(["nm"], ".", 0, 0.1, "out", "err")
     monkeypatch.setattr("run_ir_optimization.run_abi_symbol_check", mock_abi)
 
-    from llmo.benchmark import BenchmarkRunResult
-    mock_bench = BenchmarkRunResult(CommandResult([], ".", 0, 0.1, "out", "err"), 0, "fibonacci", 0, {"calls_per_second": 100})
-    monkeypatch.setattr("run_ir_optimization.run_benchmarks_paired", MagicMock(return_value=({"calls_per_second": 110}, {"calls_per_second": 100}, ["cand", "base"])))
+    from llmo.benchmark_protocol import BenchmarkMeasurement, BenchmarkComparison, BenchmarkStatistics
+    mock_comp = BenchmarkComparison(
+        baseline_artifact_id="base", candidate_artifact_id="cand",
+        baseline_statistics=BenchmarkStatistics(1, 1, 100.0),
+        candidate_statistics=BenchmarkStatistics(1, 1, 110.0),
+        relative_change_percent=10.0, classification="improved",
+        sequence=["base", "cand"], noise_threshold_percent=2.0
+    )
+    monkeypatch.setattr("run_ir_optimization.run_benchmarks_paired", MagicMock(return_value=mock_comp))
 
     args = ["run_ir_optimization.py", "--model", "test-model", "--only", "fibonacci", "--output-root", str(tmp_path), "--run-id", "test-repair-success", "--backend-opt-level", "O3", "--benchmark-repetitions", "1"]
     with patch("sys.argv", args):
         run_ir_optimization.main()
     
-    summary = json.loads((tmp_path / "test-repair-success" / "test_model" / "fibonacci_cpp" / "summary.json").read_text())
+    summary_path = tmp_path / "llm-ir" / "test-repair-success" / "test-model" / "fibonacci_cpp" / "summary.json"
+    summary = json.loads(summary_path.read_text())
     assert summary["status"] == "completed"
     assert summary["validation"]["repair_verification_passed"] is True

@@ -9,7 +9,8 @@ import run_iterative_cpp_optimization as script
 from llmo.command import CommandResult
 from llmo.remarks import Remark
 from run_iterative_cpp_optimization import IterationResult
-from tests.test_utils import make_benchmark_result
+from tests.test_utils import make_benchmark_result, mock_abi_check_success
+from llmo.benchmark_protocol import BenchmarkProtocol
 
 class TestRegressionFixes(unittest.TestCase):
     def setUp(self):
@@ -33,13 +34,12 @@ class TestRegressionFixes(unittest.TestCase):
         (self.temp_dir / "libSUT.so").touch()
         
         def mock_abi_impl(build_dir, libsut, required_symbols=None):
-            (build_dir / "abi_symbols.json").write_text('{"success": true}', encoding="utf-8")
-            return CommandResult(["nm"], ".", 0, 0.1, str(self.temp_dir/"abi_stdout.txt"), str(self.temp_dir/"abi_stderr.txt"))
+            return mock_abi_check_success(build_dir)
         mock_abi.side_effect = mock_abi_impl
         
         if mock_bench:
-            def mock_bench_baseline(build_dir, libsut, target, run_all):
-                return [make_benchmark_result(build_dir, function_name=target, calls_per_second=100.0)]
+            def mock_bench_baseline(build_dir, libsut, target, run_all, artifact_id="unknown", iteration=0, sequence_index=0):
+                return [make_benchmark_result(build_dir, function_name=target, calls_per_second=100.0, artifact_id=artifact_id, iteration=iteration, sequence_index=sequence_index)]
             mock_bench.side_effect = mock_bench_baseline
 
     @patch("run_iterative_cpp_optimization.call_llm")
@@ -52,6 +52,7 @@ class TestRegressionFixes(unittest.TestCase):
         (self.temp_dir/"c_err.txt").write_text("", encoding="utf-8")
         (self.temp_dir/"abi_out.txt").write_text("missing symbol: fibonacci", encoding="utf-8")
         (self.temp_dir/"abi_err.txt").write_text("ABI check failed", encoding="utf-8")
+        (self.temp_dir / "abi_symbols.json").write_text('{"success": false, "error": "missing symbol: fibonacci"}')
         
         from llmo.llama import ChatCompletionResult
         mock_llm.return_value = ChatCompletionResult(
@@ -89,13 +90,14 @@ class TestRegressionFixes(unittest.TestCase):
         mock_compile.return_value = initial_comp_res
         (self.temp_dir/"initial_err.txt").write_text("error A", encoding="utf-8")
         
+        protocol = BenchmarkProtocol(3, 42, 2.0, "paired")
         with patch("run_iterative_cpp_optimization.LLM_MODELS", []):
             res = script.optimize_target(
                 self.model_config, self.target_source, 1, self.temp_dir / "output",
-                self.headers, False
+                self.headers, False, protocol, "test-run"
             )
         
-        # It should have stopped because remark compilation failed and we no longer repair it here (terminal stop choice)
+        # It should have stopped because remark compilation failed
         self.assertEqual(res["stopped_reason"], "remark_compilation_failed")
         self.assertEqual(mock_repair.call_count, 0)
 
@@ -115,9 +117,10 @@ class TestRegressionFixes(unittest.TestCase):
             IterationResult(1, "optimization", True, source_1, metadata={"remark_count_remaining": 1}),
         ]
         
+        protocol = BenchmarkProtocol(3, 42, 2.0, "paired")
         res = script.optimize_target(
             self.model_config, self.target_source, 2, self.temp_dir / "output",
-            self.headers, False
+            self.headers, False, protocol, "test-run"
         )
         
         self.assertEqual(res["stopped_reason"], "no_change")

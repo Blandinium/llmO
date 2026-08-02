@@ -1,0 +1,423 @@
+#!/usr/bin/env python3
+
+import argparse
+import json
+import os
+import shutil
+import sys
+import time
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+
+from llmo.config import *
+from llmo.command import run_command, write_json, write_json_atomic, CommandResult, sanitize_name
+from llmo.benchmark import run_benchmarks_for_lib, get_randomized_balanced_sequence
+from llmo.benchmark_protocol import BenchmarkProtocol, BenchmarkMeasurement, calculate_benchmark_statistics, compare_benchmarks
+from llmo.naming import make_run_id, make_artifact_id, get_standard_path, sanitize_identifier
+from llmo.metadata import get_run_metadata
+from llmo.abi import run_abi_symbol_check, load_abi_check_outcome
+
+@dataclass
+class ArtifactDefinition:
+    artifact_id: str
+    experiment_type: str
+    benchmark_name: str
+    library_path: Path
+    model_id: Optional[str] = None
+    pipeline_id: Optional[str] = None
+    run_id: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+
+def _is_intermediate_artifact(artifact: ArtifactDefinition) -> bool:
+    """Return True for optimizer-internal artifacts excluded from final reports."""
+    meta = artifact.metadata or {}
+    if meta.get("is_final_artifact") is True:
+        return False
+    if artifact.experiment_type == "guided-cpp":
+        suffix = artifact.artifact_id.rsplit("__", 1)[-1]
+        return suffix == "baseline" or suffix.startswith("iteration-")
+    return False
+
+
+def _legacy_ir_artifacts_from_summary(
+    summary_path: Path, meta: Dict[str, Any], results_root: Path
+) -> List[ArtifactDefinition]:
+    """Expand pre-canonical IR summaries into backend baseline/candidate artifacts."""
+    try:
+        rel = summary_path.relative_to(results_root)
+    except ValueError:
+        return []
+    if not rel.parts or rel.parts[0] != "llm-ir":
+        return []
+    benchmark_name = meta.get("benchmark_name") or summary_path.parent.name.removesuffix("_cpp")
+    model_id = meta.get("model_id") or (rel.parts[-3] if len(rel.parts) >= 3 else "unknown")
+    run_id = meta.get("run_id") or (rel.parts[1] if len(rel.parts) > 1 else None)
+    results: list[ArtifactDefinition] = []
+    for opt_level in ("-O0", "-O3"):
+        level_key = opt_level.removeprefix("-")
+        pipeline_id = f"ir-o1__backend-{level_key.lower()}"
+        backend_dir = summary_path.parent / f"backend_{level_key}"
+        for role in ("baseline", "candidate"):
+            lib = backend_dir / role / "libSUT.so"
+            if not lib.exists():
+                continue
+            aid = make_artifact_id("llm-ir", benchmark_name, model_id, pipeline_id=pipeline_id, suffix=role)
+            results.append(ArtifactDefinition(
+                artifact_id=aid,
+                experiment_type="llm-ir",
+                benchmark_name=benchmark_name,
+                library_path=lib,
+                model_id=model_id,
+                pipeline_id=pipeline_id,
+                run_id=run_id,
+                metadata={
+                    "schema_version": 1,
+                    "artifact_id": aid,
+                    "experiment_type": "llm-ir",
+                    "artifact_role": role,
+                    "is_final_artifact": True,
+                    "legacy_discovery": True,
+                },
+            ))
+    return results
+
+def _artifact_from_metadata(art_json_path: Path, results_root: Path) -> Optional[ArtifactDefinition]:
+    try:
+        meta = json.loads(art_json_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"Warning: failed to load artifact metadata from {art_json_path}: {exc}")
+        return None
+
+    if not isinstance(meta, dict):
+        print(
+            f"Warning: ignoring artifact metadata with unsupported top-level "
+            f"type {type(meta).__name__}: {art_json_path}"
+        )
+        return None
+
+    # Older IR runners wrote the task summary as artifact.json. It represents
+    # several backend libraries and must never be inferred as one artifact.
+    if meta.get("experiment_type") == "llm-ir" and not meta.get("artifact_id") and meta.get("backend_results"):
+        return None
+
+    aid = meta.get("artifact_id", art_json_path.parent.name)
+    paths = meta.get("paths") or {}
+    candidates: list[Path] = []
+    # Older task-level metadata may name the candidate artifact without a
+    # paths section. Prefer the role-specific build directory before a broad
+    # recursive search, otherwise baseline/libSUT.so may be selected.
+    role = meta.get("artifact_role") or str(meta.get("artifact_id", "")).rsplit("__", 1)[-1]
+    if role in {"baseline", "candidate", "final"}:
+        candidates.append(art_json_path.parent / role / "libSUT.so")
+    for key in ("canonical_libsut", "libsut", "library_path"):
+        value = paths.get(key) or meta.get(key)
+        if value:
+            candidate = Path(value)
+            if not candidate.is_absolute():
+                candidate = (art_json_path.parent / candidate).resolve()
+            candidates.append(candidate)
+    candidates.extend([
+        art_json_path.parent / "libSUT.so",
+        *art_json_path.parent.rglob("libSUT.so"),
+    ])
+    lib_path = next((candidate for candidate in candidates if candidate.exists()), None)
+    if lib_path is None:
+        return None
+
+    try:
+        rel = art_json_path.relative_to(results_root)
+        exp_type = meta.get("experiment_type") or rel.parts[0]
+        run_id = meta.get("run_id") or (rel.parts[1] if len(rel.parts) > 1 else None)
+    except ValueError:
+        exp_type = meta.get("experiment_type", "unknown")
+        run_id = meta.get("run_id")
+
+    benchmark_name = meta.get("benchmark_name")
+    if not benchmark_name or benchmark_name == "all":
+        # Whole-library LLVM artifacts participate in every benchmark and are
+        # expanded later by the caller.
+        benchmark_name = "all"
+    return ArtifactDefinition(
+        artifact_id=aid,
+        experiment_type=exp_type,
+        benchmark_name=benchmark_name,
+        library_path=lib_path,
+        model_id=meta.get("model_id"),
+        pipeline_id=meta.get("pipeline_id"),
+        run_id=run_id,
+        metadata=meta,
+    )
+
+
+def discover_artifacts(results_root: Path, include_intermediate: bool = False) -> List[ArtifactDefinition]:
+    if not results_root.exists():
+        return []
+    artifacts: list[ArtifactDefinition] = []
+    seen: set[tuple[str, str]] = set()
+
+    # Search recursively because guided/IR artifacts may be nested below a
+    # model and target while pure LLVM artifacts live directly under artifacts/.
+    for art_json_path in results_root.rglob("artifact.json"):
+        if "final-matrix" in art_json_path.parts:
+            continue
+        artifact = _artifact_from_metadata(art_json_path, results_root)
+        if artifact is None:
+            continue
+        if not include_intermediate and _is_intermediate_artifact(artifact):
+            continue
+        key = (artifact.artifact_id, str(artifact.library_path.resolve()))
+        if key not in seen:
+            seen.add(key)
+            artifacts.append(artifact)
+
+    # Compatibility fallback for older runs that only have summary.json.
+    for summary_path in results_root.rglob("summary.json"):
+        if "final-matrix" in summary_path.parts:
+            continue
+        adjacent_artifact = summary_path.parent / "artifact.json"
+        if adjacent_artifact.exists() and _artifact_from_metadata(adjacent_artifact, results_root) is not None:
+            continue
+        try:
+            meta = json.loads(summary_path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        # Run-level and final-matrix summaries may legitimately be arrays.
+        # They do not describe one discoverable artifact, so the legacy
+        # summary fallback must ignore them rather than calling dict methods.
+        if not isinstance(meta, dict):
+            continue
+        legacy_ir = _legacy_ir_artifacts_from_summary(summary_path, meta, results_root)
+        if legacy_ir:
+            for artifact in legacy_ir:
+                key = (artifact.artifact_id, str(artifact.library_path.resolve()))
+                if key not in seen:
+                    seen.add(key)
+                    artifacts.append(artifact)
+            continue
+
+        libs = list(summary_path.parent.rglob("libSUT.so"))
+        if not libs:
+            continue
+        rel = summary_path.relative_to(results_root)
+        exp_type = meta.get("experiment_type") or rel.parts[0]
+        # Never infer one vague artifact from an IR task containing multiple
+        # backend libraries. Legacy IR is handled explicitly above.
+        if exp_type == "llm-ir":
+            continue
+        model_id = rel.parts[-3] if len(rel.parts) >= 3 else None
+        target_name = rel.parts[-2] if len(rel.parts) >= 2 else "unknown"
+        benchmark_name = target_name.removesuffix("_cpp").removesuffix(".cpp")
+        aid = meta.get("final_confirmation_id") or meta.get("final_artifact_id") or f"{exp_type}__{model_id or 'unknown'}__{benchmark_name}"
+        key = (aid, str(libs[0].resolve()))
+        if key in seen:
+            continue
+        seen.add(key)
+        artifacts.append(ArtifactDefinition(
+            artifact_id=aid,
+            experiment_type=exp_type,
+            benchmark_name=benchmark_name,
+            library_path=libs[0],
+            model_id=model_id,
+            run_id=meta.get("run_id"),
+            metadata=meta,
+        ))
+    return artifacts
+
+def main():
+    parser = argparse.ArgumentParser(description="Unified final benchmark matrix for cross-experiment comparison.")
+    parser.add_argument("--results-root", type=Path, default=PROJECT_ROOT / "results", help="Root directory for experiment results.")
+    parser.add_argument("--artifact-manifest", type=Path, help="JSON manifest of artifacts to benchmark.")
+    parser.add_argument("--only", action="append", help="Benchmark only these functions.")
+    parser.add_argument("--benchmark-repetitions", type=int, default=5)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--noise-threshold-percent", type=float, default=2.0)
+    parser.add_argument("--reference-artifact", help="Artifact ID to use as reference for comparisons.")
+    parser.add_argument("--include-intermediate-artifacts", action="store_true", help="Include guided baselines and iteration candidates for diagnostics.")
+    parser.add_argument("--output-root", type=Path, default=PROJECT_ROOT / "results")
+    parser.add_argument("--run-id", help="Explicit run ID.")
+    parser.add_argument("--resume", action="store_true")
+    args = parser.parse_args()
+
+    run_id = make_run_id(args.run_id)
+    experiment_type = "final-matrix"
+    run_dir = get_standard_path(args.output_root, experiment_type, run_id)
+    if args.run_id and run_dir.exists() and not args.resume:
+        print(f"Error: Run ID '{args.run_id}' already exists. Use --resume or choose another ID.")
+        return 2
+    run_dir.mkdir(parents=True, exist_ok=True)
+    
+    protocol = BenchmarkProtocol(
+        repetitions=args.benchmark_repetitions,
+        seed=args.seed,
+        noise_threshold_percent=args.noise_threshold_percent,
+        ordering="randomized"
+    )
+    
+    run_meta = get_run_metadata()
+    run_meta.update({
+        "run_id": run_id,
+        "experiment_type": experiment_type,
+        "benchmark_protocol": asdict(protocol),
+        "args": vars(args)
+    })
+    write_json_atomic(run_dir / "run.json", run_meta)
+
+    # 1. Discover Artifacts
+    if args.artifact_manifest:
+        with open(args.artifact_manifest) as f:
+            manifest = json.load(f)
+            artifacts = [ArtifactDefinition(**{**a, "library_path": Path(a["library_path"])}) for a in manifest.get("artifacts", [])]
+    else:
+        print(f"Discovering artifacts in {args.results_root}...")
+        artifacts = discover_artifacts(args.results_root, include_intermediate=args.include_intermediate_artifacts)
+    
+
+    # Whole-library artifacts (notably pure LLVM builds) are valid for every
+    # benchmark. Expand them before applying --only and grouping.
+    expanded_artifacts: list[ArtifactDefinition] = []
+    for artifact in artifacts:
+        if artifact.benchmark_name == "all":
+            for benchmark_name in FUNCTION_TO_BENCHMARK_ID:
+                expanded_artifacts.append(ArtifactDefinition(
+                    artifact_id=artifact.artifact_id,
+                    experiment_type=artifact.experiment_type,
+                    benchmark_name=benchmark_name,
+                    library_path=artifact.library_path,
+                    model_id=artifact.model_id,
+                    pipeline_id=artifact.pipeline_id,
+                    run_id=artifact.run_id,
+                    metadata=artifact.metadata,
+                ))
+        else:
+            expanded_artifacts.append(artifact)
+    artifacts = expanded_artifacts
+
+    if args.only:
+        artifacts = [a for a in artifacts if a.benchmark_name in args.only]
+    
+    if not artifacts:
+        print("No artifacts found.")
+        return 0
+
+    print(f"Found {len(artifacts)} artifacts across {len(set(a.benchmark_name for a in artifacts))} benchmarks.")
+
+    # 2. Group by Benchmark
+    by_benchmark = {}
+    for a in artifacts:
+        by_benchmark.setdefault(a.benchmark_name, []).append(a)
+
+    all_summaries = []
+
+    # 3. Process each benchmark group
+    for bname, arts in by_benchmark.items():
+        print(f"\n=== Benchmarking {bname} matrix ({len(arts)} artifacts) ===")
+        
+        # Validate artifacts
+        valid_arts = []
+        for a in arts:
+            if not a.library_path.exists():
+                print(f"  Skipping {a.artifact_id}: library missing at {a.library_path}")
+                continue
+            
+            # ABI Check
+            abi_dir = run_dir / "validation" / a.artifact_id
+            abi_dir.mkdir(parents=True, exist_ok=True)
+            abi_cmd = run_abi_symbol_check(abi_dir, a.library_path)
+            abi_outcome = load_abi_check_outcome(abi_dir, abi_cmd)
+            if not abi_outcome.success:
+                print(f"  Skipping {a.artifact_id}: ABI check failed: {abi_outcome.error}")
+                continue
+            
+            # Correctness Check (one run)
+            print(f"  Verifying correctness for {a.artifact_id}...")
+            corr_res = run_benchmarks_for_lib(abi_dir, a.library_path, bname, run_all=False, artifact_id=a.artifact_id)
+            if not all(m.returncode == 0 for m in corr_res):
+                print(f"  Skipping {a.artifact_id}: Correctness test failed.")
+                continue
+            
+            valid_arts.append(a)
+
+        if not valid_arts:
+            print(f"  No valid artifacts for {bname}.")
+            continue
+
+        # Balanced Randomized Schedule
+        art_ids = [a.artifact_id for a in valid_arts]
+        sequence = get_randomized_balanced_sequence(art_ids, protocol.repetitions, protocol.seed)
+        
+        all_measurements: List[BenchmarkMeasurement] = []
+        reps = {aid: 0 for aid in art_ids}
+        
+        for i, aid in enumerate(sequence):
+            art = next(a for a in valid_arts if a.artifact_id == aid)
+            iteration = reps[aid]
+            reps[aid] += 1
+            
+            print(f"  [{i+1}/{len(sequence)}] {aid} (rep {iteration})...")
+            measurements = run_benchmarks_for_lib(
+                run_dir / "benchmarks" / aid, 
+                art.library_path, 
+                bname,
+                run_all=False, 
+                iteration=iteration,
+                artifact_id=aid,
+                sequence_index=i
+            )
+            all_measurements.extend(measurements)
+
+        # Statistics and Comparisons
+        stats_map = {}
+        for aid in art_ids:
+            ms = [m for m in all_measurements if m.artifact_id == aid]
+            stats = calculate_benchmark_statistics(ms, protocol.repetitions)
+            stats_map[aid] = stats
+
+        # Reference artifact for this benchmark
+        ref_aid = args.reference_artifact
+        if not ref_aid or ref_aid not in art_ids:
+            # Fallback: look for llvm__o1 or llvm__o3 or any llvm
+            ref_candidates = [aid for aid in art_ids if "llvm" in aid]
+            if ref_candidates:
+                ref_aid = ref_candidates[0]
+                # Prefer O1 if available
+                o1_cands = [aid for aid in ref_candidates if "__o1" in aid]
+                if o1_cands: ref_aid = o1_cands[0]
+            else:
+                ref_aid = art_ids[0]
+        
+        print(f"  Reference artifact: {ref_aid}")
+        
+        comparisons = {}
+        for aid in art_ids:
+            if aid == ref_aid: continue
+            comp = compare_benchmarks(
+                stats_map[aid],
+                stats_map[ref_aid],
+                protocol.noise_threshold_percent,
+                ref_aid,
+                aid,
+                sequence
+            )
+            comparisons[aid] = asdict(comp)
+
+        bench_summary = {
+            "benchmark_name": bname,
+            "artifact_ids": art_ids,
+            "reference_artifact_id": ref_aid,
+            "statistics": {aid: asdict(s) for aid, s in stats_map.items()},
+            "comparisons_vs_reference": comparisons,
+            "sequence": sequence
+        }
+        
+        bench_dir = run_dir / "benchmarks" / bname
+        bench_dir.mkdir(parents=True, exist_ok=True)
+        write_json_atomic(bench_dir / "summary.json", bench_summary)
+        all_summaries.append(bench_summary)
+
+    write_json_atomic(run_dir / "summary.json", all_summaries)
+    print(f"\nFinal matrix summary written to: {run_dir / 'summary.json'}")
+
+if __name__ == "__main__":
+    main()

@@ -7,6 +7,30 @@ from pathlib import Path
 from typing import Any, List, Dict, Optional, Tuple
 from .command import run_command, write_json, CommandResult
 from .config import BENCHMARK_FUNCTIONS, RUNNER_EXECUTABLE_NAME, BENCHMARK_TIMEOUT_SECONDS, RUNNER_ARGS, FUNCTION_TO_BENCHMARK_ID
+from .benchmark_protocol import (
+    BenchmarkMeasurement, 
+    BenchmarkStatistics, 
+    BenchmarkComparison, 
+    BenchmarkProtocol, 
+    calculate_benchmark_statistics, 
+    compare_benchmarks
+)
+
+# Backward compatibility alias
+def classify_performance(candidate_cps: float, baseline_cps: float, noise_threshold: float = 0.02) -> str:
+    """Backward-compatible scalar performance classification.
+
+    ``noise_threshold`` is a fraction (0.02 == 2%). New code should prefer
+    :func:`compare_benchmarks`, which also handles incomplete measurements.
+    """
+    if baseline_cps <= 0 or candidate_cps <= 0:
+        return "benchmark_failed"
+    change = (candidate_cps - baseline_cps) / baseline_cps
+    if change > noise_threshold:
+        return "improved"
+    if change < -noise_threshold:
+        return "regressed"
+    return "unchanged_within_noise"
 
 @dataclass
 class BenchmarkRunResult:
@@ -62,7 +86,15 @@ def try_write_benchmark_json(stdout_file: Path, output_json_file: Path) -> None:
     if parsed:
         write_json(output_json_file, parsed)
 
-def run_benchmarks_for_lib(build_dir: Path, libsut_path: Path, target_function_name: str = None, run_all: bool = True, iteration: int = 0) -> list[BenchmarkRunResult]:
+def run_benchmarks_for_lib(
+    build_dir: Path, 
+    libsut_path: Path, 
+    target_function_name: str = None, 
+    run_all: bool = True, 
+    iteration: int = 0,
+    artifact_id: str = "unknown",
+    sequence_index: int = 0
+) -> list[BenchmarkMeasurement]:
     env = os.environ.copy()
     old_ld_library_path = env.get("LD_LIBRARY_PATH")
     env["LD_LIBRARY_PATH"] = f"{libsut_path.parent}:{old_ld_library_path}" if old_ld_library_path else str(libsut_path.parent)
@@ -73,11 +105,11 @@ def run_benchmarks_for_lib(build_dir: Path, libsut_path: Path, target_function_n
         function_id = FUNCTION_TO_BENCHMARK_ID[target_function_name]
         selected = [(function_id, target_function_name)]
 
-    benchmark_results: list[BenchmarkRunResult] = []
+    measurements: list[BenchmarkMeasurement] = []
     for function_id, function_name in selected:
-        suffix = f"_iter{iteration}" if iteration > 0 else ""
-        stdout = build_dir / f"benchmark_{function_id}_{function_name}{suffix}_stdout.txt"
-        stderr = build_dir / f"benchmark_{function_id}_{function_name}{suffix}_stderr.txt"
+        suffix = f"_seq{sequence_index:03d}"
+        stdout = build_dir / f"benchmark_{function_name}{suffix}_stdout.txt"
+        stderr = build_dir / f"benchmark_{function_name}{suffix}_stderr.txt"
         command = [str(RUNNER_EXECUTABLE_NAME), str(libsut_path), str(function_id), *RUNNER_ARGS]
         result = run_command(command, build_dir, stdout, stderr, env, timeout_seconds=BENCHMARK_TIMEOUT_SECONDS)
         
@@ -85,94 +117,78 @@ def run_benchmarks_for_lib(build_dir: Path, libsut_path: Path, target_function_n
         if result.returncode == 0:
             parsed = try_parse_benchmark_result(stdout)
             if parsed:
-                try_write_benchmark_json(stdout, build_dir / f"benchmark_{function_id}_{function_name}{suffix}_results.json")
+                try_write_benchmark_json(stdout, build_dir / f"benchmark_{function_name}{suffix}_results.json")
         
-        benchmark_results.append(BenchmarkRunResult(
-            command_result=result,
-            function_id=function_id,
-            function_name=function_name,
-            iteration=iteration,
-            parsed_result=parsed
+        measurements.append(BenchmarkMeasurement(
+            artifact_id=artifact_id,
+            benchmark_id=function_id,
+            benchmark_name=function_name,
+            repetition=iteration,
+            sequence_index=sequence_index,
+            calls_per_second=parsed.get("calls_per_second") if parsed else None,
+            wall_us=parsed.get("wall_us") if parsed else None,
+            cpu_us=parsed.get("cpu_us") if parsed else None,
+            checksum=parsed.get("checksum") if parsed else None,
+            returncode=result.returncode,
+            parsed_result=parsed,
+            stdout_path=str(stdout),
+            stderr_path=str(stderr)
         ))
-    return benchmark_results
+    return measurements
 
-def calculate_benchmark_statistics(results: List[Dict[str, Any]], expected_count: int = 0) -> Dict[str, Any]:
-    if not results:
-        return {}
-    
-    cps_values = [r.get("calls_per_second", 0.0) for r in results if isinstance(r.get("calls_per_second"), (int, float)) and r.get("calls_per_second", 0.0) > 0]
-    wall_times = [r.get("wall_time_s", 0.0) for r in results if isinstance(r.get("wall_time_s"), (int, float))]
-    
-    if not cps_values:
-        return {}
-    
-    stats = {
-        "median_calls_per_second": statistics.median(cps_values),
-        "min_calls_per_second": min(cps_values),
-        "max_calls_per_second": max(cps_values),
-        "median_wall_time": statistics.median(wall_times) if wall_times else 0.0,
-        "count": len(cps_values),
-        "expected_count": expected_count,
-        "raw_results": results
-    }
-    
-    if expected_count > 0 and len(cps_values) < expected_count:
-        stats["incomplete"] = True
-    
-    if len(cps_values) > 1:
-        stats["stdev_calls_per_second"] = statistics.stdev(cps_values)
-        # Median Absolute Deviation (MAD)
-        median = stats["median_calls_per_second"]
-        stats["mad_calls_per_second"] = statistics.median([abs(x - median) for x in cps_values])
-        
-    return stats
-
-def classify_performance(candidate_stats: Dict[str, Any], baseline_stats: Dict[str, Any], noise_threshold: float = 0.02) -> str:
-    c_cps = candidate_stats.get("median_calls_per_second", 0.0)
-    b_cps = baseline_stats.get("median_calls_per_second", 0.0)
-    
-    if b_cps <= 0:
-        return "unknown"
-    
-    improvement = (c_cps - b_cps) / b_cps
-    
-    if improvement > noise_threshold:
-        return "improved"
-    if improvement < -noise_threshold:
-        return "regressed"
-    return "unchanged_within_noise"
+def get_randomized_balanced_sequence(
+    artifact_ids: List[str],
+    repetitions: int,
+    seed: int
+) -> List[str]:
+    rng = random.Random(seed)
+    sequence = []
+    for i in range(repetitions):
+        block = list(artifact_ids)
+        rng.shuffle(block)
+        sequence.extend(block)
+    return sequence
 
 def run_benchmarks_paired(
     candidate_lib: Path,
     baseline_lib: Path,
     target_name: str,
-    repetitions: int = 3,
-    seed: int = 42
-) -> Tuple[Dict[str, Any], Dict[str, Any], List[str]]:
-    rng = random.Random(seed)
+    protocol: BenchmarkProtocol,
+    candidate_id: str = "candidate",
+    baseline_id: str = "baseline"
+) -> BenchmarkComparison:
+    sequence = get_randomized_balanced_sequence([baseline_id, candidate_id], protocol.repetitions, protocol.seed)
     
-    baseline_results = []
-    candidate_results = []
+    all_measurements: List[BenchmarkMeasurement] = []
     
-    # Paired sequence
-    order = []
-    for i in range(repetitions):
-        pair = ["baseline", "candidate"]
-        rng.shuffle(pair)
-        order.extend(pair)
+    # Map repetition count per artifact
+    reps = {baseline_id: 0, candidate_id: 0}
     
-    for i, variant in enumerate(order):
-        lib = baseline_lib if variant == "baseline" else candidate_lib
-        res = run_benchmarks_for_lib(lib.parent, lib, target_name, run_all=False, iteration=i)
+    for i, variant_id in enumerate(sequence):
+        lib = baseline_lib if variant_id == baseline_id else candidate_lib
+        iteration = reps[variant_id]
+        reps[variant_id] += 1
         
-        # Parse result
-        for r in res:
-            if r.command_result.returncode == 0 and r.parsed_result:
-                if variant == "baseline":
-                    baseline_results.append(r.parsed_result)
-                else:
-                    candidate_results.append(r.parsed_result)
-                    
-    return calculate_benchmark_statistics(candidate_results, expected_count=repetitions), \
-           calculate_benchmark_statistics(baseline_results, expected_count=repetitions), \
-           order
+        measurements = run_benchmarks_for_lib(
+            lib.parent, lib, target_name, 
+            run_all=False, 
+            iteration=iteration,
+            artifact_id=variant_id,
+            sequence_index=i
+        )
+        all_measurements.extend(measurements)
+    
+    baseline_measurements = [m for m in all_measurements if m.artifact_id == baseline_id]
+    candidate_measurements = [m for m in all_measurements if m.artifact_id == candidate_id]
+    
+    baseline_stats = calculate_benchmark_statistics(baseline_measurements, protocol.repetitions)
+    candidate_stats = calculate_benchmark_statistics(candidate_measurements, protocol.repetitions)
+    
+    return compare_benchmarks(
+        candidate_stats, 
+        baseline_stats, 
+        protocol.noise_threshold_percent,
+        baseline_id,
+        candidate_id,
+        sequence
+    )

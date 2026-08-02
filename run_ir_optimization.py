@@ -18,7 +18,9 @@ from llmo.command import sanitize_name, write_json, write_json_atomic, sha256_su
 from llmo.project import llm_target_source_files, other_sources_for_replacement, source_function_name
 from llmo.source import extract_code_block, validate_llvm_ir_module, ValidationResult, read_support_headers
 from llmo.abi import run_abi_symbol_check, load_abi_check_outcome
-from llmo.benchmark import run_benchmarks_for_lib, calculate_benchmark_statistics, classify_performance, BenchmarkRunResult, run_benchmarks_paired
+from llmo.benchmark import run_benchmarks_for_lib, run_benchmarks_paired
+from llmo.benchmark_protocol import BenchmarkProtocol, BenchmarkMeasurement, calculate_benchmark_statistics, compare_benchmarks
+from llmo.naming import make_run_id, make_artifact_id, get_standard_path, sanitize_identifier
 from llmo import llama
 from llmo.llama import (
     LlmModelConfig, start_llama_server, stop_process, 
@@ -27,6 +29,49 @@ from llmo.llama import (
 from llmo.build import find_libsut, CompileResult
 from llmo.llvm import generate_llvm_ir, verify_llvm_ir, compile_llvm_ir_to_lib, cleanup_llvm_ir, IrOperationResult
 from llmo.metadata import get_run_metadata, get_file_sha256
+
+
+def publish_ir_backend_artifact(
+    output_root: Path,
+    run_id: str,
+    artifact_id: str,
+    *,
+    model_id: str,
+    benchmark_name: str,
+    pipeline_id: str,
+    role: str,
+    library_path: Path,
+    ir_path: Path,
+    comparison: Optional[Dict[str, Any]] = None,
+) -> Path:
+    """Publish one canonical, independently discoverable IR artifact."""
+    artifact_dir = get_standard_path(output_root, "llm-ir", run_id, artifact_id)
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+    canonical_lib = artifact_dir / "libSUT.so"
+    canonical_ir = artifact_dir / ("input.ll" if role == "baseline" else "optimized.ll")
+    shutil.copy2(library_path, canonical_lib)
+    shutil.copy2(ir_path, canonical_ir)
+    metadata = {
+        "schema_version": 2,
+        "artifact_id": artifact_id,
+        "run_id": run_id,
+        "experiment_type": "llm-ir",
+        "model_id": model_id,
+        "benchmark_name": benchmark_name,
+        "pipeline_id": pipeline_id,
+        "artifact_role": role,
+        "is_final_artifact": True,
+        "paths": {
+            "canonical_libsut": str(canonical_lib),
+            "libsut": str(canonical_lib),
+            "ir": str(canonical_ir),
+        },
+    }
+    if comparison is not None:
+        metadata["comparison"] = comparison
+    write_json_atomic(artifact_dir / "artifact.json", metadata)
+    return artifact_dir
+
 
 def make_ir_optimization_prompt(ir_module: str) -> str:
     return f"""You are an expert LLVM IR performance engineer.
@@ -106,7 +151,7 @@ def is_terminal_summary(summary: Dict[str, Any], requested_backend_levels: List[
                 return False
             # If it's a success, it must have stats or a specific error
             res = backend_results[lvl]
-            if "error" not in res and "candidate_stats" not in res:
+            if "error" not in res and "comparison" not in res:
                 return False
     return True
 
@@ -115,7 +160,7 @@ def main():
     parser = argparse.ArgumentParser(description="LLVM IR optimization using LLM.")
     parser.add_argument("--model", action="append", help="Run only for these models.")
     parser.add_argument("--only", action="append", help="Optimize only this target function.")
-    parser.add_argument("--output-root", type=Path, default=BUILD_ROOT / "llm-ir-opt", help="Output directory.")
+    parser.add_argument("--output-root", type=Path, default=PROJECT_ROOT / "results", help="Output directory.")
     parser.add_argument("--resume", action="store_true", help="Resume an interrupted run.")
     parser.add_argument("--seed", type=int, default=LLM_SEED, help="Random seed.")
     parser.add_argument("--backend-opt-level", choices=["O0", "-O0", "O3", "-O3", "both"], default="both", help="Backend optimization level.")
@@ -128,18 +173,31 @@ def main():
     parser.add_argument("--max-output-tokens", type=int, default=16384, help="Maximum completion tokens for optimization.")
     args = parser.parse_args()
 
-    run_id = args.run_id or datetime.now().strftime("%Y%m%dT%H%M%S_%f")
-    output_root = args.output_root / run_id
+    run_id = make_run_id(args.run_id)
+    experiment_type = "llm-ir"
     
-    if args.run_id and output_root.exists() and not args.resume:
+    protocol = BenchmarkProtocol(
+        repetitions=args.benchmark_repetitions,
+        seed=args.seed,
+        noise_threshold_percent=args.noise_threshold_percent,
+        ordering="paired"
+    )
+
+    run_dir = get_standard_path(args.output_root, experiment_type, run_id)
+    if args.run_id and run_dir.exists() and not args.resume:
          print(f"Error: Run ID '{args.run_id}' already exists. Use --resume to continue or choose a different ID.")
          return 1
 
-    output_root.mkdir(parents=True, exist_ok=True)
+    run_dir.mkdir(parents=True, exist_ok=True)
     
     run_meta = get_run_metadata()
-    run_meta["args"] = vars(args)
-    write_json(output_root / "run_metadata.json", run_meta)
+    run_meta.update({
+        "run_id": run_id,
+        "experiment_type": experiment_type,
+        "benchmark_protocol": asdict(protocol),
+        "args": vars(args)
+    })
+    write_json_atomic(run_dir / "run.json", run_meta)
 
     targets = llm_target_source_files()
     if args.only:
@@ -158,16 +216,16 @@ def main():
 
     for model in models_configs:
         model_name = model.alias or model.name
-        model_dir = output_root / sanitize_name(model.name)
-        model_dir.mkdir(parents=True, exist_ok=True)
+        model_id = sanitize_identifier(model.name)
+        model_run_dir = run_dir / model_id
+        model_run_dir.mkdir(parents=True, exist_ok=True)
         
         server_process = None
         try:
-            server_process, server_command = start_llama_server(model, model_dir)
-            wait_for_llama_ready(server_process, model_dir)
-            warm_up_llm(model_name, model_dir)
+            server_process, server_command = start_llama_server(model, model_run_dir)
+            wait_for_llama_ready(server_process, model_run_dir)
+            warm_up_llm(model_name, model_run_dir)
             
-            from llmo import llama
             run_meta.setdefault("models", {})[model_name] = {
                 "model_name": model.name,
                 "alias": model.alias,
@@ -175,10 +233,10 @@ def main():
                 "llama_server_command": server_command,
                 "effective_context_size": llama.EFFECTIVE_LLAMA_CTX_SIZE,
             }
-            write_json_atomic(output_root / "run_metadata.json", run_meta)
+            write_json_atomic(run_dir / "run.json", run_meta)
             
             for target_source in targets:
-                target_dir = model_dir / sanitize_name(target_source.name)
+                target_dir = model_run_dir / sanitize_name(target_source.name)
                 if args.resume and (target_dir / "summary.json").exists():
                     try:
                         existing_summary = json.loads((target_dir / "summary.json").read_text())
@@ -221,6 +279,10 @@ def main():
                 budget = calculate_token_budget(prompt, system_prompt, args.max_output_tokens, minimum_expected_output_tokens=min_output_tokens)
                 
                 target_meta = {
+                    "run_id": run_id,
+                    "experiment_type": experiment_type,
+                    "model_id": model_id,
+                    "benchmark_name": target_source.stem,
                     "input_file": str(target_source),
                     "input_sha256": get_file_sha256(target_source),
                     "input_ir_sha256": get_file_sha256(prompt_ir_path),
@@ -304,7 +366,10 @@ def main():
                 if val_res.preflight_passed:
                     validation_state["preflight_passed"] = True
 
-                target_meta["validation_details"] = asdict(val_res) # Rename to avoid confusion
+                target_meta["preflight_validation"] = {
+                    "preflight_passed": val_res.preflight_passed,
+                    "errors": val_res.errors,
+                }
                 
                 optimized_ir_path = target_dir / "optimized.ll"
                 
@@ -409,8 +474,13 @@ def main():
                     backend_results = {}
                     for opt_level in backend_levels:
                         print(f"  Benchmarking with {opt_level}...")
+                        pipeline_id = f"ir-o1__backend-{sanitize_name(opt_level)}"
                         level_dir = target_dir / f"backend_{sanitize_name(opt_level)}"
                         
+                        # Artifact IDs
+                        base_aid = make_artifact_id(experiment_type, target_source.stem, model_id, pipeline_id=pipeline_id, suffix="baseline")
+                        cand_aid = make_artifact_id(experiment_type, target_source.stem, model_id, pipeline_id=pipeline_id, suffix="candidate")
+
                         # Baseline build
                         baseline_build_dir = level_dir / "baseline"
                         baseline_comp = compile_llvm_ir_to_lib(baseline_build_dir, prompt_ir_path, other_sources, opt_level=opt_level)
@@ -420,7 +490,7 @@ def main():
                         candidate_comp = compile_llvm_ir_to_lib(candidate_build_dir, optimized_ir_path, other_sources, opt_level=opt_level)
                         
                         if baseline_comp.output_path and candidate_comp.output_path:
-                            # ABI Check (Requirement 7)
+                            # ABI Check
                             baseline_abi_cmd = run_abi_symbol_check(baseline_build_dir, baseline_comp.output_path)
                             candidate_abi_cmd = run_abi_symbol_check(candidate_build_dir, candidate_comp.output_path)
                             
@@ -428,31 +498,49 @@ def main():
                             candidate_abi_outcome = load_abi_check_outcome(candidate_build_dir, candidate_abi_cmd)
                             
                             if baseline_abi_outcome.success and candidate_abi_outcome.success:
-                                cand_stats, base_stats, order = run_benchmarks_paired(
+                                comparison = run_benchmarks_paired(
                                     candidate_comp.output_path, baseline_comp.output_path, target_source.stem, 
-                                    repetitions=args.benchmark_repetitions, seed=args.seed
+                                    protocol=protocol,
+                                    candidate_id=cand_aid,
+                                    baseline_id=base_aid
                                 )
                                 
-                                performance = classify_performance(cand_stats, base_stats, noise_threshold=args.noise_threshold_percent / 100.0)
-                                
+                                comparison_dict = asdict(comparison)
+                                publish_ir_backend_artifact(
+                                    args.output_root, run_id, base_aid,
+                                    model_id=model_id,
+                                    benchmark_name=target_source.stem,
+                                    pipeline_id=pipeline_id,
+                                    role="baseline",
+                                    library_path=baseline_comp.output_path,
+                                    ir_path=prompt_ir_path,
+                                    comparison=comparison_dict,
+                                )
+                                publish_ir_backend_artifact(
+                                    args.output_root, run_id, cand_aid,
+                                    model_id=model_id,
+                                    benchmark_name=target_source.stem,
+                                    pipeline_id=pipeline_id,
+                                    role="candidate",
+                                    library_path=candidate_comp.output_path,
+                                    ir_path=optimized_ir_path,
+                                    comparison=comparison_dict,
+                                )
                                 backend_results[opt_level] = {
-                                    "candidate_stats": cand_stats,
-                                    "baseline_stats": base_stats,
-                                    "performance": performance,
-                                    "benchmark_order": order,
-                                    "requested_repetitions": args.benchmark_repetitions
+                                    "baseline_artifact_id": base_aid,
+                                    "artifact_id": cand_aid,
+                                    "pipeline_id": pipeline_id,
+                                    "comparison": comparison_dict,
                                 }
                                 
-                                if cand_stats.get("incomplete") or base_stats.get("incomplete"):
+                                if comparison.classification == "benchmark_incomplete":
                                     backend_results[opt_level]["status"] = "benchmark_incomplete"
                                 
                                 # Regression check
-                                if base_stats.get("median_calls_per_second", 0) > 0:
-                                    improvement = (cand_stats.get("median_calls_per_second", 0) - base_stats["median_calls_per_second"]) / base_stats["median_calls_per_second"]
-                                    if args.full_regression_check or improvement * 100 > args.full_regression_threshold_percent:
-                                        print(f"  Promising candidate (+{improvement*100:.1f}%). Running full regression check...")
-                                        full_res = run_benchmarks_for_lib(candidate_build_dir, candidate_comp.output_path, run_all=True)
-                                        backend_results[opt_level]["full_regression"] = [asdict(r.command_result) for r in full_res]
+                                if comparison.relative_change_percent and (args.full_regression_check or comparison.relative_change_percent > args.full_regression_threshold_percent):
+                                    print(f"  Running full regression check...")
+                                    full_res = run_benchmarks_for_lib(candidate_build_dir, candidate_comp.output_path, run_all=True)
+                                    backend_results[opt_level]["full_regression_measurements"] = [asdict(m) for m in full_res]
                             else:
                                 backend_results[opt_level] = {
                                     "error": "abi_check_failed",
@@ -472,7 +560,7 @@ def main():
                     
                     target_meta["backend_results"] = backend_results
                     if any(res.get("error") for res in backend_results.values()):
-                         if not any("candidate_stats" in res for res in backend_results.values()):
+                         if not any("comparison" in res for res in backend_results.values()):
                              target_meta["status"] = "failed"
                          else:
                              target_meta["status"] = "completed_with_errors"
@@ -482,6 +570,7 @@ def main():
                 target_meta["total_inference_seconds"] = target_meta.get("optimization_inference_seconds", 0) + target_meta.get("repair_inference_seconds", 0)
                 target_meta["total_task_seconds"] = time.perf_counter() - task_start_time
                 write_json_atomic(target_dir / "summary.json", target_meta)
+                
 
         finally:
             stop_process(server_process)
