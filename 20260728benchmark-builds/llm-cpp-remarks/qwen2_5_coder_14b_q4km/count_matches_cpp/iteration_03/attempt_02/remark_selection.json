@@ -1,0 +1,12 @@
+{
+  "available_tokens_for_remarks": 26835,
+  "context_size": 32768,
+  "fixed_tokens_est": 473,
+  "max_output_tokens": 4096,
+  "remark_count_in_prompt": 52,
+  "remark_count_prioritized": 185,
+  "remark_count_remaining": 0,
+  "remark_count_total": 185,
+  "remark_count_unseen": 52,
+  "template_tokens_est": 837
+}

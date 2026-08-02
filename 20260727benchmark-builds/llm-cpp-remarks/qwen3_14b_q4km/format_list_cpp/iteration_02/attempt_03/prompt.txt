@@ -1,0 +1,2156 @@
+You are an expert C++23 performance engineer.
+
+You are iteratively optimizing format_list.cpp.
+Optimization iteration 2 of 3
+
+The current implementation compiles successfully and preserves the required ABI.
+
+Clang was run at -O3 and emitted the optimization remarks below. These remarks describe optimizations Clang performed, missed, or analyzed.
+
+Use them as diagnostic evidence to identify C++-level changes that could enable better generated code or improve the algorithm beyond what the compiler can do automatically.
+
+Do not blindly follow every remark. Some remarks only explain a compiler decision and changing the source may not be beneficial.
+
+Prefer meaningful runtime improvements such as:
+- better algorithms or data structures;
+- reducing allocations and copies;
+- improving memory locality;
+- simplifying dependencies that prevent vectorization;
+- eliminating unnecessary work;
+- making aliasing/lifetime/control-flow properties clearer when they are actually guaranteed by the API;
+- exposing profitable transformations to the compiler.
+
+Do not make unsafe assumptions merely to satisfy an optimization remark. A vectorizer remark might suggest aliasing is blocking vectorization, for example. That does NOT mean you are allowed to add restrict semantics unless those semantics are actually guaranteed by the API/program behavior.
+
+Hard requirements:
+- Return one complete replacement for format_list.cpp.
+- Preserve the public C ABI exactly as declared in library.h.
+- Do not change exported names, parameter types, return types, struct layouts, ownership rules, or allocation/free conventions.
+- Do not implement unrelated exported functions.
+- Preserve externally observable behavior for all valid inputs.
+- Do not specialize for benchmark constants or hard-code benchmark results.
+- Exceptions must not escape through extern "C" APIs.
+- Do not modify library.h or sut_common.h.
+- Return raw C++ only.
+- No Markdown, explanation, notes, or code fences.
+
+Headers:
+// library.h
+#ifndef SUT_LIBRARY_H
+#define SUT_LIBRARY_H
+
+#include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct WordCount {
+    char* word;
+    uint64_t count;
+} WordCount;
+
+uint64_t fibonacci(uint64_t n);
+char* format_list(const int* input, size_t input_length);
+int64_t repeated_sort(const int* input, size_t input_length, int rounds);
+size_t count_matches(
+    const int* allowed,
+    size_t allowed_length,
+    const int* queries,
+    size_t queries_length
+);
+WordCount* top_words_from_file(
+    const char* path,
+    const char* const* ignore_words,
+    size_t ignore_words_length,
+    size_t max_results,
+    size_t* result_length
+);
+void free_string(char* value);
+void free_word_counts(WordCount* values, size_t length);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // SUT_LIBRARY_H
+
+
+// sut_common.h
+#ifndef SUT_COMMON_H
+#define SUT_COMMON_H
+
+#include <string>
+
+char* copy_to_c_string(const std::string& value);
+bool is_word_char(char c);
+char normalize_char(char c);
+
+#endif // SUT_COMMON_H
+
+
+Current format_list.cpp:
+#include "library.h"
+#include "sut_common.h"
+
+#include <string>
+#include <vector>
+#include <sstream>
+
+extern "C" {
+
+char* format_list(const int* input, size_t input_length) {
+    if (input == nullptr && input_length != 0) {
+        return nullptr;
+    }
+
+    try {
+        std::ostringstream oss;
+        oss << '[';
+        for (size_t i = 0; i < input_length; ++i) {
+            if (i > 0) oss << ", ";
+            oss << input[i];
+        }
+        oss << ']';
+
+        return copy_to_c_string(oss.str());
+    } catch (...) {
+        return nullptr;
+    }
+}
+
+}
+
+
+Clang optimization remarks:
+!Passed
+Pass:            inline
+Name:            AlwaysInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 2675, Column: 16 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13get_allocatorEv
+Args:
+  - String:          ''''
+  - Callee:          _ZNSaIcEC2ERKS_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/allocator.h', 
+                       Line: 166, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13get_allocatorEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 2675, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost=always)'
+  - String:          ': '
+  - Reason:          always inline attribute
+  - String:          ' at callsite '
+  - String:          get_allocator
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '16'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            AlwaysInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 194, Column: 4 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_Alloc_hiderC2EPcRKS3_
+Args:
+  - String:          ''''
+  - Callee:          _ZNSaIcEC2ERKS_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/allocator.h', 
+                       Line: 166, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_Alloc_hiderC2EPcRKS3_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 194, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost=always)'
+  - String:          ': '
+  - Reason:          always inline attribute
+  - String:          ' at callsite '
+  - String:          _Alloc_hider
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            AlwaysInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 198, Column: 4 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_Alloc_hiderC2EPcOS3_
+Args:
+  - String:          ''''
+  - Callee:          _ZNSaIcEC2ERKS_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/allocator.h', 
+                       Line: 166, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_Alloc_hiderC2EPcOS3_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost=always)'
+  - String:          ': '
+  - Reason:          always inline attribute
+  - String:          ' at callsite '
+  - String:          _Alloc_hider
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            AlwaysInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1090, Column: 17 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE8max_sizeEv
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt16allocator_traitsISaIcEE8max_sizeERKS0_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/alloc_traits.h', 
+                       Line: 611, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE8max_sizeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1090, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost=always)'
+  - String:          ': '
+  - Reason:          always inline attribute
+  - String:          ' at callsite '
+  - String:          max_size
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '17'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            AlwaysInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 131, Column: 16 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_S_allocateERS3_m
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt16allocator_traitsISaIcEE8allocateERS0_m
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/alloc_traits.h', 
+                       Line: 515, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_S_allocateERS3_m
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 130, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost=always)'
+  - String:          ': '
+  - Reason:          always inline attribute
+  - String:          ' at callsite '
+  - String:          _S_allocate
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '16'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            AlwaysInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/alloc_traits.h', 
+                   Line: 515, Column: 20 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_S_allocateERS3_m
+Args:
+  - String:          ''''
+  - Callee:          _ZNSaIcE8allocateEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/allocator.h', 
+                       Line: 188, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_S_allocateERS3_m
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 130, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost=always)'
+  - String:          ': '
+  - Reason:          always inline attribute
+  - String:          ' at callsite '
+  - String:          allocate
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '20'
+  - String:          ' @ '
+  - String:          _S_allocate
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '16'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            AlwaysInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/alloc_traits.h', 
+                   Line: 515, Column: 20 }
+Function:        _ZNSt16allocator_traitsISaIcEE8allocateERS0_m
+Args:
+  - String:          ''''
+  - Callee:          _ZNSaIcE8allocateEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/allocator.h', 
+                       Line: 188, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt16allocator_traitsISaIcEE8allocateERS0_m
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/alloc_traits.h', 
+                       Line: 515, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost=always)'
+  - String:          ': '
+  - Reason:          always inline attribute
+  - String:          ' at callsite '
+  - String:          allocate
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '20'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            AlwaysInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                   Line: 134, Column: 35 }
+Function:        _ZNSt15__new_allocatorIcE8allocateEmPKv
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt15__new_allocatorIcE11_M_max_sizeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 231, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt15__new_allocatorIcE8allocateEmPKv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 127, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost=always)'
+  - String:          ': '
+  - Reason:          always inline attribute
+  - String:          ' at callsite '
+  - String:          allocate
+  - String:          ':'
+  - Line:            '8'
+  - String:          ':'
+  - Column:          '35'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 235, Column: 9 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_local_dataEv
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt19__ptr_traits_ptr_toIPccLb0EE10pointer_toERc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ptr_traits.h', 
+                       Line: 135, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_local_dataEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 233, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_local_data
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '9'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 261, Column: 2 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_set_lengthEm
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_lengthEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 223, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_set_lengthEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 260, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_set_length
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '2'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 262, Column: 22 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_set_lengthEm
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE7_M_dataEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 228, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_set_lengthEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 260, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_set_length
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '22'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 262, Column: 2 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_set_lengthEm
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt11char_traitsIcE6assignERcRKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 344, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_set_lengthEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 260, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_set_length
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '2'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 529, Column: 21 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2Ev
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_local_dataEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 233, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 530, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          basic_string
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '21'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 529, Column: 9 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2Ev
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_Alloc_hiderC2EPcOS3_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 530, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-40'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          basic_string
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '9'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 532, Column: 2 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2Ev
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_set_lengthEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 260, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 530, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-25'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          basic_string
+  - String:          ':'
+  - Line:            '5'
+  - String:          ':'
+  - Column:          '2'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/sstream', 
+                   Line: 134, Column: 9 }
+Function:        _ZNSt7__cxx1115basic_stringbufIcSt11char_traitsIcESaIcEEC2ESt13_Ios_Openmode
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt15basic_streambufIcSt11char_traitsIcEEC2Ev
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1115basic_stringbufIcSt11char_traitsIcESaIcEEC2ESt13_Ios_Openmode
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/sstream', 
+                       Line: 135, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '10'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          basic_stringbuf
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '9'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/sstream', 
+                   Line: 134, Column: 46 }
+Function:        _ZNSt7__cxx1115basic_stringbufIcSt11char_traitsIcESaIcEEC2ESt13_Ios_Openmode
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 530, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1115basic_stringbufIcSt11char_traitsIcESaIcEEC2ESt13_Ios_Openmode
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/sstream', 
+                       Line: 135, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-20'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          basic_stringbuf
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '46'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 246, Column: 9 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_local_dataEv
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt19__ptr_traits_ptr_toIPKcS0_Lb0EE10pointer_toERS0_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ptr_traits.h', 
+                       Line: 135, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_local_dataEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 244, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_local_data
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '9'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 269, Column: 6 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_is_localEv
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE7_M_dataEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 228, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_is_localEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 268, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_is_local
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '6'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 269, Column: 19 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_is_localEv
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_local_dataEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 244, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_is_localEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 268, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_is_local
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '19'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 294, Column: 35 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_destroyEm
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE16_M_get_allocatorEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 342, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_destroyEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 294, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_destroy
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '35'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 294, Column: 55 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_destroyEm
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE7_M_dataEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 228, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_destroyEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 294, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_destroy
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '55'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/allocator.h', 
+                   Line: 208, Column: 25 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_destroyEm
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt15__new_allocatorIcE10deallocateEPcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 157, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_destroyEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 294, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-5'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          deallocate
+  - String:          ':'
+  - Line:            '7'
+  - String:          ':'
+  - Column:          '25'
+  - String:          ' @ '
+  - String:          deallocate
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '13'
+  - String:          ' @ '
+  - String:          _M_destroy
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '9'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 287, Column: 7 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_disposeEv
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_is_localEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 268, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_disposeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 286, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-20'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_dispose
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '7'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 288, Column: 4 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_disposeEv
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_destroyEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 294, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_disposeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 286, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '10'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_dispose
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 809, Column: 9 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEED2Ev
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_disposeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 286, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 809, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '30'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '~basic_string'
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '9'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 809, Column: 23 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEED2Ev
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_Alloc_hiderD2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 186, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 809, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '487'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '~basic_string'
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '23'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/sstream.tcc', 
+                   Line: 291, Column: 25 }
+Function:        _ZNSt7__cxx1115basic_stringbufIcSt11char_traitsIcESaIcEED2Ev
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 809, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1115basic_stringbufIcSt11char_traitsIcESaIcEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/sstream.tcc', 
+                       Line: 291, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '30'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '~basic_stringbuf'
+  - String:          ':'
+  - Line:            '0'
+  - String:          ':'
+  - Column:          '25'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/sstream.tcc', 
+                   Line: 291, Column: 25 }
+Function:        _ZNSt7__cxx1115basic_stringbufIcSt11char_traitsIcESaIcEED2Ev
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt15basic_streambufIcSt11char_traitsIcEED2Ev
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1115basic_stringbufIcSt11char_traitsIcESaIcEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/sstream.tcc', 
+                       Line: 291, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '5'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '~basic_stringbuf'
+  - String:          ':'
+  - Line:            '0'
+  - String:          ':'
+  - Column:          '25'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/sstream', 
+                   Line: 804, Column: 7 }
+Function:        _ZNSt7__cxx1119basic_ostringstreamIcSt11char_traitsIcESaIcEEC1Ev
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt9basic_iosIcSt11char_traitsIcEEC2Ev
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1119basic_ostringstreamIcSt11char_traitsIcESaIcEEC1Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/sstream', 
+                       Line: 806, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '25'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          basic_ostringstream
+  - String:          ':'
+  - Line:            '0'
+  - String:          ':'
+  - Column:          '7'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/sstream', 
+                   Line: 805, Column: 9 }
+Function:        _ZNSt7__cxx1119basic_ostringstreamIcSt11char_traitsIcESaIcEEC1Ev
+Args:
+  - String:          ''''
+  - Callee:          _ZNSoC2Ev
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1119basic_ostringstreamIcSt11char_traitsIcESaIcEEC1Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/sstream', 
+                       Line: 806, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          basic_ostringstream
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '9'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/sstream', 
+                   Line: 805, Column: 27 }
+Function:        _ZNSt7__cxx1119basic_ostringstreamIcSt11char_traitsIcESaIcEEC1Ev
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1115basic_stringbufIcSt11char_traitsIcESaIcEEC2ESt13_Ios_Openmode
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1119basic_ostringstreamIcSt11char_traitsIcESaIcEEC1Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/sstream', 
+                       Line: 806, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          basic_ostringstream
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '27'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/sstream', 
+                   Line: 806, Column: 36 }
+Function:        _ZNSt7__cxx1119basic_ostringstreamIcSt11char_traitsIcESaIcEEC1Ev
+Args:
+  - String:          ''''
+  - Callee:          _ZNSoD2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/ostream', 
+                       Line: 101, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1119basic_ostringstreamIcSt11char_traitsIcESaIcEEC1Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/sstream', 
+                       Line: 806, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-40'
+  - String:          ', threshold='
+  - Threshold:       '45'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          basic_ostringstream
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '36'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/ostream', 
+                   Line: 581, Column: 17 }
+Function:        _ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_c
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt8ios_base5widthEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ios_base.h', 
+                       Line: 776, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_c
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/ostream', 
+                       Line: 580, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          'operator<<<std::char_traits<char> >'
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '17'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_ios.h', 
+                   Line: 162, Column: 27 }
+Function:        _ZNSt9basic_iosIcSt11char_traitsIcEE8setstateESt12_Ios_Iostate
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt9basic_iosIcSt11char_traitsIcEE7rdstateEv
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt9basic_iosIcSt11char_traitsIcEE8setstateESt12_Ios_Iostate
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_ios.h', 
+                       Line: 162, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          setstate
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '27'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_ios.h', 
+                   Line: 162, Column: 37 }
+Function:        _ZNSt9basic_iosIcSt11char_traitsIcEE8setstateESt12_Ios_Iostate
+Args:
+  - String:          ''''
+  - Callee:          _ZStorSt12_Ios_IostateS_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ios_base.h', 
+                       Line: 187, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt9basic_iosIcSt11char_traitsIcEE8setstateESt12_Ios_Iostate
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_ios.h', 
+                       Line: 162, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '487'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          setstate
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '37'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/ostream', 
+                   Line: 674, Column: 8 }
+Function:        _ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt9basic_iosIcSt11char_traitsIcEE8setstateESt12_Ios_Iostate
+  - String:          ''' inlined into '''
+  - Caller:          _ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/ostream', 
+                       Line: 672, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '10'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          'operator<<<std::char_traits<char> >'
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '8'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/ostream', 
+                   Line: 677, Column: 29 }
+Function:        _ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt11char_traitsIcE6lengthEPKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 386, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/ostream', 
+                       Line: 672, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '0'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          'operator<<<std::char_traits<char> >'
+  - String:          ':'
+  - Line:            '6'
+  - String:          ':'
+  - Column:          '29'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 2675, Column: 16 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13get_allocatorEv
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE16_M_get_allocatorEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 347, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13get_allocatorEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 2675, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          get_allocator
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '16'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 541, Column: 21 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2ERKS3_
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_local_dataEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 233, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2ERKS3_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 542, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          basic_string
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '21'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 541, Column: 9 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2ERKS3_
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_Alloc_hiderC2EPcRKS3_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 194, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2ERKS3_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 542, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-40'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          basic_string
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '9'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 544, Column: 2 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2ERKS3_
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_M_set_lengthEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 260, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2ERKS3_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 542, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-25'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          basic_string
+  - String:          ':'
+  - Line:            '4'
+  - String:          ':'
+  - Column:          '2'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1090, Column: 41 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE8max_sizeEv
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE16_M_get_allocatorEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 347, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE8max_sizeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1090, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          max_size
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '41'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 404, Column: 12 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE15_M_check_lengthEmmPKc
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE8max_sizeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1090, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE15_M_check_lengthEmmPKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 403, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_check_length
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '12'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 404, Column: 32 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE15_M_check_lengthEmmPKc
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE4sizeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1077, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE15_M_check_lengthEmmPKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 403, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_check_length
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '32'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1182, Column: 9 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE8capacityEv
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_is_localEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 268, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE8capacityEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1181, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-20'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          capacity
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '9'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 422, Column: 37 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_disjunctEPKc
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE7_M_dataEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 228, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_disjunctEPKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 421, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_disjunct
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '37'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 422, Column: 10 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_disjunctEPKc
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt4lessIPKcEclES1_S1_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_function.h', 
+                       Line: 449, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_disjunctEPKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 421, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-40'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_disjunct
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '10'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 423, Column: 28 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_disjunctEPKc
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE7_M_dataEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 228, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_disjunctEPKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 421, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_disjunct
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '28'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 423, Column: 46 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_disjunctEPKc
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE4sizeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1077, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_disjunctEPKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 421, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_disjunct
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '46'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 423, Column: 6 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_disjunctEPKc
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt4lessIPKcEclES1_S1_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_function.h', 
+                       Line: 449, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_disjunctEPKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 421, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-40'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_disjunct
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '6'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 443, Column: 4 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE7_S_moveEPcPKcm
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt11char_traitsIcE6assignERcRKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 344, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE7_S_moveEPcPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 441, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _S_move
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 445, Column: 4 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE7_S_moveEPcPKcm
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt11char_traitsIcE4moveEPcPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 408, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE7_S_moveEPcPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 441, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _S_move
+  - String:          ':'
+  - Line:            '5'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 433, Column: 4 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE7_S_copyEPcPKcm
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt11char_traitsIcE6assignERcRKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 344, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE7_S_copyEPcPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 431, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _S_copy
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 435, Column: 4 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE7_S_copyEPcPKcm
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt11char_traitsIcE4copyEPcPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 420, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE7_S_copyEPcPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 431, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _S_copy
+  - String:          ':'
+  - Line:            '5'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/allocator.h', 
+                   Line: 196, Column: 32 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_S_allocateERS3_m
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt15__new_allocatorIcE8allocateEmPKv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 127, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_S_allocateERS3_m
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 130, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '30'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          allocate
+  - String:          ':'
+  - Line:            '9'
+  - String:          ':'
+  - Column:          '32'
+  - String:          ' @ '
+  - String:          allocate
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '20'
+  - String:          ' @ '
+  - String:          _S_allocate
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '16'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 143, Column: 24 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE8max_sizeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1090, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 140, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_create
+  - String:          ':'
+  - Line:            '4'
+  - String:          ':'
+  - Column:          '24'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 153, Column: 21 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE8max_sizeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1090, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 140, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_create
+  - String:          ':'
+  - Line:            '14'
+  - String:          ':'
+  - Column:          '21'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 154, Column: 19 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE8max_sizeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1090, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 140, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_create
+  - String:          ':'
+  - Line:            '15'
+  - String:          ':'
+  - Column:          '19'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 159, Column: 26 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE16_M_get_allocatorEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 342, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 140, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_create
+  - String:          ':'
+  - Line:            '20'
+  - String:          ':'
+  - Column:          '26'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 159, Column: 14 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_S_allocateERS3_m
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 130, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 140, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '35'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_create
+  - String:          ':'
+  - Line:            '20'
+  - String:          ':'
+  - Column:          '14'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            gvn
+Name:            LoadElim
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 159, Column: 46 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' eliminated'
+  - String:          ' in favor of '
+  - InfavorOfValue:  phi
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 159, Column: 46 }
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 329, Column: 36 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE6lengthEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1084, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 328, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_mutate
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '36'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 331, Column: 34 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE6lengthEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1084, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 328, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_mutate
+  - String:          ':'
+  - Line:            '5'
+  - String:          ':'
+  - Column:          '34'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 332, Column: 47 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE8capacityEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1181, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 328, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-10'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_mutate
+  - String:          ':'
+  - Line:            '6'
+  - String:          ':'
+  - Column:          '47'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 332, Column: 21 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 140, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 328, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '110'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          _M_mutate
+  - String:          ':'
+  - Line:            '6'
+  - String:          ':'
+  - Column:          '21'
+  - String:          ';'
+...

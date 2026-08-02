@@ -1,0 +1,47 @@
+#include "library.h"
+
+#include <cstdint>
+#include <vector>
+#include <algorithm>
+
+extern "C" {
+
+int64_t repeated_sort(const int* input, size_t input_length, int rounds) {
+    if (input == nullptr && input_length != 0) {
+        return 0;
+    }
+
+    try {
+        if (input_length == 0) {
+            return 0;
+        }
+
+        std::int64_t total = 0;
+
+        // Create a buffer to hold the input data
+        std::vector<int> values(input, input + input_length);
+
+        // Sort once outside the loop to avoid repeated allocations
+        std::sort(values.begin(), values.end());
+
+        const size_t mid = values.size() / 2;
+        const int median = (values.size() % 2 == 0)
+            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)
+            : values[mid];
+
+        // Use the same sorted array for all rounds
+        // Optimize the loop by precomputing the modulo and using a direct index
+        const size_t size = values.size();
+        for (int r = 0; r < rounds; ++r) {
+            total += median;
+            const size_t index = static_cast<size_t>(r % size);
+            total += values[index];
+        }
+
+        return total;
+    } catch (...) {
+        return 0;
+    }
+}
+
+}

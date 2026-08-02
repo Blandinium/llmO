@@ -1,0 +1,36 @@
+#include "library.h"
+#include <unordered_set>
+
+extern "C" {
+
+size_t count_matches(
+    const int* allowed,
+    size_t allowed_length,
+    const int* queries,
+    size_t queries_length
+) {
+    if ((allowed == nullptr && allowed_length != 0) ||
+        (queries == nullptr && queries_length != 0)) {
+        return 0;
+    }
+
+    try {
+        std::unordered_set<int> allowed_set;
+        if (allowed_length > 0) {
+            allowed_set.insert(allowed, allowed + allowed_length);
+        }
+
+        size_t matches = 0;
+        for (size_t i = 0; i < queries_length; ++i) {
+            if (allowed_set.find(queries[i]) != allowed_set.end()) {
+                ++matches;
+            }
+        }
+
+        return matches;
+    } catch (...) {
+        return 0;
+    }
+}
+
+}

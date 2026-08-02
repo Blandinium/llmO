@@ -1,0 +1,2311 @@
+You are an expert C++23 performance engineer.
+
+You are iteratively optimizing count_matches.cpp.
+Optimization iteration 3 of 3
+
+The current implementation compiles successfully and preserves the required ABI.
+
+Clang was run at -O3 and emitted the optimization remarks below. These remarks describe optimizations Clang performed, missed, or analyzed.
+
+Use them as diagnostic evidence to identify C++-level changes that could enable better generated code or improve the algorithm beyond what the compiler can do automatically.
+
+Do not blindly follow every remark. Some remarks only explain a compiler decision and changing the source may not be beneficial.
+
+Prefer meaningful runtime improvements such as:
+- better algorithms or data structures;
+- reducing allocations and copies;
+- improving memory locality;
+- simplifying dependencies that prevent vectorization;
+- eliminating unnecessary work;
+- making aliasing/lifetime/control-flow properties clearer when they are actually guaranteed by the API;
+- exposing profitable transformations to the compiler.
+
+Do not make unsafe assumptions merely to satisfy an optimization remark. A vectorizer remark might suggest aliasing is blocking vectorization, for example. That does NOT mean you are allowed to add restrict semantics unless those semantics are actually guaranteed by the API/program behavior.
+
+Hard requirements:
+- Return one complete replacement for count_matches.cpp.
+- Preserve the public C ABI exactly as declared in library.h.
+- Do not change exported names, parameter types, return types, struct layouts, ownership rules, or allocation/free conventions.
+- Do not implement unrelated exported functions.
+- Preserve externally observable behavior for all valid inputs.
+- Do not specialize for benchmark constants or hard-code benchmark results.
+- Exceptions must not escape through extern "C" APIs.
+- Do not modify library.h or sut_common.h.
+- Return raw C++ only.
+- No Markdown, explanation, notes, or code fences.
+
+Headers:
+// library.h
+#ifndef SUT_LIBRARY_H
+#define SUT_LIBRARY_H
+
+#include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct WordCount {
+    char* word;
+    uint64_t count;
+} WordCount;
+
+uint64_t fibonacci(uint64_t n);
+char* format_list(const int* input, size_t input_length);
+int64_t repeated_sort(const int* input, size_t input_length, int rounds);
+size_t count_matches(
+    const int* allowed,
+    size_t allowed_length,
+    const int* queries,
+    size_t queries_length
+);
+WordCount* top_words_from_file(
+    const char* path,
+    const char* const* ignore_words,
+    size_t ignore_words_length,
+    size_t max_results,
+    size_t* result_length
+);
+void free_string(char* value);
+void free_word_counts(WordCount* values, size_t length);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // SUT_LIBRARY_H
+
+
+// sut_common.h
+#ifndef SUT_COMMON_H
+#define SUT_COMMON_H
+
+#include <string>
+
+char* copy_to_c_string(const std::string& value);
+bool is_word_char(char c);
+char normalize_char(char c);
+
+#endif // SUT_COMMON_H
+
+
+Current count_matches.cpp:
+#include "library.h"
+
+#include <algorithm>
+#include <span>
+
+static bool contains(const std::span<const int> input, const int needle) {
+    return std::find(input.begin(), input.end(), needle) != input.end();
+}
+
+extern "C" {
+
+size_t count_matches(
+    const int* allowed,
+    size_t allowed_length,
+    const int* queries,
+    size_t queries_length
+) {
+    if ((allowed == nullptr && allowed_length != 0) ||
+        (queries == nullptr && queries_length != 0)) {
+        return 0;
+    }
+
+    const std::span<const int> allowed_span{allowed, allowed_length};
+    std::size_t matches = 0;
+
+    for (std::size_t i = 0; i < queries_length; ++i) {
+        if (contains(allowed_span, queries[i])) {
+            ++matches;
+        }
+    }
+
+    return matches;
+}
+
+}
+
+
+Clang optimization remarks:
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 20 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            loop-vectorize
+Name:            VectorizationNotBeneficial
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 26, Column: 5 }
+Function:        count_matches
+Args:
+  - String:          the cost-model indicates that vectorization is not beneficial
+...
+---
+!Missed
+Pass:            loop-vectorize
+Name:            InterleavingNotBeneficial
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 26, Column: 5 }
+Function:        count_matches
+Args:
+  - String:          the cost-model indicates that interleaving is not beneficial
+...
+---
+!Missed
+Pass:            loop-vectorize
+Name:            VectorizationNotBeneficial
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 26, Column: 5 }
+Function:        count_matches
+Args:
+  - String:          the cost-model indicates that vectorization is not beneficial
+...
+---
+!Missed
+Pass:            loop-vectorize
+Name:            InterleavingNotBeneficial
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 26, Column: 5 }
+Function:        count_matches
+Args:
+  - String:          the cost-model indicates that interleaving is not beneficial
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            regalloc
+Name:            LoopSpillReloadCopies
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 26, Column: 5 }
+Function:        count_matches
+Args:
+  - NumVRCopies:     '7'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '2.250000e+00'
+  - String:          ' total copies cost '
+  - String:          generated in loop
+...
+---
+!Missed
+Pass:            regalloc
+Name:            LoopSpillReloadCopies
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 26, Column: 5 }
+Function:        count_matches
+Args:
+  - NumVRCopies:     '4'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '1.875000e+00'
+  - String:          ' total copies cost '
+  - String:          generated in loop
+...
+---
+!Missed
+Pass:            regalloc
+Name:            LoopSpillReloadCopies
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 26, Column: 5 }
+Function:        count_matches
+Args:
+  - NumVRCopies:     '8'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '1.034383e+01'
+  - String:          ' total copies cost '
+  - String:          generated in loop
+...
+---
+!Missed
+Pass:            regalloc
+Name:            SpillReloadCopies
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 12, Column: 1 }
+Function:        count_matches
+Args:
+  - NumVRCopies:     '23'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '1.463289e+01'
+  - String:          ' total copies cost '
+  - String:          generated in function
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            TooManyUncountableEarlyExits
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2105, Column: 7 }
+Function:        count_matches
+Args:
+  - String:          'loop not vectorized: '
+  - String:          Cannot vectorize early exit loop with more than one early exit
+...
+---
+!Analysis
+Pass:            prologepilog
+Name:            StackSize
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 17, Column: 0 }
+Function:        count_matches
+Args:
+  - NumStackBytes:   '48'
+  - String:          ' stack bytes in function '''
+  - Function:        count_matches
+  - String:          ''''
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 18, Column: 18 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          PUSH64r
+  - String:          ': '
+  - INST_PUSH64r:    '6'
+  - String:          "\n"
+  - String:          SETCCr
+  - String:          ': '
+  - INST_SETCCr:     '2'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '2'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          TEST8rr
+  - String:          ': '
+  - INST_TEST8rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 19, Column: 18 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          SETCCr
+  - String:          ': '
+  - INST_SETCCr:     '2'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '2'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          OR8rr
+  - String:          ': '
+  - INST_OR8rr:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64ri32
+  - String:          ': '
+  - INST_CMP64ri32:  '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          LEA64r
+  - String:          ': '
+  - INST_LEA64r:     '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64ri32
+  - String:          ': '
+  - INST_CMP64ri32:  '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          LEA64r
+  - String:          ': '
+  - INST_LEA64r:     '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '2'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+  - String:          LEA64r
+  - String:          ': '
+  - INST_LEA64r:     '1'
+  - String:          "\n"
+  - String:          MOV32rm
+  - String:          ': '
+  - INST_MOV32rm:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1194, Column: 27 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '2'
+  - String:          "\n"
+  - String:          ADD64rr
+  - String:          ': '
+  - INST_ADD64rr:    '1'
+  - String:          "\n"
+  - String:          INC64r
+  - String:          ': '
+  - INST_INC64r:     '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          SETCCr
+  - String:          ': '
+  - INST_SETCCr:     '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 27, Column: 36 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32rr
+  - String:          ': '
+  - INST_CMP32rr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV32rm
+  - String:          ': '
+  - INST_MOV32rm:    '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32mr
+  - String:          ': '
+  - INST_CMP32mr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32mr
+  - String:          ': '
+  - INST_CMP32mr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 33, Column: 1 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          POP64r
+  - String:          ': '
+  - INST_POP64r:     '6'
+  - String:          "\n"
+  - String:          RET64
+  - String:          ': '
+  - INST_RET64:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          LEA64r
+  - String:          ': '
+  - INST_LEA64r:     '3'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '2'
+  - String:          "\n"
+  - String:          ADD64ri32
+  - String:          ': '
+  - INST_ADD64ri32:  '1'
+  - String:          "\n"
+  - String:          ADD64rr
+  - String:          ': '
+  - INST_ADD64rr:    '1'
+  - String:          "\n"
+  - String:          AND32ri
+  - String:          ': '
+  - INST_AND32ri:    '1'
+  - String:          "\n"
+  - String:          AND64ri32
+  - String:          ': '
+  - INST_AND64ri32:  '1'
+  - String:          "\n"
+  - String:          INC64r
+  - String:          ': '
+  - INST_INC64r:     '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+  - String:          SHR64ri
+  - String:          ': '
+  - INST_SHR64ri:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1194, Column: 27 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          ADD64ri32
+  - String:          ': '
+  - INST_ADD64ri32:  '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1194, Column: 27 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '2'
+  - String:          "\n"
+  - String:          ADD64rr
+  - String:          ': '
+  - INST_ADD64rr:    '1'
+  - String:          "\n"
+  - String:          INC64r
+  - String:          ': '
+  - INST_INC64r:     '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          SETCCr
+  - String:          ': '
+  - INST_SETCCr:     '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 27, Column: 36 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '2'
+  - String:          "\n"
+  - String:          MOV32rm
+  - String:          ': '
+  - INST_MOV32rm:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2105, Column: 27 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          ADD64ri32
+  - String:          ': '
+  - INST_ADD64ri32:  '1'
+  - String:          "\n"
+  - String:          CMP64ri32
+  - String:          ': '
+  - INST_CMP64ri32:  '1'
+  - String:          "\n"
+  - String:          DEC64r
+  - String:          ': '
+  - INST_DEC64r:     '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2124, Column: 7 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '2'
+  - String:          "\n"
+  - String:          ADD64rr
+  - String:          ': '
+  - INST_ADD64rr:    '1'
+  - String:          "\n"
+  - String:          JMP64r
+  - String:          ': '
+  - INST_JMP64r:     '1'
+  - String:          "\n"
+  - String:          MOVSX64rm32
+  - String:          ': '
+  - INST_MOVSX64rm32: '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '2'
+  - String:          "\n"
+  - String:          CMP32mr
+  - String:          ': '
+  - INST_CMP32mr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1194, Column: 27 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          ADD64ri32
+  - String:          ': '
+  - INST_ADD64ri32:  '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1194, Column: 27 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          ADD64ri32
+  - String:          ': '
+  - INST_ADD64ri32:  '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1102, Column: 2 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          ADD64ri32
+  - String:          ': '
+  - INST_ADD64ri32:  '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 17 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMOV64rr
+  - String:          ': '
+  - INST_CMOV64rr:   '1'
+  - String:          "\n"
+  - String:          CMP32mr
+  - String:          ': '
+  - INST_CMP32mr:    '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64ri32
+  - String:          ': '
+  - INST_CMP64ri32:  '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV32rm
+  - String:          ': '
+  - INST_MOV32rm:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 27, Column: 36 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32rr
+  - String:          ': '
+  - INST_CMP32rr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV32rm
+  - String:          ': '
+  - INST_MOV32rm:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 17 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMOV64rr
+  - String:          ': '
+  - INST_CMOV64rr:   '1'
+  - String:          "\n"
+  - String:          CMP32mr
+  - String:          ': '
+  - INST_CMP32mr:    '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1194, Column: 27 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          ADD64rr
+  - String:          ': '
+  - INST_ADD64rr:    '1'
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+  - String:          SETCCr
+  - String:          ': '
+  - INST_SETCCr:     '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64ri32
+  - String:          ': '
+  - INST_CMP64ri32:  '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV32rm
+  - String:          ': '
+  - INST_MOV32rm:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '2'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 27, Column: 13 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          ADD64rr
+  - String:          ': '
+  - INST_ADD64rr:    '2'
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '2'
+  - String:          "\n"
+  - String:          ADD64ri32
+  - String:          ': '
+  - INST_ADD64ri32:  '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV8rr
+  - String:          ': '
+  - INST_MOV8rr:     '1'
+  - String:          "\n"
+  - String:          SETCCr
+  - String:          ': '
+  - INST_SETCCr:     '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 27, Column: 36 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32rr
+  - String:          ': '
+  - INST_CMP32rr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV32rm
+  - String:          ': '
+  - INST_MOV32rm:    '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32mr
+  - String:          ': '
+  - INST_CMP32mr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1194, Column: 27 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32rr
+  - String:          ': '
+  - INST_CMP32rr:    '1'
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV32rm
+  - String:          ': '
+  - INST_MOV32rm:    '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+  - String:          SETCCr
+  - String:          ': '
+  - INST_SETCCr:     '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32mr
+  - String:          ': '
+  - INST_CMP32mr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 26, Column: 5 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          PXORrr
+  - String:          ': '
+  - INST_PXORrr:     '2'
+  - String:          "\n"
+  - String:          AND64ri32
+  - String:          ': '
+  - INST_AND64ri32:  '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+  - String:          MOVDI2PDIrr
+  - String:          ': '
+  - INST_MOVDI2PDIrr: '1'
+  - String:          "\n"
+  - String:          MOVDQArm
+  - String:          ': '
+  - INST_MOVDQArm:   '1'
+  - String:          "\n"
+  - String:          PSHUFDri
+  - String:          ': '
+  - INST_PSHUFDri:   '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 27, Column: 36 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOVQI2PQIrm
+  - String:          ': '
+  - INST_MOVQI2PQIrm: '2'
+  - String:          "\n"
+  - String:          PADDQrr
+  - String:          ': '
+  - INST_PADDQrr:    '2'
+  - String:          "\n"
+  - String:          PANDrr
+  - String:          ': '
+  - INST_PANDrr:     '2'
+  - String:          "\n"
+  - String:          PCMPEQDrr
+  - String:          ': '
+  - INST_PCMPEQDrr:  '2'
+  - String:          "\n"
+  - String:          PSHUFDri
+  - String:          ': '
+  - INST_PSHUFDri:   '2'
+  - String:          "\n"
+  - String:          ADD64ri32
+  - String:          ': '
+  - INST_ADD64ri32:  '1'
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 26, Column: 5 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          PADDQrr
+  - String:          ': '
+  - INST_PADDQrr:    '2'
+  - String:          "\n"
+  - String:          MOVPQIto64rr
+  - String:          ': '
+  - INST_MOVPQIto64rr: '1'
+  - String:          "\n"
+  - String:          PSHUFDri
+  - String:          ': '
+  - INST_PSHUFDri:   '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 26, Column: 0 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 17 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          ADD64rr
+  - String:          ': '
+  - INST_ADD64rr:    '1'
+  - String:          "\n"
+  - String:          CMP32rm
+  - String:          ': '
+  - INST_CMP32rm:    '1'
+  - String:          "\n"
+  - String:          INC64r
+  - String:          ': '
+  - INST_INC64r:     '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+  - String:          SETCCr
+  - String:          ': '
+  - INST_SETCCr:     '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionCount
+DebugLoc:        { File: 'benchmark-builds/llm-cpp-remarks/qwen2_5_coder_14b_q4km/count_matches_cpp/iteration_02/attempt_01/repair_01/source_output.cpp', 
+                   Line: 17, Column: 0 }
+Function:        count_matches
+Args:
+  - NumInstructions: '209'
+  - String:          ' instructions in function'
+...
+---
+!Passed
+Pass:            inline
+Name:            AlwaysInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2153, Column: 10 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_
+Args:
+  - String:          ''''
+  - Callee:          _ZSt19__iterator_categoryIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEEENSt15iterator_traitsIT_E17iterator_categoryERKS8_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator_base_types.h', 
+                       Line: 240, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2151, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost=always)'
+  - String:          ': '
+  - Reason:          always inline attribute
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '10'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/span', 
+                   Line: 312, Column: 16 }
+Function:        _ZNKSt4spanIKiLm18446744073709551615EE5beginEv
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS1_Lm18446744073709551615EEEC2ERKS2_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1068, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt4spanIKiLm18446744073709551615EE5beginEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/span', 
+                       Line: 312, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          begin
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '16'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/span', 
+                   Line: 317, Column: 46 }
+Function:        _ZNKSt4spanIKiLm18446744073709551615EE3endEv
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt4spanIKiLm18446744073709551615EE4sizeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/span', 
+                       Line: 252, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt4spanIKiLm18446744073709551615EE3endEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/span', 
+                       Line: 317, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          end
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '46'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/span', 
+                   Line: 317, Column: 16 }
+Function:        _ZNKSt4spanIKiLm18446744073709551615EE3endEv
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS1_Lm18446744073709551615EEEC2ERKS2_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1068, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNKSt4spanIKiLm18446744073709551615EE3endEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/span', 
+                       Line: 317, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-40'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          end
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '16'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 277, Column: 14 }
+Function:        _ZN9__gnu_cxx5__ops17__iter_equals_valIKiEENS0_16_Iter_equals_valIT_EERS4_
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx5__ops16_Iter_equals_valIKiEC2ERS2_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                       Line: 264, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZN9__gnu_cxx5__ops17__iter_equals_valIKiEENS0_16_Iter_equals_valIT_EERS4_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                       Line: 277, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-40'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__iter_equals_val<const int>'
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '14'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1328, Column: 20 }
+Function:        _ZN9__gnu_cxxmiIPKiSt4spanIS1_Lm18446744073709551615EEEENS_17__normal_iteratorIT_T0_E15difference_typeERKS8_SB_
+Args:
+  - String:          ''''
+  - Callee:          _ZNK9__gnu_cxx17__normal_iteratorIPKiSt4spanIS1_Lm18446744073709551615EEE4baseEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1154, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZN9__gnu_cxxmiIPKiSt4spanIS1_Lm18446744073709551615EEEENS_17__normal_iteratorIT_T0_E15difference_typeERKS8_SB_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1328, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          'operator-<const int *, std::span<const int, 18446744073709551615UL> >'
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '20'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1328, Column: 35 }
+Function:        _ZN9__gnu_cxxmiIPKiSt4spanIS1_Lm18446744073709551615EEEENS_17__normal_iteratorIT_T0_E15difference_typeERKS8_SB_
+Args:
+  - String:          ''''
+  - Callee:          _ZNK9__gnu_cxx17__normal_iteratorIPKiSt4spanIS1_Lm18446744073709551615EEE4baseEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1154, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZN9__gnu_cxxmiIPKiSt4spanIS1_Lm18446744073709551615EEEENS_17__normal_iteratorIT_T0_E15difference_typeERKS8_SB_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1328, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          'operator-<const int *, std::span<const int, 18446744073709551615UL> >'
+  - String:          ':'
+  - Line:            '3'
+  - String:          ':'
+  - Column:          '35'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 270, Column: 11 }
+Function:        _ZN9__gnu_cxx5__ops16_Iter_equals_valIKiEclINS_17__normal_iteratorIPS2_St4spanIS2_Lm18446744073709551615EEEEEEbT_
+Args:
+  - String:          ''''
+  - Callee:          _ZNK9__gnu_cxx17__normal_iteratorIPKiSt4spanIS1_Lm18446744073709551615EEEdeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1091, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZN9__gnu_cxx5__ops16_Iter_equals_valIKiEclINS_17__normal_iteratorIPS2_St4spanIS2_Lm18446744073709551615EEEEEEbT_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                       Line: 270, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          'operator()<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> > >'
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '11'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2103, Column: 25 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxxmiIPKiSt4spanIS1_Lm18446744073709551615EEEENS_17__normal_iteratorIT_T0_E15difference_typeERKS8_SB_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1328, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '487'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '4'
+  - String:          ':'
+  - Column:          '25'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2107, Column: 8 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx5__ops16_Iter_equals_valIKiEclINS_17__normal_iteratorIPS2_St4spanIS2_Lm18446744073709551615EEEEEEbT_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                       Line: 270, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-25'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '8'
+  - String:          ':'
+  - Column:          '8'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2109, Column: 4 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS1_Lm18446744073709551615EEEppEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1101, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '10'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2111, Column: 8 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx5__ops16_Iter_equals_valIKiEclINS_17__normal_iteratorIPS2_St4spanIS2_Lm18446744073709551615EEEEEEbT_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                       Line: 270, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-25'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '12'
+  - String:          ':'
+  - Column:          '8'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2113, Column: 4 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS1_Lm18446744073709551615EEEppEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1101, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '14'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2115, Column: 8 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx5__ops16_Iter_equals_valIKiEclINS_17__normal_iteratorIPS2_St4spanIS2_Lm18446744073709551615EEEEEEbT_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                       Line: 270, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-25'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '16'
+  - String:          ':'
+  - Column:          '8'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2117, Column: 4 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS1_Lm18446744073709551615EEEppEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1101, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '18'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2119, Column: 8 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx5__ops16_Iter_equals_valIKiEclINS_17__normal_iteratorIPS2_St4spanIS2_Lm18446744073709551615EEEEEEbT_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                       Line: 270, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-25'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '20'
+  - String:          ':'
+  - Column:          '8'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2121, Column: 4 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS1_Lm18446744073709551615EEEppEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1101, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '22'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2124, Column: 22 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxxmiIPKiSt4spanIS1_Lm18446744073709551615EEEENS_17__normal_iteratorIT_T0_E15difference_typeERKS8_SB_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1328, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-30'
+  - String:          ', threshold='
+  - Threshold:       '487'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '25'
+  - String:          ':'
+  - Column:          '22'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2127, Column: 8 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx5__ops16_Iter_equals_valIKiEclINS_17__normal_iteratorIPS2_St4spanIS2_Lm18446744073709551615EEEEEEbT_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                       Line: 270, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-25'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '28'
+  - String:          ':'
+  - Column:          '8'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2129, Column: 4 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS1_Lm18446744073709551615EEEppEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1101, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '30'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2132, Column: 8 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx5__ops16_Iter_equals_valIKiEclINS_17__normal_iteratorIPS2_St4spanIS2_Lm18446744073709551615EEEEEEbT_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                       Line: 270, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-25'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '33'
+  - String:          ':'
+  - Column:          '8'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2134, Column: 4 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS1_Lm18446744073709551615EEEppEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1101, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '35'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2137, Column: 8 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx5__ops16_Iter_equals_valIKiEclINS_17__normal_iteratorIPS2_St4spanIS2_Lm18446744073709551615EEEEEEbT_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                       Line: 270, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-25'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '38'
+  - String:          ':'
+  - Column:          '8'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                   Line: 2139, Column: 4 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          ''''
+  - Callee:          _ZN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS1_Lm18446744073709551615EEEppEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1101, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 2101, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          '__find_if<__gnu_cxx::__normal_iterator<const int *, std::span<const int, 18446744073709551615UL> >, __gnu_cxx::__ops::_Iter_equals_val<const int> >'
+  - String:          ':'
+  - Line:            '40'
+  - String:          ':'
+  - Column:          '4'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            licm
+Name:            InstSunk
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1102, Column: 2 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          'sinking '
+  - Inst:            getelementptr
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1102, Column: 2 }
+...
+---
+!Passed
+Pass:            licm
+Name:            InstSunk
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1102, Column: 2 }
+Function:        _ZSt9__find_ifIN9__gnu_cxx17__normal_iteratorIPKiSt4spanIS2_Lm18446744073709551615EEEENS0_5__ops16_Iter_equals_valIS2_EEET_SA_SA_T0_St26random_access_iterator_tag
+Args:
+  - String:          'sinking '
+  - Inst:            getelementptr
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1102, Column: 2 }
+...

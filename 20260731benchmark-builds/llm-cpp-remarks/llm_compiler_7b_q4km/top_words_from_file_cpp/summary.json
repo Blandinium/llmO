@@ -1,0 +1,64 @@
+{
+  "accepted_remarks": [],
+  "baseline_calls_per_second": 2407.62,
+  "benchmark_ok": true,
+  "benchmark_results": {
+    "benchmark_4_top_words_from_file_results": {
+      "benchmark": "top_words_from_file",
+      "calls_per_second": 2407.62,
+      "case_count": 4,
+      "checksum": 10553113110299763399,
+      "input_n": 8192,
+      "involuntary_context_switches": 112,
+      "iterations": 74075,
+      "major_faults": 0,
+      "max_input_n": 8192,
+      "max_rss_kb": 39472,
+      "min_input_n": 2048,
+      "min_probe_wall_us": 500000,
+      "minor_faults": 0,
+      "probe_checksum": 6782319025303137771,
+      "probe_iterations": 1742,
+      "probe_wall_us": 705499,
+      "process_cpu_us": 30631179,
+      "system_cpu_us": 351458,
+      "target_wall_us": 30000000,
+      "thread_cpu_us": 30631180,
+      "user_cpu_us": 30279721,
+      "voluntary_context_switches": 0,
+      "wall_us": 30766899
+    }
+  },
+  "best_calls_per_second": 2407.62,
+  "best_is_baseline": true,
+  "best_iteration": 0,
+  "completed_optimization_passes": 0,
+  "final_abi_ok": true,
+  "final_compile_ok": true,
+  "final_source": "/home/tijl/code/llmO/benchmark-builds/llm-cpp-remarks/llm_compiler_7b_q4km/top_words_from_file_cpp/final/optimized_top_words_from_file.cpp",
+  "iterations": [
+    {
+      "abi_result": null,
+      "accepted_remarks": null,
+      "compile_result": null,
+      "iteration": 1,
+      "metadata": {
+        "error": "HTTP Error 400: Bad Request"
+      },
+      "remarks_file": null,
+      "shown_remarks": null,
+      "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-cpp-remarks/llm_compiler_7b_q4km/top_words_from_file_cpp/baseline/top_words_from_file.cpp",
+      "success": false,
+      "type": "optimization"
+    }
+  ],
+  "llm_duration_seconds": 0.0,
+  "message": "No successful optimization passes.",
+  "model": "llm-compiler-7b-q4km",
+  "repair_attempts": 0,
+  "requested_optimization_passes": 3,
+  "shown_remarks": [],
+  "stopped_reason": "optimization_failed_pass_1",
+  "target": "top_words_from_file.cpp",
+  "total_duration_seconds": 2.7115663890726864
+}

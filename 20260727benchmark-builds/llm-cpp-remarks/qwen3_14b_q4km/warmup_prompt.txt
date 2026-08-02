@@ -1,0 +1,1 @@
+Optimize this C++ function. Return only code: int f(int x) { return x + 0; }

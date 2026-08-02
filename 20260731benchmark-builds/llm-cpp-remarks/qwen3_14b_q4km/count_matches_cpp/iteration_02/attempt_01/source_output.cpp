@@ -1,0 +1,58 @@
+#include "library.h"
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <stdexcept>
+
+extern "C" {
+
+size_t count_matches(
+    const int* allowed,
+    size_t allowed_length,
+    const int* queries,
+    size_t queries_length
+) {
+    if ((allowed == nullptr && allowed_length != 0) ||
+        (queries == nullptr && queries_length != 0)) {
+        return 0;
+    }
+
+    try {
+        // Check for empty input cases
+        if (allowed_length == 0) {
+            return 0;
+        }
+
+        // Create a sorted array for allowed values
+        int* allowed_array = new int[allowed_length];
+        std::copy(allowed, allowed + allowed_length, allowed_array);
+        std::sort(allowed_array, allowed_array + allowed_length);
+
+        // Use binary search for each query
+        size_t matches = 0;
+        for (size_t i = 0; i < queries_length; ++i) {
+            int query = queries[i];
+            // Binary search in the sorted array
+            int* low = allowed_array;
+            int* high = allowed_array + allowed_length;
+            while (low < high) {
+                int* mid = low + (high - low) / 2;
+                if (*mid < query) {
+                    low = mid + 1;
+                } else {
+                    high = mid;
+                }
+            }
+            if (low < allowed_array + allowed_length && *low == query) {
+                ++matches;
+            }
+        }
+
+        delete[] allowed_array;
+        return matches;
+    } catch (...) {
+        return 0;
+    }
+}
+
+}

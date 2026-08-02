@@ -1,0 +1,64 @@
+{
+  "accepted_remarks": [],
+  "baseline_calls_per_second": 79551.5,
+  "benchmark_ok": true,
+  "benchmark_results": {
+    "benchmark_1_format_list_results": {
+      "benchmark": "format_list",
+      "calls_per_second": 79551.5,
+      "case_count": 8,
+      "checksum": 13557073030552556551,
+      "input_n": 1536,
+      "involuntary_context_switches": 138,
+      "iterations": 2375798,
+      "major_faults": 0,
+      "max_input_n": 1536,
+      "max_rss_kb": 39472,
+      "min_input_n": 768,
+      "min_probe_wall_us": 500000,
+      "minor_faults": 0,
+      "probe_checksum": 15662978802496052178,
+      "probe_iterations": 45523,
+      "probe_wall_us": 574834,
+      "process_cpu_us": 29761282,
+      "system_cpu_us": 0,
+      "target_wall_us": 30000000,
+      "thread_cpu_us": 29761283,
+      "user_cpu_us": 29761283,
+      "voluntary_context_switches": 0,
+      "wall_us": 29864922
+    }
+  },
+  "best_calls_per_second": 79551.5,
+  "best_is_baseline": true,
+  "best_iteration": 0,
+  "completed_optimization_passes": 0,
+  "final_abi_ok": true,
+  "final_compile_ok": true,
+  "final_source": "/home/tijl/code/llmO/benchmark-builds/llm-cpp-remarks/llm_compiler_7b_q4km/format_list_cpp/final/optimized_format_list.cpp",
+  "iterations": [
+    {
+      "abi_result": null,
+      "accepted_remarks": null,
+      "compile_result": null,
+      "iteration": 1,
+      "metadata": {
+        "error": "HTTP Error 400: Bad Request"
+      },
+      "remarks_file": null,
+      "shown_remarks": null,
+      "source_file": "/home/tijl/code/llmO/benchmark-builds/llm-cpp-remarks/llm_compiler_7b_q4km/format_list_cpp/baseline/format_list.cpp",
+      "success": false,
+      "type": "optimization"
+    }
+  ],
+  "llm_duration_seconds": 0.0,
+  "message": "No successful optimization passes.",
+  "model": "llm-compiler-7b-q4km",
+  "repair_attempts": 0,
+  "requested_optimization_passes": 3,
+  "shown_remarks": [],
+  "stopped_reason": "optimization_failed_pass_1",
+  "target": "format_list.cpp",
+  "total_duration_seconds": 1.845557820983231
+}
