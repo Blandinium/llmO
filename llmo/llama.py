@@ -3,6 +3,8 @@ import json
 import subprocess
 import time
 import urllib.request
+import urllib.error
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional, List
@@ -14,6 +16,8 @@ from .config import (
     LLAMA_READY_TIMEOUT
 )
 from .command import write_json
+
+EFFECTIVE_LLAMA_CTX_SIZE = LLAMA_CTX_SIZE
 
 @dataclass
 class LlmModelConfig:
@@ -46,6 +50,7 @@ def start_llama_server(model: LlmModelConfig, log_dir: Path) -> subprocess.Popen
         "--host", LLAMA_HOST,
         "--port", str(LLAMA_PORT),
         "--ctx-size", str(LLAMA_CTX_SIZE),
+        "--parallel", "1",
         "--threads", str(LLAMA_THREADS),
         "--threads-batch", str(LLAMA_THREADS_BATCH),
         "--batch-size", str(LLAMA_BATCH_SIZE),
@@ -72,11 +77,19 @@ def http_json(method: str, url: str, payload: Optional[dict[str, Any]] = None, t
     if LLAMA_API_KEY:
         headers["Authorization"] = f"Bearer {LLAMA_API_KEY}"
     request = urllib.request.Request(url, data=data, headers=headers, method=method)
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        body = response.read().decode("utf-8")
-    return json.loads(body) if body else {}
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            body = response.read().decode("utf-8")
+        return json.loads(body) if body else {}
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8", errors="replace")
+        print(f"HTTP Error {e.code}: {e.reason}")
+        print(f"Response body: {error_body}")
+        raise
+    except Exception:
+        raise
 
-def wait_for_llama_ready(process: subprocess.Popen[str], timeout_seconds: int = LLAMA_READY_TIMEOUT) -> None:
+def wait_for_llama_ready(process: subprocess.Popen[str], log_dir: Optional[Path] = None, timeout_seconds: int = LLAMA_READY_TIMEOUT) -> None:
     deadline = time.monotonic() + timeout_seconds
     last_error: Optional[str] = None
     while time.monotonic() < deadline:
@@ -84,11 +97,90 @@ def wait_for_llama_ready(process: subprocess.Popen[str], timeout_seconds: int = 
             raise RuntimeError(f"llama-server exited with code {process.returncode}")
         try:
             http_json("GET", f"{LLAMA_BASE_URL}/health", timeout=5)
+            if log_dir:
+                detect_effective_context(log_dir)
             return
         except Exception as exc:
             last_error = str(exc)
             time.sleep(1)
     raise TimeoutError(f"llama-server did not become ready: {last_error}")
+
+def detect_effective_context(log_dir: Path) -> int:
+    global EFFECTIVE_LLAMA_CTX_SIZE
+    
+    requested = LLAMA_CTX_SIZE
+    slots_ctxs = []
+    props_ctx = None
+    log_slot_ctx = None
+    log_train_ctx = None
+    
+    # 1. GET /slots
+    try:
+        slots = http_json("GET", f"{LLAMA_BASE_URL}/slots", timeout=5)
+        if isinstance(slots, list):
+            slots_ctxs = [int(s["n_ctx"]) for s in slots if int(s.get("n_ctx", 0)) > 0]
+    except Exception:
+        pass
+    
+    # 2. GET /props
+    try:
+        props = http_json("GET", f"{LLAMA_BASE_URL}/props", timeout=5)
+        if "default_generation_settings" in props and "n_ctx" in props["default_generation_settings"]:
+            props_ctx = int(props["default_generation_settings"]["n_ctx"])
+        elif "n_ctx" in props:
+            props_ctx = int(props["n_ctx"])
+    except Exception:
+        pass
+        
+    # 3. Parse logs
+    stderr_path = log_dir / "llama_server_stderr.txt"
+    if stderr_path.exists():
+        content = stderr_path.read_text(encoding="utf-8", errors="replace")
+        
+        slot_match = re.search(r"slot\s+\d+,\s+n_ctx\s+(\d+)", content, re.MULTILINE)
+        if slot_match:
+            log_slot_ctx = int(slot_match.group(1))
+        else:
+            slot_match = re.search(r"\"n_ctx\":\s*(\d+)", content)
+            if slot_match:
+                log_slot_ctx = int(slot_match.group(1))
+        
+        train_match = re.search(r"llm_load_print_meta: n_ctx_train\s+=\s+(\d+)", content)
+        if train_match:
+            log_train_ctx = int(train_match.group(1))
+
+    # Selection logic following priority
+    effective = requested
+    source = "fallback (requested context)"
+    
+    if slots_ctxs:
+        effective = min(slots_ctxs)
+        source = "/slots"
+    elif props_ctx is not None:
+        effective = props_ctx
+        source = "/props"
+    elif log_slot_ctx is not None:
+        effective = log_slot_ctx
+        source = "startup-log n_ctx_slot"
+    elif log_train_ctx is not None:
+        effective = min(requested, log_train_ctx)
+        source = "min(requested, n_ctx_train)"
+    else:
+        print("WARNING: Could not detect effective context size from server. Falling back to requested size.")
+
+    # Logging
+    print(f"Requested context : {requested}")
+    if slots_ctxs:
+        print(f"Parallel slots    : {len(slots_ctxs)}")
+        print(f"Slot contexts     : {slots_ctxs}")
+    
+    if log_train_ctx is not None and log_train_ctx < requested and not slots_ctxs:
+        print(f"Model context     : {log_train_ctx}")
+
+    print(f"Effective context : {effective} (from {source})")
+    
+    EFFECTIVE_LLAMA_CTX_SIZE = effective
+    return effective
 
 def call_llm(model_name: str, prompt: str, system_prompt: str = "You are a compiler and C++ optimization assistant. Return only the requested source code.") -> str:
     payload = {

@@ -18,6 +18,7 @@ from llmo.project import llm_target_source_files, other_sources_for_replacement,
 from llmo.source import extract_code_block, contains_target_function_definition, read_support_headers
 from llmo.abi import run_abi_symbol_check
 from llmo.benchmark import run_benchmarks_for_lib
+from llmo import llama
 from llmo.llama import (
     LlmModelConfig, LlmCallResult, start_llama_server, stop_process, 
     wait_for_llama_ready, call_llm, warm_up_llm, tokenize, count_tokens
@@ -96,7 +97,8 @@ def make_compile_repair_prompt(
     target_name: str,
     headers: str,
     source: str,
-    diagnostics: str
+    diagnostics: str,
+    max_diag_chars: int = 24000
 ) -> str:
     return f"""You are an expert C++23 build-fix and performance engineer.
 
@@ -120,7 +122,7 @@ Failed {target_name}:
 {source}
 
 Diagnostics:
-{diagnostics[-24000:]}
+{diagnostics[-max_diag_chars:]}
 """
 
 # =============================================================================
@@ -196,8 +198,8 @@ def run_repair_step(
         
         if stdout or stderr:
             diagnostics.append("Compiler/linker diagnostics:")
-            if stdout: diagnostics.append(f"STDOUT:\n{stdout[-12000:]}")
-            if stderr: diagnostics.append(f"STDERR:\n{stderr[-12000:]}")
+            if stdout: diagnostics.append(f"STDOUT:\n{stdout}")
+            if stderr: diagnostics.append(f"STDERR:\n{stderr}")
             
     if abi_result:
         stdout = ""
@@ -209,18 +211,45 @@ def run_repair_step(
             
         if stdout or stderr:
             diagnostics.append("ABI validation diagnostics:")
-            if stdout: diagnostics.append(f"STDOUT:\n{stdout[-12000:]}")
-            if stderr: diagnostics.append(f"STDERR:\n{stderr[-12000:]}")
+            if stdout: diagnostics.append(f"STDOUT:\n{stdout}")
+            if stderr: diagnostics.append(f"STDERR:\n{stderr}")
             
     all_diagnostics = "\n\n".join(diagnostics)
     failed_source = failed_source_file.read_text(encoding="utf-8", errors="replace")
-    prompt = make_compile_repair_prompt(target_source.name, headers, failed_source, all_diagnostics)
+    
+    # Budgeting for repair prompt
+    system_prompt = "You are a compiler and C++ optimization assistant. Return only the requested source code."
+    dummy_prompt = make_compile_repair_prompt(target_source.name, headers, failed_source, "")
+    fixed_tokens = count_tokens(dummy_prompt) + count_tokens(system_prompt)
+    available_tokens = llama.EFFECTIVE_LLAMA_CTX_SIZE - fixed_tokens - LLM_MAX_TOKENS - CONTEXT_SAFETY_MARGIN_TOKENS
+    
+    # Conservative truncation: 2 chars per token
+    max_diag_chars = max(1000, available_tokens * 2)
+    
+    prompt = make_compile_repair_prompt(target_source.name, headers, failed_source, all_diagnostics, max_diag_chars=max_diag_chars)
+    
+    # Final pre-flight check
+    prompt_tokens = count_tokens(prompt)
+    system_prompt_tokens = count_tokens(system_prompt)
+    total_requested_tokens = prompt_tokens + system_prompt_tokens + LLM_MAX_TOKENS
+    if total_requested_tokens > llama.EFFECTIVE_LLAMA_CTX_SIZE:
+        # Even more aggressive truncation if still too large
+        max_diag_chars = max(500, max_diag_chars // 2)
+        prompt = make_compile_repair_prompt(target_source.name, headers, failed_source, all_diagnostics, max_diag_chars=max_diag_chars)
+        
+        prompt_tokens = count_tokens(prompt)
+        total_requested_tokens = prompt_tokens + system_prompt_tokens + LLM_MAX_TOKENS
+        if total_requested_tokens > llama.EFFECTIVE_LLAMA_CTX_SIZE:
+            error_msg = f"Repair prompt exceeds effective context budget even after truncation: {total_requested_tokens} > {llama.EFFECTIVE_LLAMA_CTX_SIZE}"
+            print(f"  Error: {error_msg}")
+            return IterationResult(iteration, f"repair_{repair_attempt:02d}", False, failed_source_file, metadata={"error": error_msg})
+
     (repair_dir / "prompt.txt").write_text(prompt, encoding="utf-8")
     
     print(f"  Iteration {iteration:02d} Repair {repair_attempt:02d}: Calling LLM for repair...")
     start_time = time.perf_counter()
     try:
-        response = call_llm(model_name, prompt)
+        response = call_llm(model_name, prompt, system_prompt)
         duration = time.perf_counter() - start_time
         (repair_dir / "raw_response.txt").write_text(response, encoding="utf-8")
         
@@ -310,7 +339,7 @@ def run_optimization_iteration(
     full_prompt_template = make_optimization_feedback_prompt(target_source.name, iteration, total_iterations, headers, current_source_file.read_text(encoding="utf-8"), dummy_remarks)
     template_tokens = count_tokens(full_prompt_template)
     
-    available_tokens = LLAMA_CTX_SIZE - template_tokens - LLM_MAX_TOKENS - CONTEXT_SAFETY_MARGIN_TOKENS
+    available_tokens = llama.EFFECTIVE_LLAMA_CTX_SIZE - template_tokens - LLM_MAX_TOKENS - CONTEXT_SAFETY_MARGIN_TOKENS
     if available_tokens < 100:
         print(f"  Warning: very low token budget for remarks ({available_tokens}).")
     
@@ -326,7 +355,7 @@ def run_optimization_iteration(
     shown_in_this_batch = [r.fingerprint() for r in selected]
     
     selection_metadata = {
-        "context_size": LLAMA_CTX_SIZE,
+        "context_size": llama.EFFECTIVE_LLAMA_CTX_SIZE,
         "max_output_tokens": LLM_MAX_TOKENS,
         "fixed_tokens_est": fixed_tokens,
         "template_tokens_est": template_tokens,
@@ -341,6 +370,16 @@ def run_optimization_iteration(
     
     # 3. Call LLM
     prompt = make_optimization_feedback_prompt(target_source.name, iteration, total_iterations, headers, current_source_file.read_text(encoding="utf-8"), remarks_text)
+    
+    # Final pre-flight check
+    prompt_tokens = count_tokens(prompt)
+    system_prompt_tokens = count_tokens(system_prompt)
+    total_requested_tokens = prompt_tokens + system_prompt_tokens + LLM_MAX_TOKENS
+    if total_requested_tokens > llama.EFFECTIVE_LLAMA_CTX_SIZE:
+        error_msg = f"Prompt exceeds effective context budget: {total_requested_tokens} > {llama.EFFECTIVE_LLAMA_CTX_SIZE}"
+        print(f"  Error: {error_msg}")
+        return IterationResult(iteration, "optimization", False, current_source_file, metadata={"error": error_msg})
+
     (iter_dir / "prompt.txt").write_text(prompt, encoding="utf-8")
     
     print(f"  Iteration {iteration:02d} Attempt {attempt:02d}: Calling LLM for optimization...")
@@ -698,7 +737,7 @@ def main() -> int:
         server_process = None
         try:
             server_process = start_llama_server(model, model_dir)
-            wait_for_llama_ready(server_process)
+            wait_for_llama_ready(server_process, model_dir)
             warm_up_llm(model_name, model_dir)
             
             for target in targets:
