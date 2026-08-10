@@ -6,6 +6,7 @@ from llmo.source import extract_code_block, validate_llvm_ir_module
 from llmo.benchmark import calculate_benchmark_statistics, compare_benchmarks, parse_key_value_lines
 from llmo.benchmark_protocol import BenchmarkMeasurement, BenchmarkStatistics
 from llmo.project import source_function_name
+from run_ir_optimization import require_preserved_target_configuration
 
 def test_completion_metadata_parsing():
     # Mock result
@@ -79,6 +80,14 @@ def test_incomplete_module_rejection():
     val = validate_llvm_ir_module(missing_triple, "test")
     assert not val.preflight_passed
     assert any("triple" in e.lower() for e in val.errors)
+
+def test_extracted_ir_must_preserve_target_configuration():
+    original = 'target datalayout = "e"\ntarget triple = "x86_64"\ndefine i32 @test() { ret i32 0 }\n'
+    changed = original.replace('target triple = "x86_64"', 'target triple = "aarch64"')
+    val = validate_llvm_ir_module(changed, "test")
+    require_preserved_target_configuration(val, changed, original)
+    assert not val.preflight_passed
+    assert "Changed required target triple" in val.errors
 
 def test_performance_summary_and_noise():
     m1 = BenchmarkMeasurement("a", 0, "fib", 0, 0, 100.0, 1, 1, 0, 0, {}, "out", "err")

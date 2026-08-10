@@ -7,7 +7,10 @@ import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
-from .config import CLANG_CXX_COMPILER, LLVM_OPT_TOOL, LLVM_AS_TOOL, LLAMA_SERVER_EXECUTABLE, PROJECT_ROOT
+from .config import (
+    CLANG_CXX_COMPILER, LLVM_OPT_TOOL, LLVM_AS_TOOL, LLVM_EXTRACT_TOOL,
+    LLVM_LINK_TOOL, LLAMA_SERVER_EXECUTABLE, PROJECT_ROOT,
+)
 
 def get_git_commit() -> str:
     try:
@@ -99,6 +102,8 @@ def get_run_metadata() -> Dict[str, Any]:
         "clang_version": get_tool_version(CLANG_CXX_COMPILER),
         "opt_version": get_tool_version(LLVM_OPT_TOOL),
         "llvm_as_version": get_tool_version(LLVM_AS_TOOL),
+        "llvm_extract_version": get_tool_version(LLVM_EXTRACT_TOOL),
+        "llvm_link_version": get_tool_version(LLVM_LINK_TOOL),
         "llama_server_version": llama_version_info["version"],
         "llama_server_version_details": llama_version_info,
     }

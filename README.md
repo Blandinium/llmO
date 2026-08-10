@@ -42,7 +42,14 @@ optimization process.
 ## Usage
 
 ### LLVM IR Optimization Runner
-This experiment measures the quality of LLVM IR transformations emitted by the LLM. It supports two backend pipelines for every candidate:
+This experiment measures the quality of LLVM IR transformations emitted by the LLM. It supports two input modes and two backend pipelines for every candidate.
+
+- **Full IR (`--mode ir`, the default):** the LLM receives the complete benchmark LLVM module. This preserves the original experiment's behavior.
+- **Extracted IR (`--mode extracted-ir`):** `llvm-extract` reduces the prompt module to the benchmark target definition and the declarations/module data required for a valid LLVM module. Callee bodies are not recursively included by default. After validation, the optimized definition is reintegrated into the complete baseline module with `llvm-extract --delete` and `llvm-link`, then follows the same correctness and benchmark pipeline as full IR.
+
+Extracted IR isolates LLM context pressure as an experimental variable. Summaries record the full and extracted byte/token estimates, context size, prompt estimate, and available output estimate. They also record `original_ir_sha256`, `extracted_ir_sha256`, `optimized_extracted_ir_sha256`, and `reconstructed_ir_sha256` for unambiguous stage provenance; the compatibility field `input_ir_sha256` always identifies the module supplied to the LLM. Extraction is not assumed to reduce byte size. LLVM 20.1.8 `llvm-as`, `opt`, `llvm-extract`, and `llvm-link` are required for this mode.
+
+Backend pipelines:
 - **Direct IR Mode (-O0)**: Compiles the modified IR without further LLVM optimizations to isolate the LLM's contribution.
 - **LLM plus LLVM Mode (-O3)**: Compiles the modified IR with full LLVM optimizations to see if the LLM transformation aids the conventional optimizer.
 
@@ -51,10 +58,35 @@ Run one model and one benchmark:
 ./run_ir_optimization.py --model qwen3-14b-q4km --only fibonacci --backend-opt-level both --benchmark-repetitions 1
 ```
 
+Run a quick extracted-function experiment:
+```bash
+./run_ir_optimization.py --mode extracted-ir --model qwen2.5-coder-14b-q4km --only count_matches --backend-opt-level both --benchmark-repetitions 1 --run-id extracted-ir-count-matches-smoke
+```
+
+Run extracted IR for every configured model and function:
+```bash
+./run_ir_optimization.py --mode extracted-ir --backend-opt-level both --benchmark-repetitions 3 --run-id extracted-ir-full
+```
+
 Full run for the specialized LLM-compiler models:
 ```bash
 ./run_ir_optimization.py --model llm-compiler-7b-q4km --model llm-compiler-13b-q4km --benchmark-repetitions 3
 ```
+
+### Final Benchmark Matrix
+
+Select the exact runs to compare. Add one `--source-run` for each LLVM, naïve C++, guided C++, full-IR, and extracted-IR run:
+```bash
+./run_final_benchmark_matrix.py \
+  --source-run results/llvm/<llvm-run> \
+  --source-run results/naive-cpp/<naive-run> \
+  --source-run results/guided-cpp/<guided-run> \
+  --source-run results/llm-ir/<full-ir-run> \
+  --source-run results/extracted-ir/extracted-ir-full \
+  --run-id final-with-extracted-ir
+```
+
+Artifacts are deduplicated by their stable logical identity before scheduling, so aliases of the same published artifact appear only once.
 
 ### Naïve C++ Optimization Runner
 Single-shot C++ optimization without feedback.

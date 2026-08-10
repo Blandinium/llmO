@@ -390,6 +390,7 @@ def build_benchmark_report(
         "fastest_naive_cpp": lambda a: a.experiment_type == "naive-cpp",
         "fastest_guided_cpp": lambda a: a.experiment_type in {"guided-cpp", "iterative-cpp"},
         "fastest_llm_ir": lambda a: a.experiment_type == "llm-ir",
+        "fastest_extracted_ir": lambda a: a.experiment_type == "extracted-ir",
         "fastest_overall": lambda a: True,
     }
 
@@ -460,7 +461,7 @@ def main():
     parser = argparse.ArgumentParser(description="Unified final benchmark matrix for cross-experiment comparison.")
     parser.add_argument("--results-root", type=Path, default=PROJECT_ROOT / "results", help="Root directory for experiment results.")
     parser.add_argument("--artifact-manifest", type=Path, help="JSON manifest of artifacts to benchmark.")
-    parser.add_argument("--source-run", action="append", type=Path, help="Exact optimization run directory to include; repeat for LLVM, naive C++, guided C++, and IR runs.")
+    parser.add_argument("--source-run", action="append", type=Path, help="Exact optimization run directory to include; repeat for LLVM, naive C++, guided C++, full IR, and extracted IR runs.")
     parser.add_argument("--allow-recursive-discovery", action="store_true", help="Legacy diagnostic mode: recursively discover results-root. Not recommended for definitive runs.")
     parser.add_argument("--only", action="append", help="Benchmark only these functions.")
     parser.add_argument("--benchmark-repetitions", type=int, default=5)

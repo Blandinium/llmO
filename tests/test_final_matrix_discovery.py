@@ -265,11 +265,13 @@ def test_category_winners_and_references_come_from_matrix_statistics(tmp_path: P
     naive = artifact("naive__candidate", "naive-cpp", 130, "cpp-llm-naive")
     guided = artifact("guided__final", "guided-cpp", 140, "cpp-llm-guided")
     ir = artifact("ir__candidate", "llm-ir", 135, "ir-o1__backend-o3")
-    report = build_benchmark_report("fib", [llvm_o1, llvm_o3, naive, guided, ir], stats, llvm_o1.matrix_key)
+    extracted_ir = artifact("extracted-ir__candidate", "extracted-ir", 138, "extracted-ir-o1__backend-o3")
+    report = build_benchmark_report("fib", [llvm_o1, llvm_o3, naive, guided, ir, extracted_ir], stats, llvm_o1.matrix_key)
     assert report["winners"]["fastest_llvm"]["artifact_id"] == "llvm__o3"
     assert report["winners"]["fastest_naive_cpp"]["artifact_id"] == "naive__candidate"
     assert report["winners"]["fastest_guided_cpp"]["artifact_id"] == "guided__final"
     assert report["winners"]["fastest_llm_ir"]["artifact_id"] == "ir__candidate"
+    assert report["winners"]["fastest_extracted_ir"]["artifact_id"] == "extracted-ir__candidate"
     assert report["winners"]["fastest_overall"]["artifact_id"] == "guided__final"
     assert report["references"]["llvm_o1"]["artifact_id"] == "llvm__o1"
     assert report["references"]["original_cpp_clang_o3"]["artifact_id"] == "llvm__o3"
