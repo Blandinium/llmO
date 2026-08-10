@@ -90,14 +90,16 @@ def test_smoke_ir(mock_abi, mock_bench, mock_llvm, mock_http, mock_call, mock_wa
     
     # Verify results
     assert test_output.exists()
-    summary_file = test_output / "smoke-test" / "qwen3_14b_q4km" / "fibonacci_cpp" / "summary.json"
+    summary_file = test_output / "llm-ir" / "smoke-test" / "qwen3-14b-q4km" / "fibonacci_cpp" / "summary.json"
     assert summary_file.exists()
     
     summary = json.loads(summary_file.read_text())
     assert summary["status"] == "completed"
     assert "-O0" in summary["backend_results"]
     assert "-O3" in summary["backend_results"]
-    assert summary["backend_results"]["-O0"]["performance"] == "unchanged_within_noise"
+    assert summary["backend_results"]["-O0"]["comparison"]["classification"] == "unchanged_within_noise"
+    assert "timing" in summary
+    shutil.rmtree(test_output)
 
 if __name__ == "__main__":
     test_smoke_ir()

@@ -6,6 +6,7 @@ import os
 import shutil
 import sys
 import time
+import hashlib
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import List, Dict, Any, Optional
@@ -17,6 +18,7 @@ from llmo.benchmark_protocol import BenchmarkProtocol, BenchmarkMeasurement, cal
 from llmo.naming import make_run_id, make_artifact_id, get_standard_path, sanitize_identifier
 from llmo.metadata import get_run_metadata
 from llmo.abi import run_abi_symbol_check, load_abi_check_outcome
+from llmo.reporting import calculate_break_even
 
 @dataclass
 class ArtifactDefinition:
@@ -28,6 +30,28 @@ class ArtifactDefinition:
     pipeline_id: Optional[str] = None
     run_id: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
+    source_run_path: Optional[Path] = None
+    artifact_metadata_path: Optional[Path] = None
+
+    @property
+    def matrix_key(self) -> str:
+        """Unique scheduling key; artifact IDs are intentionally only labels."""
+        identity = str((self.artifact_metadata_path or self.library_path).resolve())
+        digest = hashlib.sha256(identity.encode("utf-8")).hexdigest()[:12]
+        return f"{self.artifact_id}__source-{digest}"
+
+    def report_identity(self) -> Dict[str, Any]:
+        return {
+            "matrix_key": self.matrix_key,
+            "artifact_id": self.artifact_id,
+            "experiment_type": self.experiment_type,
+            "model_id": self.model_id,
+            "pipeline_id": self.pipeline_id,
+            "run_id": self.run_id,
+            "source_run_path": str(self.source_run_path.resolve()) if self.source_run_path else None,
+            "artifact_metadata_path": str(self.artifact_metadata_path.resolve()) if self.artifact_metadata_path else None,
+            "library_path": str(self.library_path.resolve()),
+        }
 
 
 def _is_intermediate_artifact(artifact: ArtifactDefinition) -> bool:
@@ -38,6 +62,10 @@ def _is_intermediate_artifact(artifact: ArtifactDefinition) -> bool:
     if artifact.experiment_type == "guided-cpp":
         suffix = artifact.artifact_id.rsplit("__", 1)[-1]
         return suffix == "baseline" or suffix.startswith("iteration-")
+    if artifact.experiment_type == "naive-cpp":
+        # A confirmed candidate is also published under its final ID. Keep the
+        # candidate metadata on disk for provenance without measuring it twice.
+        return meta.get("artifact_role") == "candidate" and meta.get("confirmed_improvement") is True
     return False
 
 
@@ -148,6 +176,7 @@ def _artifact_from_metadata(art_json_path: Path, results_root: Path) -> Optional
         pipeline_id=meta.get("pipeline_id"),
         run_id=run_id,
         metadata=meta,
+        artifact_metadata_path=art_json_path,
     )
 
 
@@ -225,10 +254,115 @@ def discover_artifacts(results_root: Path, include_intermediate: bool = False) -
         ))
     return artifacts
 
+
+def discover_selected_runs(run_paths: List[Path], include_intermediate: bool = False) -> List[ArtifactDefinition]:
+    """Discover only explicitly selected run directories and retain provenance."""
+    artifacts: list[ArtifactDefinition] = []
+    for run_path in run_paths:
+        resolved = run_path.resolve()
+        if not resolved.is_dir():
+            raise ValueError(f"Selected source run is not a directory: {run_path}")
+        selected = discover_artifacts(resolved, include_intermediate=include_intermediate)
+        if not selected:
+            raise ValueError(f"Selected source run contains no benchmark artifacts: {run_path}")
+        for artifact in selected:
+            artifact.source_run_path = resolved
+        artifacts.extend(selected)
+    keys = [artifact.matrix_key for artifact in artifacts]
+    if len(keys) != len(set(keys)):
+        raise ValueError("The selected runs contain the same artifact path more than once; remove overlapping --source-run entries.")
+    return artifacts
+
+
+def _median(stats: Any) -> Optional[float]:
+    return stats.median_calls_per_second if stats else None
+
+
+def build_benchmark_report(
+    benchmark_name: str,
+    artifacts: List[ArtifactDefinition],
+    stats_map: Dict[str, Any],
+    reference_key: str,
+) -> Dict[str, Any]:
+    """Derive winners, references, percentage changes, and amortization."""
+    valid = [a for a in artifacts if _median(stats_map.get(a.matrix_key)) is not None]
+    categories = {
+        "fastest_llvm": lambda a: a.experiment_type == "llvm",
+        "fastest_naive_cpp": lambda a: a.experiment_type == "naive-cpp",
+        "fastest_guided_cpp": lambda a: a.experiment_type in {"guided-cpp", "iterative-cpp"},
+        "fastest_llm_ir": lambda a: a.experiment_type == "llm-ir",
+        "fastest_overall": lambda a: True,
+    }
+
+    def winner(predicate):
+        candidates = [a for a in valid if predicate(a)]
+        if not candidates:
+            return None
+        art = max(candidates, key=lambda a: _median(stats_map[a.matrix_key]))
+        return {**art.report_identity(), "median_calls_per_second": _median(stats_map[art.matrix_key])}
+
+    winners = {name: winner(predicate) for name, predicate in categories.items()}
+    llvm = [a for a in valid if a.experiment_type == "llvm"]
+    llvm_o1 = next((a for a in llvm if "o1" in (a.pipeline_id or "").lower() or "__o1" in a.artifact_id.lower()), None)
+    llvm_o3 = next((a for a in llvm if "o3" in (a.pipeline_id or "").lower() or "__o3" in a.artifact_id.lower()), None)
+    fastest_llvm = max(llvm, key=lambda a: _median(stats_map[a.matrix_key])) if llvm else None
+    references = {
+        "llvm_o1": llvm_o1,
+        "fastest_llvm": fastest_llvm,
+        "original_cpp_clang_o3": llvm_o3,
+    }
+    reference_report = {name: (art.report_identity() if art else None) for name, art in references.items()}
+    # Compatibility alias for consumers of the original report schema.
+    reference_report["original_cpp_o3"] = reference_report["original_cpp_clang_o3"]
+
+    artifact_reports = []
+    baseline = next((a for a in artifacts if a.matrix_key == reference_key), None)
+    baseline_cps = _median(stats_map.get(reference_key))
+    for artifact in artifacts:
+        cps = _median(stats_map.get(artifact.matrix_key))
+        changes = {}
+        for name, ref in references.items():
+            ref_cps = _median(stats_map.get(ref.matrix_key)) if ref else None
+            changes[name] = ((cps - ref_cps) / ref_cps * 100.0) if cps is not None and ref_cps else None
+        changes["original_cpp_o3"] = changes["original_cpp_clang_o3"]
+        timing = (artifact.metadata or {}).get("timing")
+        break_even_references = {
+            "selected_reference": baseline,
+            **references,
+        }
+        break_even = {}
+        for name, reference in break_even_references.items():
+            if reference is None:
+                break_even[name] = None
+                continue
+            reference_cps = _median(stats_map.get(reference.matrix_key))
+            break_even[name] = {
+                "reference_artifact_id": reference.artifact_id,
+                "reference_matrix_key": reference.matrix_key,
+                **calculate_break_even(reference_cps, cps, timing),
+            }
+        artifact_reports.append({
+            **artifact.report_identity(),
+            "median_calls_per_second": cps,
+            "percentage_change_vs": changes,
+            "timing": timing,
+            "break_even_vs_reference": calculate_break_even(baseline_cps, cps, timing),
+            "break_even": break_even,
+        })
+    return {
+        "benchmark_name": benchmark_name,
+        "reference": baseline.report_identity() if baseline else None,
+        "references": reference_report,
+        "winners": winners,
+        "artifacts": artifact_reports,
+    }
+
 def main():
     parser = argparse.ArgumentParser(description="Unified final benchmark matrix for cross-experiment comparison.")
     parser.add_argument("--results-root", type=Path, default=PROJECT_ROOT / "results", help="Root directory for experiment results.")
     parser.add_argument("--artifact-manifest", type=Path, help="JSON manifest of artifacts to benchmark.")
+    parser.add_argument("--source-run", action="append", type=Path, help="Exact optimization run directory to include; repeat for LLVM, naive C++, guided C++, and IR runs.")
+    parser.add_argument("--allow-recursive-discovery", action="store_true", help="Legacy diagnostic mode: recursively discover results-root. Not recommended for definitive runs.")
     parser.add_argument("--only", action="append", help="Benchmark only these functions.")
     parser.add_argument("--benchmark-repetitions", type=int, default=5)
     parser.add_argument("--seed", type=int, default=42)
@@ -265,13 +399,51 @@ def main():
     write_json_atomic(run_dir / "run.json", run_meta)
 
     # 1. Discover Artifacts
+    selection_mode = None
+    selected_source_runs: list[str] = []
+    if args.artifact_manifest and args.source_run:
+        print("Error: use either --artifact-manifest or --source-run, not both.")
+        return 2
     if args.artifact_manifest:
+        selection_mode = "artifact_manifest"
         with open(args.artifact_manifest) as f:
             manifest = json.load(f)
-            artifacts = [ArtifactDefinition(**{**a, "library_path": Path(a["library_path"])}) for a in manifest.get("artifacts", [])]
-    else:
-        print(f"Discovering artifacts in {args.results_root}...")
+            artifacts = []
+            for entry in manifest.get("artifacts", []):
+                item = dict(entry)
+                item["library_path"] = Path(item["library_path"])
+                if item.get("source_run_path"):
+                    item["source_run_path"] = Path(item["source_run_path"])
+                if item.get("artifact_metadata_path"):
+                    item["artifact_metadata_path"] = Path(item["artifact_metadata_path"])
+                metadata_path = item.get("artifact_metadata_path")
+                if not item.get("metadata") and metadata_path and metadata_path.exists():
+                    item["metadata"] = json.loads(metadata_path.read_text(encoding="utf-8"))
+                artifacts.append(ArtifactDefinition(**item))
+        selected_source_runs = sorted({str(a.source_run_path.resolve()) for a in artifacts if a.source_run_path})
+    elif args.source_run:
+        selection_mode = "explicit_source_runs"
+        try:
+            artifacts = discover_selected_runs(args.source_run, include_intermediate=args.include_intermediate_artifacts)
+        except ValueError as exc:
+            print(f"Error: {exc}")
+            return 2
+        selected_source_runs = [str(path.resolve()) for path in args.source_run]
+    elif args.allow_recursive_discovery:
+        selection_mode = "legacy_recursive_discovery"
+        print(f"Warning: recursively discovering artifacts in {args.results_root}; use explicit source runs for final experiments.")
         artifacts = discover_artifacts(args.results_root, include_intermediate=args.include_intermediate_artifacts)
+    else:
+        print("Error: explicitly select artifacts with --source-run (repeatable) or --artifact-manifest. "
+              "Use --allow-recursive-discovery only for legacy diagnostics.")
+        return 2
+
+    run_meta["artifact_selection"] = {
+        "mode": selection_mode,
+        "manifest_path": str(args.artifact_manifest.resolve()) if args.artifact_manifest else None,
+        "source_run_paths": selected_source_runs,
+    }
+    write_json_atomic(run_dir / "run.json", run_meta)
     
 
     # Whole-library artifacts (notably pure LLVM builds) are valid for every
@@ -289,10 +461,20 @@ def main():
                     pipeline_id=artifact.pipeline_id,
                     run_id=artifact.run_id,
                     metadata=artifact.metadata,
+                    source_run_path=artifact.source_run_path,
+                    artifact_metadata_path=artifact.artifact_metadata_path,
                 ))
         else:
             expanded_artifacts.append(artifact)
     artifacts = expanded_artifacts
+
+    if args.reference_artifact:
+        exact_keys = [a for a in artifacts if a.matrix_key == args.reference_artifact]
+        matching_ids = [a for a in artifacts if a.artifact_id == args.reference_artifact]
+        if not exact_keys and len(matching_ids) > 1:
+            print(f"Error: reference artifact ID '{args.reference_artifact}' is ambiguous across selected runs. "
+                  "Use one of the matrix keys recorded in a prior summary or select fewer runs.")
+            return 2
 
     if args.only:
         artifacts = [a for a in artifacts if a.benchmark_name in args.only]
@@ -322,7 +504,7 @@ def main():
                 continue
             
             # ABI Check
-            abi_dir = run_dir / "validation" / a.artifact_id
+            abi_dir = run_dir / "validation" / sanitize_name(a.matrix_key)
             abi_dir.mkdir(parents=True, exist_ok=True)
             abi_cmd = run_abi_symbol_check(abi_dir, a.library_path)
             abi_outcome = load_abi_check_outcome(abi_dir, abi_cmd)
@@ -344,71 +526,77 @@ def main():
             continue
 
         # Balanced Randomized Schedule
-        art_ids = [a.artifact_id for a in valid_arts]
-        sequence = get_randomized_balanced_sequence(art_ids, protocol.repetitions, protocol.seed)
+        matrix_keys = [a.matrix_key for a in valid_arts]
+        sequence = get_randomized_balanced_sequence(matrix_keys, protocol.repetitions, protocol.seed)
         
         all_measurements: List[BenchmarkMeasurement] = []
-        reps = {aid: 0 for aid in art_ids}
+        reps = {key: 0 for key in matrix_keys}
         
-        for i, aid in enumerate(sequence):
-            art = next(a for a in valid_arts if a.artifact_id == aid)
-            iteration = reps[aid]
-            reps[aid] += 1
+        for i, matrix_key in enumerate(sequence):
+            art = next(a for a in valid_arts if a.matrix_key == matrix_key)
+            iteration = reps[matrix_key]
+            reps[matrix_key] += 1
             
-            print(f"  [{i+1}/{len(sequence)}] {aid} (rep {iteration})...")
+            print(f"  [{i+1}/{len(sequence)}] {art.artifact_id} [{matrix_key}] (rep {iteration})...")
             measurements = run_benchmarks_for_lib(
-                run_dir / "benchmarks" / aid, 
+                run_dir / "benchmarks" / sanitize_name(matrix_key),
                 art.library_path, 
                 bname,
                 run_all=False, 
                 iteration=iteration,
-                artifact_id=aid,
+                artifact_id=matrix_key,
                 sequence_index=i
             )
             all_measurements.extend(measurements)
 
         # Statistics and Comparisons
         stats_map = {}
-        for aid in art_ids:
-            ms = [m for m in all_measurements if m.artifact_id == aid]
+        for matrix_key in matrix_keys:
+            ms = [m for m in all_measurements if m.artifact_id == matrix_key]
             stats = calculate_benchmark_statistics(ms, protocol.repetitions)
-            stats_map[aid] = stats
+            stats_map[matrix_key] = stats
 
         # Reference artifact for this benchmark
-        ref_aid = args.reference_artifact
-        if not ref_aid or ref_aid not in art_ids:
+        ref_key = next((a.matrix_key for a in valid_arts if args.reference_artifact in {a.artifact_id, a.matrix_key}), None) if args.reference_artifact else None
+        if not ref_key:
             # Fallback: look for llvm__o1 or llvm__o3 or any llvm
-            ref_candidates = [aid for aid in art_ids if "llvm" in aid]
+            ref_candidates = [a for a in valid_arts if a.experiment_type == "llvm"]
             if ref_candidates:
-                ref_aid = ref_candidates[0]
+                ref_art = ref_candidates[0]
                 # Prefer O1 if available
-                o1_cands = [aid for aid in ref_candidates if "__o1" in aid]
-                if o1_cands: ref_aid = o1_cands[0]
+                o1_cands = [a for a in ref_candidates if "o1" in (a.pipeline_id or "").lower() or "__o1" in a.artifact_id.lower()]
+                if o1_cands: ref_art = o1_cands[0]
+                ref_key = ref_art.matrix_key
             else:
-                ref_aid = art_ids[0]
+                ref_key = matrix_keys[0]
         
-        print(f"  Reference artifact: {ref_aid}")
+        ref_artifact = next(a for a in valid_arts if a.matrix_key == ref_key)
+        print(f"  Reference artifact: {ref_artifact.artifact_id} [{ref_key}]")
         
         comparisons = {}
-        for aid in art_ids:
-            if aid == ref_aid: continue
+        for matrix_key in matrix_keys:
+            if matrix_key == ref_key: continue
             comp = compare_benchmarks(
-                stats_map[aid],
-                stats_map[ref_aid],
+                stats_map[matrix_key],
+                stats_map[ref_key],
                 protocol.noise_threshold_percent,
-                ref_aid,
-                aid,
+                ref_key,
+                matrix_key,
                 sequence
             )
-            comparisons[aid] = asdict(comp)
+            comparisons[matrix_key] = asdict(comp)
 
         bench_summary = {
             "benchmark_name": bname,
-            "artifact_ids": art_ids,
-            "reference_artifact_id": ref_aid,
-            "statistics": {aid: asdict(s) for aid, s in stats_map.items()},
+            "artifact_ids": [a.artifact_id for a in valid_arts],
+            "artifact_keys": matrix_keys,
+            "artifact_sources": [a.report_identity() for a in valid_arts],
+            "reference_artifact_id": ref_artifact.artifact_id,
+            "reference_artifact_key": ref_key,
+            "statistics": {key: asdict(s) for key, s in stats_map.items()},
             "comparisons_vs_reference": comparisons,
-            "sequence": sequence
+            "sequence": sequence,
+            **build_benchmark_report(bname, valid_arts, stats_map, ref_key),
         }
         
         bench_dir = run_dir / "benchmarks" / bname

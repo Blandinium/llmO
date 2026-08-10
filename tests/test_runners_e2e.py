@@ -110,6 +110,12 @@ def test_ir_runner_mocked(mock_env, monkeypatch):
     assert summary["status"] == "completed"
     assert "backend_results" in summary
     assert "-O3" in summary["backend_results"]
+    assert set(summary["timing"]) == {
+        "llm_inference_seconds", "repair_inference_seconds", "total_llm_seconds", "optimization_pipeline_seconds"
+    }
+    candidate_id = summary["backend_results"]["-O3"]["artifact_id"]
+    artifact = json.loads((tmp_path / "llm-ir" / "test-run" / "artifacts" / candidate_id / "artifact.json").read_text())
+    assert artifact["timing"]["total_llm_seconds"] == summary["timing"]["total_llm_seconds"]
 
 def test_naive_runner_mocked(mock_env, monkeypatch):
     tmp_path = mock_env
@@ -159,6 +165,54 @@ def test_naive_runner_mocked(mock_env, monkeypatch):
     assert summary_path.exists()
     summary = json.loads(summary_path.read_text())
     assert summary["status"] == "completed"
+    assert summary["timing"]["total_llm_seconds"] >= 0
+    assert summary["confirmation_status"] == "not-required"
+    assert summary["confirmed_improvement"] is False
+
+
+def test_naive_confirmation_is_independent_and_authoritative(mock_env, monkeypatch):
+    tmp_path = mock_env
+    from llmo.llama import ChatCompletionResult
+    from llmo.build import CompileResult
+    from llmo.command import CommandResult
+
+    monkeypatch.setattr("run_naive_cpp_optimization.call_llm", MagicMock(return_value=ChatCompletionResult(
+        content="uint64_t fibonacci() { return 1; }", finish_reason="stop",
+        prompt_tokens=1, completion_tokens=1, total_tokens=2, raw_response={},
+    )))
+    lib = tmp_path / "candidate.so"
+    lib.touch()
+    monkeypatch.setattr("run_naive_cpp_optimization.compile_replacement_artifact_for_check", MagicMock(return_value=CompileResult(
+        CommandResult([], ".", 0, 0.1, "out", "err"), lib,
+    )))
+
+    def mock_abi(build_dir, library, required_symbols=None):
+        build_dir.mkdir(parents=True, exist_ok=True)
+        (build_dir / "abi_symbols.json").write_text('{"success": true}')
+        return CommandResult([], ".", 0, 0.1, "out", "err")
+
+    monkeypatch.setattr("run_naive_cpp_optimization.run_abi_symbol_check", mock_abi)
+    comparisons = MagicMock(side_effect=[
+        _mock_comparison("improved", 5.0),
+        _mock_comparison("unchanged_within_noise", 1.0),
+    ])
+    monkeypatch.setattr("run_naive_cpp_optimization.run_benchmarks_paired", comparisons)
+    monkeypatch.setattr("run_naive_cpp_optimization.run_benchmarks_for_lib", MagicMock(return_value=[]))
+
+    args = ["run_naive_cpp_optimization.py", "--model", "test-model", "--only", "fibonacci",
+            "--output-root", str(tmp_path), "--run-id", "confirmation", "--seed", "17"]
+    with patch("sys.argv", args):
+        run_naive_cpp_optimization.main()
+
+    summary = json.loads((tmp_path / "naive-cpp" / "confirmation" / "test-model" / "fibonacci_cpp" / "summary.json").read_text())
+    assert summary["selection_status"] == "improved"
+    assert summary["confirmation_status"] == "unchanged_within_noise"
+    assert summary["confirmed_improvement"] is False
+    assert summary["confirmation_seed"] == 18
+    assert comparisons.call_args_list[0].kwargs["protocol"].seed == 17
+    assert comparisons.call_args_list[1].kwargs["protocol"].seed == 18
+    assert not (tmp_path / "naive-cpp" / "confirmation" / "artifacts" / "naive-cpp__test-model__fibonacci__final").exists()
+    assert (tmp_path / "candidate.so").exists()
 
 def test_ir_runner_repair_unchanged(mock_env, monkeypatch):
     tmp_path = mock_env

@@ -8,7 +8,7 @@ import os
 import shutil
 import sys
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any, Optional, List, Set, Dict
 
@@ -27,6 +27,7 @@ from llmo.llama import (
 )
 from llmo.remarks import parse_remarks, prioritize_remarks, filter_remarks, batch_remarks, Remark
 from llmo.build import find_libsut, compile_replacement_artifact_for_check
+from llmo.reporting import confirmation_fields, normalized_timing
 
 # =============================================================================
 # Configuration & Constants
@@ -430,6 +431,17 @@ def optimize_target(
     model_name = model_config.alias or model_config.name
     model_id = sanitize_identifier(model_config.name)
     experiment_type = "guided-cpp"
+    pipeline_start_time = time.perf_counter()
+    def failure_result(error: str, **extra: Any) -> Dict[str, Any]:
+        timing = normalized_timing(0.0, 0.0, time.perf_counter() - pipeline_start_time)
+        return {
+            "success": False,
+            "error": error,
+            "stopped_reason": error,
+            "timing": timing,
+            **confirmation_fields("failed", "not-run"),
+            **extra,
+        }
     print(f"\n=== Optimizing {target_source.name} with {model_name} ===")
 
     # 2. Prevent stale benchmark/artifact reuse
@@ -451,18 +463,18 @@ def optimize_target(
     comp_res = build_full_library(baseline_dir, target_source.name, target_source)
     if comp_res.returncode != 0:
         print(f"  ERROR: Baseline compilation failed for {target_source.name}.")
-        return {"success": False, "error": "baseline_compilation_failed", "stopped_reason": "baseline_compilation_failed"}
+        return failure_result("baseline_compilation_failed")
     
     libsut = find_libsut(baseline_dir)
     if not libsut:
         print(f"  ERROR: Could not find libSUT.so for baseline.")
-        return {"success": False, "error": "baseline_libsut_not_found", "stopped_reason": "baseline_libsut_not_found"}
+        return failure_result("baseline_libsut_not_found")
         
     abi_res_cmd = run_abi_symbol_check(baseline_dir, libsut)
     abi_outcome = load_abi_check_outcome(baseline_dir, abi_res_cmd)
     if not abi_outcome.success:
         print(f"  ERROR: Baseline ABI check failed: {abi_outcome.error}")
-        return {"success": False, "error": "baseline_abi_failed", "stopped_reason": "baseline_abi_failed", "abi_error": abi_outcome.error}
+        return failure_result("baseline_abi_failed", abi_error=abi_outcome.error)
         
     # We'll use this as the initial "best" artifact
     current_best_id = baseline_id
@@ -480,8 +492,8 @@ def optimize_target(
     
     stop_reason = "completed"
     total_repair_attempts = 0
-    total_llm_duration = 0.0
-    start_time = time.perf_counter()
+    optimization_llm_duration = 0.0
+    repair_llm_duration = 0.0
     
     completed_passes = 0
     attempt_idx = 1
@@ -500,7 +512,7 @@ def optimize_target(
             model_name, target_source, current_best_source, 
             iter_idx, attempt_idx, num_passes, iter_dir, shown_fingerprints, headers
         )
-        total_llm_duration += opt_res.metadata.get("duration_seconds", 0.0) if opt_res.metadata else 0.0
+        optimization_llm_duration += opt_res.metadata.get("duration_seconds", 0.0) if opt_res.metadata else 0.0
         
         if not opt_res.success:
             if opt_res.metadata and opt_res.metadata.get("stop_reason") == "no_unseen_remarks":
@@ -565,7 +577,7 @@ def optimize_target(
                     iter_idx, repair_attempt, repair_dir, headers,
                     compile_result=comp_res, abi_result=abi_res_cmd
                 )
-                total_llm_duration += repair_res.metadata.get("duration_seconds", 0.0) if repair_res.metadata else 0.0
+                repair_llm_duration += repair_res.metadata.get("duration_seconds", 0.0) if repair_res.metadata else 0.0
                 total_repair_attempts += 1
                 iterations_meta.append(asdict(repair_res))
 
@@ -611,7 +623,13 @@ def optimize_target(
                     "source": str(final_opt_res.source_file),
                     "libsut": str(iter_libsut)
                 },
-                "comparison_vs_previous_best": asdict(comparison)
+                "comparison_vs_previous_best": asdict(comparison),
+                "timing": normalized_timing(
+                    optimization_llm_duration,
+                    repair_llm_duration,
+                    time.perf_counter() - pipeline_start_time,
+                ),
+                **confirmation_fields(comparison.classification, "not-run"),
             }
             write_json_atomic(final_opt_res.source_file.parent / "artifact.json", art_meta)
 
@@ -667,15 +685,21 @@ def optimize_target(
             noise_threshold_percent=protocol.noise_threshold_percent,
         )
     else:
+        confirmation_protocol = replace(protocol, seed=protocol.seed + 1)
         final_comparison = run_benchmarks_paired(
             current_best_libsut,
             baseline_libsut,
             target_source.stem,
-            protocol,
+            confirmation_protocol,
             candidate_id=final_id,
             baseline_id=baseline_id
         )
     
+    pipeline_seconds = time.perf_counter() - pipeline_start_time
+    timing = normalized_timing(optimization_llm_duration, repair_llm_duration, pipeline_seconds)
+    selection_status = "unchanged_within_noise" if best_is_baseline else "improved"
+    confirmation_status = "not-required" if best_is_baseline else final_comparison.classification
+    status_fields = confirmation_fields(selection_status, confirmation_status)
     art_meta = {
         "schema_version": 2,
         "artifact_id": final_id,
@@ -690,7 +714,10 @@ def optimize_target(
             "source": str(final_dir / f"optimized_{target_source.name}"),
             "libsut": str(final_dir / "libSUT.so")
         },
-        "final_comparison_vs_original": asdict(final_comparison)
+        "final_comparison_vs_original": asdict(final_comparison),
+        "confirmation_seed": protocol.seed + 1 if not best_is_baseline else None,
+        "timing": timing,
+        **status_fields,
     }
     write_json_atomic(final_dir / "artifact.json", art_meta)
 
@@ -707,8 +734,11 @@ def optimize_target(
         "best_is_baseline": best_is_baseline,
         "final_artifact_id": current_best_id,
         "final_confirmation_id": final_id,
-        "llm_duration_seconds": total_llm_duration,
-        "total_duration_seconds": time.perf_counter() - start_time,
+        "llm_duration_seconds": timing["total_llm_seconds"],
+        "total_duration_seconds": pipeline_seconds,
+        "timing": timing,
+        "confirmation_seed": protocol.seed + 1 if not best_is_baseline else None,
+        **status_fields,
         "shown_remarks": sorted(list(all_shown_fingerprints)),
         "accepted_remarks": sorted(list(accepted_fingerprints)),
         "iterations": iterations_meta

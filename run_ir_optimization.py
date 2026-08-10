@@ -29,6 +29,17 @@ from llmo.llama import (
 from llmo.build import find_libsut, CompileResult
 from llmo.llvm import generate_llvm_ir, verify_llvm_ir, compile_llvm_ir_to_lib, cleanup_llvm_ir, IrOperationResult
 from llmo.metadata import get_run_metadata, get_file_sha256
+from llmo.reporting import normalized_timing
+
+
+def write_target_summary(path: Path, metadata: Dict[str, Any], pipeline_start: float) -> None:
+    pipeline_seconds = time.perf_counter() - pipeline_start
+    metadata["timing"] = normalized_timing(
+        metadata.get("optimization_inference_seconds", 0),
+        metadata.get("repair_inference_seconds", 0),
+        pipeline_seconds,
+    )
+    write_json_atomic(path, metadata)
 
 
 def publish_ir_backend_artifact(
@@ -43,6 +54,7 @@ def publish_ir_backend_artifact(
     library_path: Path,
     ir_path: Path,
     comparison: Optional[Dict[str, Any]] = None,
+    timing: Optional[Dict[str, float]] = None,
 ) -> Path:
     """Publish one canonical, independently discoverable IR artifact."""
     artifact_dir = get_standard_path(output_root, "llm-ir", run_id, artifact_id)
@@ -69,6 +81,8 @@ def publish_ir_backend_artifact(
     }
     if comparison is not None:
         metadata["comparison"] = comparison
+    if timing is not None:
+        metadata["timing"] = timing
     write_json_atomic(artifact_dir / "artifact.json", metadata)
     return artifact_dir
 
@@ -236,6 +250,7 @@ def main():
             write_json_atomic(run_dir / "run.json", run_meta)
             
             for target_source in targets:
+                task_start_time = time.perf_counter()
                 target_dir = model_run_dir / sanitize_name(target_source.name)
                 if args.resume and (target_dir / "summary.json").exists():
                     try:
@@ -252,7 +267,7 @@ def main():
                 input_ir_res = generate_llvm_ir(target_dir, target_source)
                 if not input_ir_res.output_path:
                     print(f"  Error generating IR for {target_source.name}")
-                    write_json_atomic(target_dir / "summary.json", {"status": "input_ir_generation_failed", "error": input_ir_res.command_result.stderr_file})
+                    write_target_summary(target_dir / "summary.json", {"status": "input_ir_generation_failed", "error": input_ir_res.command_result.stderr_file}, task_start_time)
                     continue
                 
                 input_ir_path = input_ir_res.output_path
@@ -264,7 +279,7 @@ def main():
                         prompt_ir_path = cleanup_res.output_path
                     else:
                         print(f"  Error cleaning up IR for {target_source.name}")
-                        write_json_atomic(target_dir / "summary.json", {"status": "prompt_ir_cleanup_failed", "error": cleanup_res.command_result.stderr_file})
+                        write_target_summary(target_dir / "summary.json", {"status": "prompt_ir_cleanup_failed", "error": cleanup_res.command_result.stderr_file}, task_start_time)
                         continue
                 
                 ir_content = prompt_ir_path.read_text(encoding="utf-8")
@@ -295,13 +310,11 @@ def main():
                 if not budget.can_fit_minimum_expected_output:
                     print(f"  Skipping {target_source.name}: insufficient context ({budget.available_output_tokens} < {min_output_tokens})")
                     target_meta["status"] = "context_insufficient"
-                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                     continue
                 
                 # 3. LLM Call
                 print(f"Optimizing {target_source.name} IR with {model_name}...")
-                task_start_time = time.perf_counter()
-                
                 requested_max = min(args.max_output_tokens, budget.available_output_tokens)
                 
                 validation_state = {
@@ -345,7 +358,7 @@ def main():
                     print(f"  Truncated response for {target_source.name}")
                     target_meta["status"] = "response_truncated"
                     target_meta["validation"] = validation_state
-                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                     continue
                 
                 # 4. Extraction & Validation
@@ -353,7 +366,7 @@ def main():
                 if not extracted_ir.strip():
                     target_meta["status"] = "response_empty"
                     target_meta["validation"] = validation_state
-                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                     continue
                 
                 validation_state["module_extracted"] = True
@@ -506,6 +519,11 @@ def main():
                                 )
                                 
                                 comparison_dict = asdict(comparison)
+                                artifact_timing = normalized_timing(
+                                    target_meta.get("optimization_inference_seconds", 0),
+                                    target_meta.get("repair_inference_seconds", 0),
+                                    time.perf_counter() - task_start_time,
+                                )
                                 publish_ir_backend_artifact(
                                     args.output_root, run_id, base_aid,
                                     model_id=model_id,
@@ -515,6 +533,7 @@ def main():
                                     library_path=baseline_comp.output_path,
                                     ir_path=prompt_ir_path,
                                     comparison=comparison_dict,
+                                    timing=normalized_timing(),
                                 )
                                 publish_ir_backend_artifact(
                                     args.output_root, run_id, cand_aid,
@@ -525,6 +544,7 @@ def main():
                                     library_path=candidate_comp.output_path,
                                     ir_path=optimized_ir_path,
                                     comparison=comparison_dict,
+                                    timing=artifact_timing,
                                 )
                                 backend_results[opt_level] = {
                                     "baseline_artifact_id": base_aid,
@@ -569,7 +589,21 @@ def main():
                 
                 target_meta["total_inference_seconds"] = target_meta.get("optimization_inference_seconds", 0) + target_meta.get("repair_inference_seconds", 0)
                 target_meta["total_task_seconds"] = time.perf_counter() - task_start_time
-                write_json_atomic(target_dir / "summary.json", target_meta)
+                target_meta["timing"] = normalized_timing(
+                    target_meta.get("optimization_inference_seconds", 0),
+                    target_meta.get("repair_inference_seconds", 0),
+                    target_meta["total_task_seconds"],
+                )
+                for backend_result in target_meta.get("backend_results", {}).values():
+                    candidate_id = backend_result.get("artifact_id")
+                    if not candidate_id:
+                        continue
+                    artifact_json = get_standard_path(args.output_root, experiment_type, run_id, candidate_id) / "artifact.json"
+                    if artifact_json.exists():
+                        artifact_metadata = json.loads(artifact_json.read_text(encoding="utf-8"))
+                        artifact_metadata["timing"] = target_meta["timing"]
+                        write_json_atomic(artifact_json, artifact_metadata)
+                write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                 
 
         finally:

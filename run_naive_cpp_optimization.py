@@ -10,7 +10,7 @@ import platform
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Dict, Any, Tuple
-from dataclasses import asdict
+from dataclasses import asdict, replace
 
 from llmo.config import *
 from llmo.command import sanitize_name, write_json, write_json_atomic, sha256_sum, CommandResult
@@ -27,6 +27,18 @@ from llmo.llama import (
 )
 from llmo.build import find_libsut, compile_replacement_artifact_for_check, CompileResult
 from llmo.metadata import get_run_metadata, get_file_sha256
+from llmo.reporting import confirmation_fields, normalized_timing
+
+
+def write_target_summary(path: Path, metadata: Dict[str, Any], pipeline_start: float) -> None:
+    """Persist a summary with normalized timing, including failure exits."""
+    pipeline_seconds = time.perf_counter() - pipeline_start
+    metadata["timing"] = normalized_timing(
+        metadata.get("optimization_inference_seconds", 0),
+        metadata.get("repair_inference_seconds", 0),
+        pipeline_seconds,
+    )
+    write_json_atomic(path, metadata)
 
 def make_naive_cpp_optimization_prompt(target_name: str, headers: str, source: str) -> str:
     return f"""You are an expert C++23 performance engineer.
@@ -136,6 +148,7 @@ def main():
             write_json_atomic(run_dir / "run.json", run_meta)
             
             for target in targets:
+                task_start_time = time.perf_counter()
                 target_dir = model_run_dir / sanitize_name(target.name)
                 if args.resume and (target_dir / "summary.json").exists():
                     try:
@@ -164,7 +177,10 @@ def main():
                     "benchmark_name": target.stem,
                     "input_file": str(target),
                     "input_sha256": get_file_sha256(target),
-                    "prompt_sha256": sha256_sum(prompt)
+                    "prompt_sha256": sha256_sum(prompt),
+                    "artifact_role": "candidate",
+                    "is_final_artifact": True,
+                    **confirmation_fields("not-run", "not-run"),
                 }
 
                 print(f"Optimizing {target.name} with {model_name}...")
@@ -180,7 +196,7 @@ def main():
                 if not baseline_res.libsut_path:
                     print(f"  Baseline compilation failed for {target.name}")
                     target_meta["status"] = "baseline_compile_failed"
-                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                     continue
                 
                 # 2. Baseline ABI Check
@@ -190,11 +206,10 @@ def main():
                     print(f"  Baseline ABI check failed for {target.name}: {baseline_abi_outcome.error}")
                     target_meta["status"] = "baseline_abi_failed"
                     target_meta["abi_error"] = baseline_abi_outcome.error
-                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                     continue
 
                 # 3. LLM Call
-                task_start_time = time.perf_counter()
                 llm_call_start = time.perf_counter()
                 llm_result = call_llm(model_name, prompt, seed=args.seed)
                 llm_call_duration = time.perf_counter() - llm_call_start
@@ -216,19 +231,19 @@ def main():
                 if llm_result.finish_reason == "length":
                     print(f"  Truncated response for {target.name}")
                     target_meta["status"] = "response_truncated"
-                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                     continue
 
                 # 4. Source Extraction & Preflight
                 new_source = extract_code_block(llm_result.content)
                 if not new_source.strip():
                     target_meta["status"] = "source_extraction_failed"
-                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                     continue
                 
                 if not contains_target_function_definition(new_source, target.name):
                     target_meta["status"] = "preflight_failed"
-                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                     continue
 
                 optimized_source_file = target_dir / "optimized.cpp"
@@ -245,7 +260,7 @@ def main():
                 if not candidate_res.libsut_path:
                     print(f"  Candidate compilation failed for {target.name}")
                     target_meta["status"] = "candidate_compile_failed"
-                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                     continue
                 
                 # 6. Candidate ABI Check
@@ -255,7 +270,7 @@ def main():
                     print(f"  Candidate ABI check failed for {target.name}: {candidate_abi_outcome.error}")
                     target_meta["status"] = "candidate_abi_failed"
                     target_meta["abi_error"] = candidate_abi_outcome.error
-                    write_json_atomic(target_dir / "summary.json", target_meta)
+                    write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                     continue
 
                 # 7. Selection Benchmarking
@@ -268,6 +283,7 @@ def main():
                 )
                 
                 target_meta["selection_comparison"] = asdict(comparison)
+                target_meta.update(confirmation_fields(comparison.classification, "not-required"))
                 
                 if comparison.classification == "benchmark_failed":
                     target_meta["status"] = "candidate_benchmark_failed"
@@ -280,18 +296,21 @@ def main():
                      # In naive runner, if only one candidate, final is the same as selection but we record it separately
                      # or we could run it again with more reps? The requirement says "fresh final confirmation comparison".
                      # I'll run it again.
-                     final_dir = get_standard_path(args.output_root, experiment_type, run_id, final_aid)
-                     final_dir.mkdir(parents=True, exist_ok=True)
-                     shutil.copy2(optimized_source_file, final_dir / "optimized.cpp")
-                     shutil.copy2(candidate_res.libsut_path, final_dir / "libSUT.so")
-                     
+                     confirmation_protocol = replace(protocol, seed=protocol.seed + 1)
+                     target_meta["confirmation_seed"] = confirmation_protocol.seed
                      final_comparison = run_benchmarks_paired(
                         candidate_res.libsut_path, baseline_res.libsut_path, target.stem, 
-                        protocol=protocol,
+                        protocol=confirmation_protocol,
                         candidate_id=final_aid,
                         baseline_id=base_aid
                      )
                      target_meta["final_confirmation"] = asdict(final_comparison)
+                     target_meta.update(confirmation_fields(comparison.classification, final_comparison.classification))
+                     if target_meta["confirmed_improvement"]:
+                         final_dir = get_standard_path(args.output_root, experiment_type, run_id, final_aid)
+                         final_dir.mkdir(parents=True, exist_ok=True)
+                         shutil.copy2(optimized_source_file, final_dir / "optimized.cpp")
+                         shutil.copy2(candidate_res.libsut_path, final_dir / "libSUT.so")
                 
                 # Full regression check if requested or promising
                 if comparison.relative_change_percent and (args.full_regression_check or comparison.relative_change_percent > args.full_regression_threshold_percent):
@@ -301,10 +320,30 @@ def main():
                 
                 target_meta["total_inference_seconds"] = target_meta.get("optimization_inference_seconds", 0)
                 target_meta["total_task_seconds"] = time.perf_counter() - task_start_time
-                write_json_atomic(target_dir / "summary.json", target_meta)
+                target_meta["timing"] = normalized_timing(
+                    target_meta.get("optimization_inference_seconds", 0),
+                    0.0,
+                    target_meta["total_task_seconds"],
+                )
+                target_meta["paths"] = {
+                    "source": str(optimized_source_file),
+                    "libsut": str(candidate_res.libsut_path),
+                }
+                write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                 
                 # Write artifact metadata
                 write_json_atomic(target_dir / "artifact.json", target_meta)
+                if target_meta.get("confirmed_improvement"):
+                    final_meta = {
+                        **target_meta,
+                        "artifact_id": final_aid,
+                        "artifact_role": "final",
+                        "paths": {
+                            "source": str(final_dir / "optimized.cpp"),
+                            "libsut": str(final_dir / "libSUT.so"),
+                        },
+                    }
+                    write_json_atomic(final_dir / "artifact.json", final_meta)
                 
         finally:
             stop_process(server_process)

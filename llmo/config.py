@@ -98,4 +98,19 @@ LLM_MODELS = [
         "hf_repo": "second-state/llm-compiler-13b-GGUF:Q4_K_M",
         "alias": "llm-compiler-13b-q4km",
     },
+    {
+        "name": "ministral-3-14b-instruct-q4km",
+        "hf_repo": "mistralai/Ministral-3-14B-Instruct-2512-GGUF:Q4_K_M",
+        "alias": "ministral-3-14b-instruct-q4km",
+    },
+    {
+        "name": "gpt-oss-20b-mxfp4",
+        "hf_repo": "ggml-org/gpt-oss-20b-GGUF:MXFP4",
+        "alias": "gpt-oss-20b-mxfp4",
+    },
+    {
+        "name": "devstral-small-2-24b-q4km",
+        "hf_repo": "unsloth/Devstral-Small-2-24B-Instruct-2512-GGUF:Q4_K_M",
+        "alias": "devstral-small-2-24b-q4km",
+    },
 ]

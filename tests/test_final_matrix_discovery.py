@@ -1,7 +1,18 @@
 import json
+import sys
 from pathlib import Path
+from unittest.mock import MagicMock
 
-from run_final_benchmark_matrix import discover_artifacts
+import run_final_benchmark_matrix as final_matrix
+
+from run_final_benchmark_matrix import (
+    ArtifactDefinition,
+    build_benchmark_report,
+    discover_artifacts,
+    discover_selected_runs,
+)
+from llmo.benchmark_protocol import BenchmarkStatistics
+from llmo.benchmark_protocol import BenchmarkMeasurement
 
 
 def test_discovers_nested_guided_artifact(tmp_path: Path):
@@ -113,3 +124,169 @@ def test_expands_legacy_ir_summary_without_vague_artifact(tmp_path: Path):
     assert "count_matches_cpp" not in ids
     assert "llm-ir__model-a__count_matches__ir-o1_backend-o0__candidate" in ids
     assert "llm-ir__model-a__count_matches__ir-o1_backend-o3__baseline" in ids
+
+
+def test_explicit_runs_keep_duplicate_ids_unambiguous(tmp_path: Path):
+    runs = []
+    for run_id in ("smoke", "final"):
+        run = tmp_path / "naive-cpp" / run_id
+        artifact_dir = run / "model" / "count_matches_cpp"
+        artifact_dir.mkdir(parents=True)
+        (artifact_dir / "libSUT.so").write_bytes(run_id.encode())
+        (artifact_dir / "artifact.json").write_text(json.dumps({
+            "artifact_id": "naive-cpp__model__count-matches__candidate",
+            "experiment_type": "naive-cpp",
+            "run_id": run_id,
+            "benchmark_name": "count_matches",
+            "paths": {"libsut": str(artifact_dir / "libSUT.so")},
+        }))
+        runs.append(run)
+
+    selected = discover_selected_runs(runs)
+    assert len(selected) == 2
+    assert selected[0].artifact_id == selected[1].artifact_id
+    assert selected[0].matrix_key != selected[1].matrix_key
+    assert {a.source_run_path for a in selected} == {p.resolve() for p in runs}
+    isolated = discover_selected_runs([runs[1]])
+    assert len(isolated) == 1
+    assert isolated[0].run_id == "final"
+    assert isolated[0].library_path.read_bytes() == b"final"
+
+
+def test_category_winners_and_references_come_from_matrix_statistics(tmp_path: Path):
+    def artifact(aid, exp, cps, pipeline, timing=None):
+        lib = tmp_path / f"{aid}.so"
+        lib.write_bytes(b"so")
+        art = ArtifactDefinition(aid, exp, "fib", lib, pipeline_id=pipeline, metadata={"timing": timing} if timing else {})
+        stats[art.matrix_key] = BenchmarkStatistics(5, 5, cps, cps, cps, cps, 0)
+        return art
+
+    stats = {}
+    llvm_o1 = artifact("llvm__o1", "llvm", 100, "cpp-clang-o1")
+    llvm_o3 = artifact("llvm__o3", "llvm", 120, "cpp-clang-o3")
+    naive = artifact("naive__candidate", "naive-cpp", 130, "cpp-llm-naive")
+    guided = artifact("guided__final", "guided-cpp", 140, "cpp-llm-guided")
+    ir = artifact("ir__candidate", "llm-ir", 135, "ir-o1__backend-o3")
+    report = build_benchmark_report("fib", [llvm_o1, llvm_o3, naive, guided, ir], stats, llvm_o1.matrix_key)
+    assert report["winners"]["fastest_llvm"]["artifact_id"] == "llvm__o3"
+    assert report["winners"]["fastest_naive_cpp"]["artifact_id"] == "naive__candidate"
+    assert report["winners"]["fastest_guided_cpp"]["artifact_id"] == "guided__final"
+    assert report["winners"]["fastest_llm_ir"]["artifact_id"] == "ir__candidate"
+    assert report["winners"]["fastest_overall"]["artifact_id"] == "guided__final"
+    assert report["references"]["llvm_o1"]["artifact_id"] == "llvm__o1"
+    assert report["references"]["original_cpp_clang_o3"]["artifact_id"] == "llvm__o3"
+    assert report["references"]["original_cpp_o3"] == report["references"]["original_cpp_clang_o3"]
+
+
+def test_break_even_uses_o1_and_stronger_llvm_references(tmp_path: Path):
+    stats = {}
+
+    def artifact(aid, exp, cps, pipeline, timing=None):
+        lib = tmp_path / f"{aid}.so"
+        lib.write_bytes(b"so")
+        art = ArtifactDefinition(aid, exp, "fib", lib, pipeline_id=pipeline, metadata={"timing": timing} if timing else {})
+        stats[art.matrix_key] = BenchmarkStatistics(5, 5, cps, cps, cps, cps, 0)
+        return art
+
+    llvm_o1 = artifact("llvm__o1", "llvm", 100, "cpp-clang-o1")
+    llvm_o3 = artifact("llvm__o3", "llvm", 130, "cpp-clang-o3")
+    timing = {"total_llm_seconds": 10.0, "optimization_pipeline_seconds": 20.0}
+    slower_than_llvm = artifact("naive__125", "naive-cpp", 125, "cpp-llm-naive", timing)
+    faster_than_llvm = artifact("guided__140", "guided-cpp", 140, "cpp-llm-guided", timing)
+    artifacts = [llvm_o1, llvm_o3, slower_than_llvm, faster_than_llvm]
+    report = build_benchmark_report("fib", artifacts, stats, llvm_o1.matrix_key)
+    by_id = {entry["artifact_id"]: entry for entry in report["artifacts"]}
+
+    slower = by_id["naive__125"]["break_even"]
+    assert slower["selected_reference"]["break_even_calls_llm"] is not None
+    assert slower["llvm_o1"]["break_even_calls_llm"] is not None
+    assert slower["fastest_llvm"]["reference_artifact_id"] == "llvm__o3"
+    assert slower["fastest_llvm"]["break_even_calls_llm"] is None
+    assert slower["original_cpp_clang_o3"]["break_even_calls_pipeline"] is None
+
+    faster = by_id["guided__140"]["break_even"]
+    assert faster["fastest_llvm"]["break_even_calls_llm"] is not None
+    assert faster["original_cpp_clang_o3"]["break_even_calls_pipeline"] is not None
+
+
+def test_break_even_reports_missing_llvm_references_as_unavailable(tmp_path: Path):
+    lib = tmp_path / "candidate.so"
+    lib.write_bytes(b"so")
+    candidate = ArtifactDefinition(
+        "naive", "naive-cpp", "fib", lib,
+        metadata={"timing": {"total_llm_seconds": 1.0, "optimization_pipeline_seconds": 2.0}},
+    )
+    stats = {candidate.matrix_key: BenchmarkStatistics(5, 5, 120, 120, 120, 120, 0)}
+    report = build_benchmark_report("fib", [candidate], stats, candidate.matrix_key)
+    break_even = report["artifacts"][0]["break_even"]
+    assert break_even["llvm_o1"] is None
+    assert break_even["fastest_llvm"] is None
+    assert break_even["original_cpp_clang_o3"] is None
+
+
+def test_break_even_with_missing_timing_has_null_cost_results(tmp_path: Path):
+    stats = {}
+    llvm_lib = tmp_path / "llvm.so"
+    candidate_lib = tmp_path / "candidate.so"
+    llvm_lib.write_bytes(b"so")
+    candidate_lib.write_bytes(b"so")
+    llvm = ArtifactDefinition("llvm__o1", "llvm", "fib", llvm_lib, pipeline_id="cpp-clang-o1")
+    candidate = ArtifactDefinition("naive", "naive-cpp", "fib", candidate_lib)
+    stats[llvm.matrix_key] = BenchmarkStatistics(5, 5, 100, 100, 100, 100, 0)
+    stats[candidate.matrix_key] = BenchmarkStatistics(5, 5, 150, 150, 150, 150, 0)
+    report = build_benchmark_report("fib", [llvm, candidate], stats, llvm.matrix_key)
+    candidate_report = next(entry for entry in report["artifacts"] if entry["artifact_id"] == "naive")
+    assert candidate_report["break_even"]["selected_reference"]["break_even_calls_llm"] is None
+    assert candidate_report["break_even"]["llvm_o1"]["break_even_calls_pipeline"] is None
+
+
+def test_matrix_benchmarks_duplicate_ids_once_per_repetition(tmp_path: Path, monkeypatch):
+    runs = []
+    libraries = []
+    for run_id in ("old-smoke", "fresh-final"):
+        run = tmp_path / "naive-cpp" / run_id
+        d = run / "model" / "count_matches_cpp"
+        d.mkdir(parents=True)
+        lib = d / "libSUT.so"
+        lib.write_bytes(run_id.encode())
+        (d / "artifact.json").write_text(json.dumps({
+            "artifact_id": "duplicate-id",
+            "experiment_type": "naive-cpp",
+            "run_id": run_id,
+            "benchmark_name": "count_matches",
+            "paths": {"libsut": str(lib)},
+        }))
+        runs.append(run)
+        libraries.append(lib)
+
+    monkeypatch.setattr(final_matrix, "run_abi_symbol_check", MagicMock())
+    monkeypatch.setattr(final_matrix, "load_abi_check_outcome", MagicMock(return_value=MagicMock(success=True)))
+    benchmarked = []
+
+    def fake_benchmark(output_dir, library_path, benchmark_name, **kwargs):
+        artifact_id = kwargs.get("artifact_id", "correctness")
+        if "iteration" in kwargs:
+            benchmarked.append((Path(library_path), kwargs["iteration"], artifact_id))
+        return [BenchmarkMeasurement(
+            artifact_id, 0, benchmark_name, kwargs.get("iteration", 0), kwargs.get("sequence_index", 0),
+            100.0, 1, 1, "ok", 0, {}, "out", "err",
+        )]
+
+    monkeypatch.setattr(final_matrix, "run_benchmarks_for_lib", fake_benchmark)
+    argv = ["run_final_benchmark_matrix.py"]
+    for run in runs:
+        argv += ["--source-run", str(run)]
+    argv += ["--benchmark-repetitions", "2", "--output-root", str(tmp_path / "out"), "--run-id", "matrix"]
+    monkeypatch.setattr(sys, "argv", argv)
+    assert final_matrix.main() is None
+
+    assert len(benchmarked) == 4
+    for library in libraries:
+        calls = [call for call in benchmarked if call[0] == library]
+        assert [call[1] for call in calls] == [0, 1]
+        assert len({call[2] for call in calls}) == 1
+    assert len({call[2] for call in benchmarked}) == 2
+
+    summary = json.loads((tmp_path / "out" / "final-matrix" / "matrix" / "summary.json").read_text())
+    assert len(summary[0]["artifact_sources"]) == 2
+    assert {a["run_id"] for a in summary[0]["artifact_sources"]} == {"old-smoke", "fresh-final"}
