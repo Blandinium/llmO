@@ -6,11 +6,13 @@ from unittest.mock import MagicMock
 import run_final_benchmark_matrix as final_matrix
 
 from run_final_benchmark_matrix import (
+    ArtifactConflictError,
     ArtifactDefinition,
     build_benchmark_report,
     discover_artifacts,
     discover_selected_runs,
 )
+import pytest
 from llmo.benchmark_protocol import BenchmarkStatistics
 from llmo.benchmark_protocol import BenchmarkMeasurement
 
@@ -33,6 +35,83 @@ def test_discovers_nested_guided_artifact(tmp_path: Path):
     assert artifacts[0].artifact_id == "guided__final"
     assert artifacts[0].benchmark_name == "fibonacci"
     assert artifacts[0].library_path == artifact_dir / "libSUT.so"
+
+
+def _write_artifact(root: Path, location: str, *, artifact_id: str = "guided__final",
+                    experiment_type: str = "guided-cpp", run_id: str = "run-1",
+                    model_id: str = "qwen3", benchmark: str = "fibonacci",
+                    pipeline: str = "cpp-guided-o3", content: bytes = b"same") -> Path:
+    artifact_dir = root / location
+    artifact_dir.mkdir(parents=True)
+    library = artifact_dir / "libSUT.so"
+    library.write_bytes(content)
+    (artifact_dir / "artifact.json").write_text(json.dumps({
+        "artifact_id": artifact_id,
+        "experiment_type": experiment_type,
+        "run_id": run_id,
+        "model_id": model_id,
+        "benchmark_name": benchmark,
+        "pipeline_id": pipeline,
+        "is_final_artifact": True,
+        "paths": {"libsut": str(library)},
+    }))
+    return artifact_dir
+
+
+def test_same_logical_artifact_in_two_paths_is_one_candidate(tmp_path: Path):
+    canonical = _write_artifact(tmp_path, "task/artifacts/guided__final")
+    alias = _write_artifact(tmp_path, "task/export/guided__final")
+
+    artifacts = discover_artifacts(tmp_path)
+
+    assert len(artifacts) == 1
+    assert artifacts[0].library_path == canonical / "libSUT.so"
+    assert artifacts[0].alias_paths == [alias / "artifact.json"]
+
+
+def test_conflicting_duplicate_fails_loudly(tmp_path: Path):
+    first = _write_artifact(tmp_path, "task/artifacts/guided__final", content=b"first")
+    second = _write_artifact(tmp_path, "task/export/guided__final", content=b"second")
+
+    with pytest.raises(ArtifactConflictError) as error:
+        discover_artifacts(tmp_path)
+
+    message = str(error.value)
+    assert "guided-cpp/run-1/qwen3/fibonacci/cpp-guided-o3/guided__final" in message
+    assert str(first / "libSUT.so") in message
+    assert str(second / "libSUT.so") in message
+    assert "sha256" in message
+
+
+def test_similar_but_distinct_artifacts_are_not_deduplicated(tmp_path: Path):
+    _write_artifact(tmp_path, "guided-qwen3", model_id="qwen3")
+    _write_artifact(tmp_path, "guided-qwen25", artifact_id="guided_qwen25__final", model_id="qwen2.5-coder")
+    _write_artifact(tmp_path, "naive-qwen3", artifact_id="naive__final", experiment_type="naive-cpp", model_id="qwen3")
+    _write_artifact(tmp_path, "llvm-o2", artifact_id="llvm__o2", experiment_type="llvm", model_id="", pipeline="clang-o2")
+    _write_artifact(tmp_path, "llvm-o3", artifact_id="llvm__o3", experiment_type="llvm", model_id="", pipeline="clang-o3")
+
+    artifacts = discover_artifacts(tmp_path)
+
+    assert len(artifacts) == 5
+    assert len({artifact.logical_artifact_id for artifact in artifacts}) == 5
+
+
+def test_canonical_task_metadata_disables_legacy_summary_fallback(tmp_path: Path):
+    task = tmp_path / "guided-cpp" / "run-1" / "qwen3" / "fibonacci_cpp"
+    baseline = task / "artifacts" / "guided__baseline"
+    baseline.mkdir(parents=True)
+    (baseline / "libSUT.so").write_bytes(b"baseline")
+    _write_artifact(task, "artifacts/guided__final", content=b"final")
+    (task / "summary.json").write_text(json.dumps({
+        "experiment_type": "guided-cpp",
+        "run_id": "run-1",
+        "final_confirmation_id": "guided__final",
+    }))
+
+    artifacts = discover_artifacts(tmp_path)
+
+    assert len(artifacts) == 1
+    assert artifacts[0].library_path.read_bytes() == b"final"
 
 
 def test_discovers_canonical_llvm_artifact(tmp_path: Path):
@@ -100,6 +179,25 @@ def test_guided_intermediate_artifacts_filtered_by_default(tmp_path: Path):
         "guided-cpp__model__count_matches__iteration-01",
         "guided-cpp__model__count_matches__final",
     }
+
+
+def test_naive_confirmed_candidate_copy_is_filtered_in_favor_of_final(tmp_path: Path):
+    base = tmp_path / "naive-cpp" / "run-1" / "qwen3" / "fibonacci_cpp"
+    candidate = _write_artifact(
+        base, "candidate", artifact_id="naive__candidate",
+        experiment_type="naive-cpp", content=b"accepted",
+    )
+    candidate_meta = json.loads((candidate / "artifact.json").read_text())
+    candidate_meta.update({"artifact_role": "candidate", "confirmed_improvement": True})
+    (candidate / "artifact.json").write_text(json.dumps(candidate_meta))
+    _write_artifact(
+        base, "final", artifact_id="naive__final",
+        experiment_type="naive-cpp", content=b"accepted",
+    )
+
+    artifacts = discover_artifacts(tmp_path)
+
+    assert [artifact.artifact_id for artifact in artifacts] == ["naive__final"]
 
 
 def test_expands_legacy_ir_summary_without_vague_artifact(tmp_path: Path):

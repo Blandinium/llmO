@@ -19,7 +19,7 @@ from llmo.source import extract_code_block, contains_target_function_definition,
 from llmo.abi import run_abi_symbol_check, load_abi_check_outcome
 from llmo.benchmark import run_benchmarks_for_lib, run_benchmarks_paired
 from llmo.benchmark_protocol import BenchmarkProtocol, BenchmarkMeasurement, BenchmarkComparison, calculate_benchmark_statistics, compare_benchmarks
-from llmo.naming import make_run_id, make_artifact_id, get_standard_path, sanitize_identifier
+from llmo.naming import make_run_id, make_artifact_id, make_logical_artifact_id, get_standard_path, sanitize_identifier
 from llmo import llama
 from llmo.llama import (
     LlmModelConfig, start_llama_server, stop_process, 
@@ -708,6 +708,10 @@ def optimize_target(
         "model_id": model_id,
         "benchmark_name": target_source.stem,
         "pipeline_id": "cpp-llm-guided-remarks__clang-o3",
+        "logical_artifact_id": make_logical_artifact_id(
+            experiment_type, run_id, final_id, target_source.stem, model_id,
+            "cpp-llm-guided-remarks__clang-o3",
+        ),
         "parent_artifact_id": baseline_id,
         "source_provenance": f"iteration-{best_iteration:02d}" if not best_is_baseline else "original",
         "paths": {

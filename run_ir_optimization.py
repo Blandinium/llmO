@@ -20,7 +20,7 @@ from llmo.source import extract_code_block, validate_llvm_ir_module, ValidationR
 from llmo.abi import run_abi_symbol_check, load_abi_check_outcome
 from llmo.benchmark import run_benchmarks_for_lib, run_benchmarks_paired
 from llmo.benchmark_protocol import BenchmarkProtocol, BenchmarkMeasurement, calculate_benchmark_statistics, compare_benchmarks
-from llmo.naming import make_run_id, make_artifact_id, get_standard_path, sanitize_identifier
+from llmo.naming import make_run_id, make_artifact_id, make_logical_artifact_id, get_standard_path, sanitize_identifier
 from llmo import llama
 from llmo.llama import (
     LlmModelConfig, start_llama_server, stop_process, 
@@ -71,6 +71,9 @@ def publish_ir_backend_artifact(
         "model_id": model_id,
         "benchmark_name": benchmark_name,
         "pipeline_id": pipeline_id,
+        "logical_artifact_id": make_logical_artifact_id(
+            "llm-ir", run_id, artifact_id, benchmark_name, model_id, pipeline_id
+        ),
         "artifact_role": role,
         "is_final_artifact": True,
         "paths": {

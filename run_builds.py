@@ -18,7 +18,7 @@ from llmo.llama import LlmModelConfig, LlmCallResult, start_llama_server, stop_p
 from llmo.abi import run_abi_symbol_check, load_abi_check_outcome
 from llmo.benchmark import run_benchmarks_for_lib, try_write_benchmark_json, get_randomized_balanced_sequence
 from llmo.benchmark_protocol import BenchmarkProtocol, BenchmarkMeasurement, calculate_benchmark_statistics, compare_benchmarks
-from llmo.naming import make_run_id, make_artifact_id, get_standard_path
+from llmo.naming import make_run_id, make_artifact_id, make_logical_artifact_id, get_standard_path
 from llmo.project import all_sut_cpp_files, llm_target_source_files, other_sources_for_replacement, source_function_name
 from llmo.source import extract_code_block, contains_target_function_definition, read_support_headers
 from llmo.llvm import generate_llvm_ir, verify_llvm_ir
@@ -608,6 +608,10 @@ def run_build_benchmarks(args: argparse.Namespace) -> tuple[int, list[dict[str, 
             "experiment_type": "llvm",
             "benchmark_name": "all", # pure llvm builds contain all benchmarks
             "pipeline_id": f"cpp-clang-{sanitize_variant_name(build.variant.clang_optimization_flag)}",
+            "logical_artifact_id": make_logical_artifact_id(
+                "llvm", run_id, aid, "all",
+                pipeline_id=f"cpp-clang-{sanitize_variant_name(build.variant.clang_optimization_flag)}",
+            ),
             "compile_flags": build.variant.clang_optimization_flag,
             "paths": {
                 "build_dir": build.build_dir,

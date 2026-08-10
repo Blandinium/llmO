@@ -45,6 +45,26 @@ def make_artifact_id(
     sanitized = [sanitize_identifier(c) for c in components]
     return "__".join(sanitized)
 
+
+def make_logical_artifact_id(
+    experiment_type: str,
+    run_id: str,
+    artifact_id: str,
+    benchmark_name: str,
+    model_id: Optional[str] = None,
+    pipeline_id: Optional[str] = None,
+) -> str:
+    """Build the path-independent identity stored by new artifact schemas."""
+    components = [
+        sanitize_identifier(experiment_type),
+        sanitize_identifier(run_id),
+        sanitize_identifier(model_id or "no-model"),
+        sanitize_identifier(benchmark_name),
+        sanitize_identifier(pipeline_id or "no-pipeline"),
+        sanitize_identifier(artifact_id),
+    ]
+    return "/".join(components)
+
 def get_standard_path(
     output_root: Path,
     experiment_type: str,

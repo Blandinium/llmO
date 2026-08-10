@@ -7,7 +7,7 @@ import shutil
 import sys
 import time
 import hashlib
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
@@ -32,17 +32,44 @@ class ArtifactDefinition:
     metadata: Optional[Dict[str, Any]] = None
     source_run_path: Optional[Path] = None
     artifact_metadata_path: Optional[Path] = None
+    alias_paths: List[Path] = field(default_factory=list)
+
+    @property
+    def logical_artifact_id(self) -> str:
+        """Stable experiment identity, independent of publication location.
+
+        New producers may provide an explicit logical_artifact_id.  Older
+        results are identified by the run plus the existing structured fields;
+        artifact_id retains the candidate/final/compiler-variant identity.
+        """
+        meta = self.metadata or {}
+        explicit = meta.get("logical_artifact_id")
+        if explicit:
+            # Whole-library artifacts are scheduled independently for every
+            # benchmark even though they share one published binary.
+            if meta.get("benchmark_name") == "all" and self.benchmark_name != "all":
+                return f"{explicit}/benchmark:{self.benchmark_name}"
+            return str(explicit)
+        parts = (
+            self.experiment_type or "unknown",
+            self.run_id or "unknown-run",
+            self.model_id or "no-model",
+            self.benchmark_name or "unknown-benchmark",
+            self.pipeline_id or "no-pipeline",
+            self.artifact_id,
+        )
+        return "/".join(str(part) for part in parts)
 
     @property
     def matrix_key(self) -> str:
-        """Unique scheduling key; artifact IDs are intentionally only labels."""
-        identity = str((self.artifact_metadata_path or self.library_path).resolve())
-        digest = hashlib.sha256(identity.encode("utf-8")).hexdigest()[:12]
+        """Unique scheduling key derived from experiment identity, not path."""
+        digest = hashlib.sha256(self.logical_artifact_id.encode("utf-8")).hexdigest()[:12]
         return f"{self.artifact_id}__source-{digest}"
 
     def report_identity(self) -> Dict[str, Any]:
         return {
             "matrix_key": self.matrix_key,
+            "logical_artifact_id": self.logical_artifact_id,
             "artifact_id": self.artifact_id,
             "experiment_type": self.experiment_type,
             "model_id": self.model_id,
@@ -51,21 +78,85 @@ class ArtifactDefinition:
             "source_run_path": str(self.source_run_path.resolve()) if self.source_run_path else None,
             "artifact_metadata_path": str(self.artifact_metadata_path.resolve()) if self.artifact_metadata_path else None,
             "library_path": str(self.library_path.resolve()),
+            "alias_paths": [str(path.resolve()) for path in self.alias_paths],
+            "source_artifact_id": (self.metadata or {}).get("final_artifact_id"),
+            "source_provenance": (self.metadata or {}).get("source_provenance"),
+            "confirmation_result": (self.metadata or {}).get("final_comparison_vs_original"),
         }
+
+
+class ArtifactConflictError(ValueError):
+    """Two incompatible files claim the same logical experiment identity."""
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _canonical_publication_score(artifact: ArtifactDefinition) -> int:
+    """Prefer results/.../artifacts/<artifact-id>/artifact.json exports."""
+    path = artifact.artifact_metadata_path
+    if path and path.parent.name == artifact.artifact_id and path.parent.parent.name == "artifacts":
+        return 1
+    return 0
+
+
+def deduplicate_artifacts(artifacts: List[ArtifactDefinition]) -> List[ArtifactDefinition]:
+    """Collapse equivalent publications and reject ambiguous logical duplicates."""
+    unique: Dict[str, ArtifactDefinition] = {}
+    for artifact in artifacts:
+        logical_id = artifact.logical_artifact_id
+        canonical = unique.get(logical_id)
+        if canonical is None:
+            unique[logical_id] = artifact
+            continue
+        canonical_hash = _file_sha256(canonical.library_path)
+        alias_hash = _file_sha256(artifact.library_path)
+        if canonical_hash != alias_hash:
+            raise ArtifactConflictError(
+                "Conflicting duplicate artifact:\n"
+                f"  id: {logical_id}\n"
+                f"  canonical: {canonical.library_path.resolve()}\n"
+                f"  duplicate: {artifact.library_path.resolve()}\n"
+                f"  canonical metadata: {canonical.artifact_metadata_path}\n"
+                f"  duplicate metadata: {artifact.artifact_metadata_path}\n"
+                f"  canonical sha256: {canonical_hash}\n"
+                f"  duplicate sha256: {alias_hash}"
+            )
+        if _canonical_publication_score(artifact) > _canonical_publication_score(canonical):
+            artifact.alias_paths.extend(canonical.alias_paths)
+            artifact.alias_paths.append(canonical.artifact_metadata_path or canonical.library_path)
+            canonical, artifact = artifact, canonical
+            unique[logical_id] = canonical
+        alias = artifact.artifact_metadata_path or artifact.library_path
+        if alias not in canonical.alias_paths:
+            canonical.alias_paths.append(alias)
+        print(
+            "Deduplicated artifact:\n"
+            f"  id: {logical_id}\n"
+            f"  canonical: {(canonical.artifact_metadata_path or canonical.library_path).resolve()}\n"
+            f"  alias: {alias.resolve()}"
+        )
+    return list(unique.values())
 
 
 def _is_intermediate_artifact(artifact: ArtifactDefinition) -> bool:
     """Return True for optimizer-internal artifacts excluded from final reports."""
     meta = artifact.metadata or {}
+    if artifact.experiment_type == "naive-cpp":
+        # A confirmed candidate is copied and published under its final ID.
+        # Check this before is_final_artifact: legacy naive metadata marks the
+        # task-level candidate final even when the confirmed final copy exists.
+        return meta.get("artifact_role") == "candidate" and meta.get("confirmed_improvement") is True
     if meta.get("is_final_artifact") is True:
         return False
     if artifact.experiment_type == "guided-cpp":
         suffix = artifact.artifact_id.rsplit("__", 1)[-1]
         return suffix == "baseline" or suffix.startswith("iteration-")
-    if artifact.experiment_type == "naive-cpp":
-        # A confirmed candidate is also published under its final ID. Keep the
-        # candidate metadata on disk for provenance without measuring it twice.
-        return meta.get("artifact_role") == "candidate" and meta.get("confirmed_improvement") is True
     return False
 
 
@@ -188,7 +279,11 @@ def discover_artifacts(results_root: Path, include_intermediate: bool = False) -
 
     # Search recursively because guided/IR artifacts may be nested below a
     # model and target while pure LLVM artifacts live directly under artifacts/.
-    for art_json_path in results_root.rglob("artifact.json"):
+    artifact_metadata_paths = [
+        path for path in results_root.rglob("artifact.json")
+        if "final-matrix" not in path.parts
+    ]
+    for art_json_path in artifact_metadata_paths:
         if "final-matrix" in art_json_path.parts:
             continue
         artifact = _artifact_from_metadata(art_json_path, results_root)
@@ -207,6 +302,13 @@ def discover_artifacts(results_root: Path, include_intermediate: bool = False) -
             continue
         adjacent_artifact = summary_path.parent / "artifact.json"
         if adjacent_artifact.exists() and _artifact_from_metadata(adjacent_artifact, results_root) is not None:
+            continue
+        # A task that contains artifact.json files uses canonical artifact
+        # publication.  Its summary is provenance only, not a second artifact
+        # source.  Restrict broad recursive inference to metadata-free legacy
+        # task trees; otherwise rglob("libSUT.so")[0] can mislabel a baseline
+        # or intermediate library as the final candidate.
+        if any(path.is_relative_to(summary_path.parent) for path in artifact_metadata_paths):
             continue
         try:
             meta = json.loads(summary_path.read_text(encoding="utf-8"))
@@ -252,7 +354,7 @@ def discover_artifacts(results_root: Path, include_intermediate: bool = False) -
             run_id=meta.get("run_id"),
             metadata=meta,
         ))
-    return artifacts
+    return deduplicate_artifacts(artifacts)
 
 
 def discover_selected_runs(run_paths: List[Path], include_intermediate: bool = False) -> List[ArtifactDefinition]:
@@ -268,10 +370,7 @@ def discover_selected_runs(run_paths: List[Path], include_intermediate: bool = F
         for artifact in selected:
             artifact.source_run_path = resolved
         artifacts.extend(selected)
-    keys = [artifact.matrix_key for artifact in artifacts]
-    if len(keys) != len(set(keys)):
-        raise ValueError("The selected runs contain the same artifact path more than once; remove overlapping --source-run entries.")
-    return artifacts
+    return deduplicate_artifacts(artifacts)
 
 
 def _median(stats: Any) -> Optional[float]:
@@ -420,6 +519,11 @@ def main():
                 if not item.get("metadata") and metadata_path and metadata_path.exists():
                     item["metadata"] = json.loads(metadata_path.read_text(encoding="utf-8"))
                 artifacts.append(ArtifactDefinition(**item))
+        try:
+            artifacts = deduplicate_artifacts(artifacts)
+        except ArtifactConflictError as exc:
+            print(f"Error: {exc}")
+            return 2
         selected_source_runs = sorted({str(a.source_run_path.resolve()) for a in artifacts if a.source_run_path})
     elif args.source_run:
         selection_mode = "explicit_source_runs"
@@ -466,7 +570,15 @@ def main():
                 ))
         else:
             expanded_artifacts.append(artifact)
-    artifacts = expanded_artifacts
+    try:
+        artifacts = deduplicate_artifacts(expanded_artifacts)
+    except ArtifactConflictError as exc:
+        print(f"Error: {exc}")
+        return 2
+
+    logical_ids = [artifact.logical_artifact_id for artifact in artifacts]
+    if len(logical_ids) != len(set(logical_ids)):
+        raise AssertionError("duplicate logical artifact IDs remain before matrix generation")
 
     if args.reference_artifact:
         exact_keys = [a for a in artifacts if a.matrix_key == args.reference_artifact]

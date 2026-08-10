@@ -19,7 +19,7 @@ from llmo.source import extract_code_block, contains_target_function_definition,
 from llmo.abi import run_abi_symbol_check, load_abi_check_outcome
 from llmo.benchmark import run_benchmarks_for_lib, run_benchmarks_paired
 from llmo.benchmark_protocol import BenchmarkProtocol, BenchmarkMeasurement, calculate_benchmark_statistics, compare_benchmarks
-from llmo.naming import make_run_id, make_artifact_id, get_standard_path, sanitize_identifier
+from llmo.naming import make_run_id, make_artifact_id, make_logical_artifact_id, get_standard_path, sanitize_identifier
 from llmo import llama
 from llmo.llama import (
     LlmModelConfig, start_llama_server, stop_process, 
@@ -175,6 +175,9 @@ def main():
                     "experiment_type": experiment_type,
                     "model_id": model_id,
                     "benchmark_name": target.stem,
+                    "logical_artifact_id": make_logical_artifact_id(
+                        experiment_type, run_id, cand_aid, target.stem, model_id
+                    ),
                     "input_file": str(target),
                     "input_sha256": get_file_sha256(target),
                     "prompt_sha256": sha256_sum(prompt),
@@ -337,6 +340,9 @@ def main():
                     final_meta = {
                         **target_meta,
                         "artifact_id": final_aid,
+                        "logical_artifact_id": make_logical_artifact_id(
+                            experiment_type, run_id, final_aid, target.stem, model_id
+                        ),
                         "artifact_role": "final",
                         "paths": {
                             "source": str(final_dir / "optimized.cpp"),
