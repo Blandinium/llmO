@@ -33,6 +33,10 @@ from llmo.llvm import (
     extract_llvm_function, reintegrate_llvm_function,
     validate_llvm_ir_with_assembler, llvm_ir_defines_symbol, IrOperationResult,
 )
+from llmo.extracted_ir import (
+    BEGIN_MARKER, END_MARKER, parse_extracted_ir_response,
+    reconstruct_extracted_module, function_abi_header, extract_target_function,
+)
 from llmo.metadata import get_run_metadata, get_file_sha256
 from llmo.reporting import normalized_timing
 
@@ -78,6 +82,10 @@ def write_run_attempt_summary(run_dir: Path) -> None:
             "model_context_size": summary.get("model_context_size"),
             "estimated_prompt_tokens": summary.get("estimated_prompt_tokens"),
             "estimated_available_output_tokens": summary.get("estimated_available_output_tokens"),
+            "estimated_target_function_tokens": summary.get("estimated_target_function_tokens"),
+            "configured_max_output_tokens": summary.get("configured_max_output_tokens"),
+            "actual_completion_tokens": summary.get("actual_completion_tokens"),
+            "response_mode": summary.get("response_mode"),
         })
     counts: Dict[str, int] = {}
     for attempt in attempts:
@@ -135,17 +143,50 @@ def publish_ir_backend_artifact(
 
 
 def make_ir_optimization_prompt(ir_module: str, extracted: bool = False) -> str:
-    reduced_context = "" if not extracted else """
-This is a reduced module produced by llvm-extract. It contains the target
-function and only the declarations/module infrastructure LLVM retained.
-Dependency functions may intentionally be declarations. Do not invent their
-implementations merely because their bodies are absent. Optimize the target
-function, preserve required declarations/types/globals, and return the complete
-valid reduced module rather than a patch or function fragment.
+    if extracted:
+        return f"""You are an expert LLVM IR performance engineer.
+The supplied input is a valid reduced LLVM module produced by llvm-extract. It
+contains the target function and declarations and module infrastructure needed
+for context. External functions may intentionally only be declarations.
+
+Optimize only the target function. Preserve externally observable behavior and
+the ABI: the exact function name, linkage, calling convention, parameter types,
+return type, and required function-level attributes, unless changing an
+attribute is necessary and valid. Do not invent implementations for declarations.
+Do not return the entire module or a diff.
+
+Only rewrite the function when you identify a concrete optimization that is
+unlikely to be recovered automatically by LLVM -O3. Prioritize algorithmic
+improvements, better data structures, reduced allocation or copying, removal of
+unnecessary library/runtime work, and safe specialization based only on
+guaranteed semantics. De-emphasize ordinary common-subexpression elimination,
+branch simplification, dead-code elimination, trivial inlining, and simple loop
+cleanup. Do not manually expand standard-library implementations without a
+concrete algorithmic or allocation advantage.
+
+Environment:
+- LLVM/Clang version 20.1.8
+- Input generated from C++ at -O1
+- x86-64 target
+- The target triple and datalayout must remain unchanged
+- The exported ABI must remain unchanged
+
+If no worthwhile optimization is found, return exactly:
+NO_CHANGE
+
+Otherwise return exactly:
+{BEGIN_MARKER}
+<one complete replacement definition of the target function>
+{END_MARKER}
+
+Return raw text with no Markdown and no prose before or after it. This compact
+protocol avoids reproducing unchanged module declarations and metadata.
+
+Input reduced LLVM module:
+{ir_module}
 """
     return f"""You are an expert LLVM IR performance engineer.
 Task: optimize the following LLVM IR module for maximum runtime performance.
-{reduced_context}
 
 Only rewrite the module when you identify a concrete optimization that is
 unlikely to be recovered automatically by LLVM -O3. If no such safe
@@ -184,7 +225,26 @@ Input IR:
 {ir_module}
 """
 
-def make_ir_repair_prompt(invalid_ir: str, errors: str) -> str:
+def make_ir_repair_prompt(invalid_ir: str, errors: str, *, extracted: bool = False,
+                          original_context: str = "") -> str:
+    if extracted:
+        return f"""You are an expert LLVM IR performance engineer.
+Repair the invalid replacement target function using the LLVM diagnostics below.
+Preserve its intended optimization, behavior, and exact ABI. Return only:
+{BEGIN_MARKER}
+<one complete corrected target function definition>
+{END_MARKER}
+No Markdown or prose. Do not return a whole module or implement declarations.
+
+LLVM diagnostics:
+{errors}
+
+Invalid replacement function:
+{invalid_ir}
+
+Original extracted module context:
+{original_context}
+"""
     return f"""You are an expert LLVM IR performance engineer.
 The following LLVM IR module is invalid according to the LLVM verifier.
 
@@ -224,7 +284,7 @@ def is_terminal_summary(summary: Dict[str, Any], requested_backend_levels: List[
         "repair_unchanged_invalid", "repair_context_insufficient", "repair_response_truncated",
         "repair_module_extraction_failed", "repair_preflight_failed",
         "extraction_failed", "extraction_target_missing", "extracted_ir_invalid",
-        "ir_reintegration_failed",
+        "ir_reintegration_failed", "no_change", "invalid_response",
     }
     status = summary.get("status")
     if status not in terminal_statuses:
@@ -392,6 +452,7 @@ def main():
                         }, task_start_time)
                         continue
                     prompt_ir_path = extraction_res.output_path
+                    shutil.copy2(prompt_ir_path, target_dir / "extracted.ll")
                     extracted_validation = validate_llvm_ir_with_assembler(
                         target_dir / "input_extraction" / "validation", prompt_ir_path
                     )
@@ -408,12 +469,25 @@ def main():
                 
                 # 2. Token Budgeting
                 input_tokens = count_tokens(ir_content)
-                min_output_tokens = max(4096, int(input_tokens * 0.8))
+                estimated_target_function_tokens = None
+                configured_max_output_tokens = args.max_output_tokens
+                if args.mode == "extracted-ir":
+                    target_function = extract_target_function(ir_content, target_symbol)
+                    estimated_target_function_tokens = count_tokens(target_function)
+                    configured_max_output_tokens = min(
+                        args.max_output_tokens,
+                        max(512, int(estimated_target_function_tokens * 1.5) + 256),
+                    )
+                    min_output_tokens = 512
+                else:
+                    min_output_tokens = max(4096, int(input_tokens * 0.8))
                 
                 prompt = make_ir_optimization_prompt(ir_content, extracted=args.mode == "extracted-ir")
-                system_prompt = "You are a compiler and LLVM IR optimization assistant. Return only the requested IR module."
+                system_prompt = ("You are a compiler and LLVM IR optimization assistant. Return only the requested response."
+                                 if args.mode == "extracted-ir" else
+                                 "You are a compiler and LLVM IR optimization assistant. Return only the requested IR module.")
                 
-                budget = calculate_token_budget(prompt, system_prompt, args.max_output_tokens, minimum_expected_output_tokens=min_output_tokens)
+                budget = calculate_token_budget(prompt, system_prompt, configured_max_output_tokens, minimum_expected_output_tokens=min_output_tokens)
                 
                 target_meta = {
                     "run_id": run_id,
@@ -426,7 +500,8 @@ def main():
                     "prompt_sha256": sha256_sum(prompt),
                     "token_budget": asdict(budget),
                     "min_output_tokens": min_output_tokens,
-                    "configured_max_output_tokens": args.max_output_tokens
+                    "configured_max_output_tokens": configured_max_output_tokens,
+                    "estimated_target_function_tokens": estimated_target_function_tokens,
                 }
                 target_meta.update({
                     "optimization_mode": args.mode,
@@ -456,7 +531,7 @@ def main():
                 
                 # 3. LLM Call
                 print(f"Optimizing {target_source.name} IR with {model_name}...")
-                requested_max = min(args.max_output_tokens, budget.available_output_tokens)
+                requested_max = min(configured_max_output_tokens, budget.available_output_tokens)
                 
                 validation_state = {
                     "response_received": False,
@@ -481,6 +556,7 @@ def main():
                     validation_state["response_complete"] = True
 
                 resp_file = save_llm_call(target_dir, "optimization", llm_result)
+                (target_dir / "raw_response.txt").write_text(llm_result.content, encoding="utf-8")
                 target_meta["raw_response_file"] = resp_file
                 target_meta["raw_response_sha256"] = sha256_sum(llm_result.content)
                 target_meta["llm_result"] = {
@@ -502,8 +578,34 @@ def main():
                     write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                     continue
                 
-                # 4. Extraction & Validation
-                extracted_ir = extract_code_block(llm_result.content)
+                # 4. Response parsing, reconstruction, and validation
+                if args.mode == "extracted-ir":
+                    parsed_response = parse_extracted_ir_response(llm_result.content, target_symbol)
+                    target_meta["response_mode"] = parsed_response.mode
+                    target_meta["actual_completion_tokens"] = llm_result.completion_tokens
+                    if parsed_response.mode == "invalid_response":
+                        target_meta["status"] = "invalid_response"
+                        target_meta["response_parse_error"] = parsed_response.error
+                        target_meta["validation"] = validation_state
+                        write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
+                        continue
+                    if parsed_response.mode == "no_change":
+                        shutil.copy2(prompt_ir_path, target_dir / "optimized_extracted.ll")
+                        shutil.copy2(original_ir_path, target_dir / "reconstructed_full.ll")
+                        target_meta["status"] = "no_change"
+                        target_meta["optimized_extracted_ir_sha256"] = get_file_sha256(target_dir / "optimized_extracted.ll")
+                        target_meta["reconstructed_ir_path"] = str(target_dir / "reconstructed_full.ll")
+                        target_meta["reconstructed_ir_sha256"] = get_file_sha256(target_dir / "reconstructed_full.ll")
+                        target_meta["validation"] = validation_state
+                        target_meta["total_inference_seconds"] = llm_call_duration
+                        write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
+                        continue
+                    replacement_function = parsed_response.replacement
+                    assert replacement_function is not None
+                    (target_dir / "replacement.ll").write_text(replacement_function, encoding="utf-8")
+                    extracted_ir = reconstruct_extracted_module(ir_content, replacement_function, target_symbol)
+                else:
+                    extracted_ir = extract_code_block(llm_result.content)
                 if not extracted_ir.strip():
                     target_meta["status"] = "response_empty"
                     target_meta["validation"] = validation_state
@@ -511,7 +613,7 @@ def main():
                     continue
                 
                 validation_state["module_extracted"] = True
-                extracted_ir_path = target_dir / "extracted.ll"
+                extracted_ir_path = target_dir / ("optimized_extracted.ll" if args.mode == "extracted-ir" else "extracted.ll")
                 extracted_ir_path.write_text(extracted_ir, encoding="utf-8")
                 initial_ir_sha256 = get_file_sha256(extracted_ir_path)
                 target_meta["extracted_module_sha256"] = initial_ir_sha256
@@ -519,6 +621,13 @@ def main():
                 val_res = validate_llvm_ir_module(extracted_ir, target_source.stem, raw_response=llm_result.content)
                 if args.mode == "extracted-ir":
                     require_preserved_target_configuration(val_res, extracted_ir, ir_content)
+                    try:
+                        if function_abi_header(extracted_ir, target_symbol) != function_abi_header(ir_content, target_symbol):
+                            val_res.errors.append("Replacement target function has an ABI/signature mismatch")
+                            val_res.preflight_passed = False
+                    except ValueError as exc:
+                        val_res.errors.append(str(exc))
+                        val_res.preflight_passed = False
                 if val_res.preflight_passed:
                     validation_state["preflight_passed"] = True
 
@@ -527,7 +636,7 @@ def main():
                     "errors": val_res.errors,
                 }
                 
-                optimized_ir_path = target_dir / "optimized.ll"
+                optimized_ir_path = target_dir / ("optimized_extracted.ll" if args.mode == "extracted-ir" else "optimized.ll")
                 
                 status = "unknown"
                 if validation_state["preflight_passed"]:
@@ -543,23 +652,28 @@ def main():
                     if verify_res.returncode == 0:
                         validation_state["initial_verification_passed"] = True
                         status = "valid_on_first_attempt"
-                        shutil.copy2(extracted_ir_path, optimized_ir_path)
+                        if extracted_ir_path != optimized_ir_path:
+                            shutil.copy2(extracted_ir_path, optimized_ir_path)
                     else:
                         # 5. Repair Attempt
                         validation_state["repair_attempted"] = True
                         print(f"  IR invalid. Attempting repair...")
                         err_text = Path(verify_res.stderr_file).read_text(encoding="utf-8")
                         target_meta["initial_verifier_error_excerpt"] = err_text[:1000]
-                        repair_prompt = make_ir_repair_prompt(extracted_ir, err_text)
+                        repair_input = replacement_function if args.mode == "extracted-ir" else extracted_ir
+                        repair_prompt = make_ir_repair_prompt(
+                            repair_input, err_text, extracted=args.mode == "extracted-ir",
+                            original_context=ir_content if args.mode == "extracted-ir" else "",
+                        )
                         
-                        repair_budget = calculate_token_budget(repair_prompt, system_prompt, args.max_output_tokens, minimum_expected_output_tokens=min_output_tokens)
+                        repair_budget = calculate_token_budget(repair_prompt, system_prompt, configured_max_output_tokens, minimum_expected_output_tokens=min_output_tokens)
                         target_meta["repair_token_budget"] = asdict(repair_budget)
                         
                         if not repair_budget.can_fit_minimum_expected_output:
                             status = "repair_context_insufficient"
                         else:
                             repair_llm_start = time.perf_counter()
-                            repair_requested_max = min(args.max_output_tokens, repair_budget.available_output_tokens)
+                            repair_requested_max = min(configured_max_output_tokens, repair_budget.available_output_tokens)
                             repair_result = call_llm(model_name, repair_prompt, system_prompt, max_tokens=repair_requested_max, seed=args.seed)
                             repair_llm_duration = time.perf_counter() - repair_llm_start
                             
@@ -585,7 +699,19 @@ def main():
                             if repair_result.finish_reason == "length":
                                 status = "repair_response_truncated"
                             else:
-                                repaired_ir = extract_code_block(repair_result.content)
+                                if args.mode == "extracted-ir":
+                                    repaired_response = parse_extracted_ir_response(repair_result.content, target_symbol)
+                                    target_meta["repair_response_mode"] = repaired_response.mode
+                                    if repaired_response.mode != "replacement_function":
+                                        repaired_ir = ""
+                                    else:
+                                        assert repaired_response.replacement is not None
+                                        (target_dir / "repaired_replacement.ll").write_text(
+                                            repaired_response.replacement, encoding="utf-8")
+                                        repaired_ir = reconstruct_extracted_module(
+                                            ir_content, repaired_response.replacement, target_symbol)
+                                else:
+                                    repaired_ir = extract_code_block(repair_result.content)
                                 if not repaired_ir.strip():
                                     status = "repair_module_extraction_failed"
                                 else:
@@ -598,6 +724,13 @@ def main():
                                     repair_val = validate_llvm_ir_module(repaired_ir, target_source.stem, raw_response=repair_result.content)
                                     if args.mode == "extracted-ir":
                                         require_preserved_target_configuration(repair_val, repaired_ir, ir_content)
+                                        try:
+                                            if function_abi_header(repaired_ir, target_symbol) != function_abi_header(ir_content, target_symbol):
+                                                repair_val.errors.append("Replacement target function has an ABI/signature mismatch")
+                                                repair_val.preflight_passed = False
+                                        except ValueError as exc:
+                                            repair_val.errors.append(str(exc))
+                                            repair_val.preflight_passed = False
                                     if repair_val.preflight_passed:
                                         validation_state["repair_preflight_passed"] = True
                                         
@@ -651,6 +784,7 @@ def main():
                             write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                             continue
                         benchmark_ir_path = reintegration.output_path
+                        shutil.copy2(benchmark_ir_path, target_dir / "reconstructed_full.ll")
                         target_meta["reconstructed_ir_path"] = str(benchmark_ir_path)
                         target_meta["reconstructed_ir_sha256"] = get_file_sha256(benchmark_ir_path)
                     other_sources = other_sources_for_replacement(target_source.name)

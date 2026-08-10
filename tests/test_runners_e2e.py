@@ -147,10 +147,12 @@ def test_extracted_ir_uses_reduced_context_and_distinct_metadata(mock_env, monke
     ]))
     monkeypatch.setattr("run_ir_optimization.reintegrate_llvm_function", MagicMock(return_value=IrOperationResult(ok, reconstructed)))
     monkeypatch.setattr("run_ir_optimization.verify_llvm_ir", MagicMock(return_value=ok))
+    initial_function = "define " + reduced_text.split("define ", 1)[1]
+    repaired_function = "define " + repaired_text.split("define ", 1)[1]
     monkeypatch.setattr("run_ir_optimization.call_llm", MagicMock(side_effect=[
-        ChatCompletionResult(content=reduced_text, finish_reason="stop", prompt_tokens=10,
+        ChatCompletionResult(content="BEGIN_REPLACEMENT_FUNCTION\n" + initial_function + "END_REPLACEMENT_FUNCTION", finish_reason="stop", prompt_tokens=10,
                              completion_tokens=10, total_tokens=20, raw_response={"choices": [], "usage": {}}),
-        ChatCompletionResult(content=repaired_text, finish_reason="stop", prompt_tokens=10,
+        ChatCompletionResult(content="BEGIN_REPLACEMENT_FUNCTION\n" + repaired_function + "END_REPLACEMENT_FUNCTION", finish_reason="stop", prompt_tokens=10,
                              completion_tokens=10, total_tokens=20, raw_response={"choices": [], "usage": {}}),
     ]))
     lib = tmp_path / "libSUT.so"
@@ -185,7 +187,7 @@ def test_extracted_ir_uses_reduced_context_and_distinct_metadata(mock_env, monke
     assert summary["extracted_ir_sha256"] == get_file_sha256(reduced_ir)
     assert summary["original_ir_sha256"] != summary["extracted_ir_sha256"]
     assert summary["optimized_extracted_ir_sha256"] == get_file_sha256(
-        summary_path.parent / "optimized.ll"
+        summary_path.parent / "optimized_extracted.ll"
     )
     assert summary["optimized_extracted_ir_sha256"] == get_file_sha256(
         summary_path.parent / "repaired.ll"
@@ -196,6 +198,115 @@ def test_extracted_ir_uses_reduced_context_and_distinct_metadata(mock_env, monke
     assert artifact_id.startswith("extracted-ir__")
     artifact = json.loads((tmp_path / "extracted-ir" / "extracted-test" / "artifacts" / artifact_id / "artifact.json").read_text())
     assert artifact["experiment_type"] == "extracted-ir"
+
+
+def test_extracted_ir_large_module_no_change_is_tiny_and_skips_repair(mock_env, monkeypatch):
+    tmp_path = mock_env
+    from llmo.command import CommandResult
+    from llmo.llvm import IrOperationResult
+    from llmo.llama import ChatCompletionResult
+
+    ok = CommandResult([], ".", 0, 0.1, "out", "err")
+    full_ir = tmp_path / "format_list_full.ll"
+    reduced_ir = tmp_path / "format_list_extracted.ll"
+    body = "define i32 @fibonacci() { ret i32 0 }\n"
+    full_ir.write_text('target triple = "x86_64"\ntarget datalayout = "e"\n' + "; large context\n" * 3000 + body)
+    reduced_ir.write_text('target triple = "x86_64"\ntarget datalayout = "e"\n' + "declare i32 @helper(i32)\n" * 1000 + body)
+    monkeypatch.setattr("run_ir_optimization.shutil.which", MagicMock(return_value="/mock/llvm-tool"))
+    monkeypatch.setattr("run_ir_optimization.generate_llvm_ir", MagicMock(return_value=IrOperationResult(ok, full_ir)))
+    monkeypatch.setattr("run_ir_optimization.llvm_ir_defines_symbol", MagicMock(return_value=True))
+    monkeypatch.setattr("run_ir_optimization.extract_llvm_function", MagicMock(return_value=IrOperationResult(ok, reduced_ir)))
+    validate = MagicMock(return_value=IrOperationResult(ok, tmp_path / "valid.bc"))
+    monkeypatch.setattr("run_ir_optimization.validate_llvm_ir_with_assembler", validate)
+    call = MagicMock(return_value=ChatCompletionResult(
+        content="NO_CHANGE", finish_reason="stop", prompt_tokens=13000,
+        completion_tokens=2, total_tokens=13002, raw_response={},
+    ))
+    monkeypatch.setattr("run_ir_optimization.call_llm", call)
+
+    argv = ["run_ir_optimization.py", "--mode", "extracted-ir", "--model", "test-model",
+            "--only", "fibonacci", "--output-root", str(tmp_path), "--backend-opt-level", "O3",
+            "--benchmark-repetitions", "1", "--run-id", "format-list-regression"]
+    with patch("sys.argv", argv):
+        run_ir_optimization.main()
+
+    task_dir = tmp_path / "extracted-ir" / "format-list-regression" / "test-model" / "fibonacci_cpp"
+    summary = json.loads((task_dir / "summary.json").read_text())
+    assert summary["status"] == summary["response_mode"] == "no_change"
+    assert summary["actual_completion_tokens"] == 2
+    assert (task_dir / "raw_response.txt").read_text() == "NO_CHANGE"
+    assert not (task_dir / "replacement.ll").exists()
+    assert validate.call_count == 1  # extracted input only; no output validation or repair
+    assert call.call_count == 1
+
+
+def _configure_constrained_extracted_ir(mock_env, monkeypatch, available_output_tokens):
+    from llmo.command import CommandResult
+    from llmo.llvm import IrOperationResult
+
+    ok = CommandResult([], ".", 0, 0.1, "out", "err")
+    full_ir = mock_env / "constrained_full.ll"
+    reduced_ir = mock_env / "constrained_extracted.ll"
+    module = ('target triple = "x86_64"\ntarget datalayout = "e"\n'
+              'define i32 @fibonacci() { ret i32 0 }\n')
+    full_ir.write_text(module)
+    reduced_ir.write_text(module)
+    monkeypatch.setattr("run_ir_optimization.shutil.which", MagicMock(return_value="/mock/llvm-tool"))
+    monkeypatch.setattr("run_ir_optimization.generate_llvm_ir", MagicMock(return_value=IrOperationResult(ok, full_ir)))
+    monkeypatch.setattr("run_ir_optimization.llvm_ir_defines_symbol", MagicMock(return_value=True))
+    monkeypatch.setattr("run_ir_optimization.extract_llvm_function", MagicMock(return_value=IrOperationResult(ok, reduced_ir)))
+    monkeypatch.setattr("run_ir_optimization.validate_llvm_ir_with_assembler", MagicMock(return_value=IrOperationResult(ok, mock_env / "valid.bc")))
+    monkeypatch.setattr("run_ir_optimization.count_tokens", lambda text: 2000 if text.lstrip().startswith("define ") else 100)
+
+    # calculate_token_budget adds two token counts, 50 template tokens, and a
+    # 1024-token safety margin.
+    monkeypatch.setattr("llmo.llama.count_tokens", lambda text: 100)
+    monkeypatch.setattr("llmo.llama.EFFECTIVE_LLAMA_CTX_SIZE", available_output_tokens + 1274)
+    return ok
+
+
+def test_extracted_ir_calls_llm_when_only_compact_minimum_fits(mock_env, monkeypatch):
+    from llmo.llama import ChatCompletionResult
+
+    _configure_constrained_extracted_ir(mock_env, monkeypatch, available_output_tokens=700)
+    call = MagicMock(return_value=ChatCompletionResult(
+        content="NO_CHANGE", finish_reason="stop", prompt_tokens=100,
+        completion_tokens=2, total_tokens=102, raw_response={},
+    ))
+    monkeypatch.setattr("run_ir_optimization.call_llm", call)
+    argv = ["run_ir_optimization.py", "--mode", "extracted-ir", "--model", "test-model",
+            "--only", "fibonacci", "--output-root", str(mock_env), "--backend-opt-level", "O3",
+            "--benchmark-repetitions", "1", "--run-id", "compact-context-fits"]
+    with patch("sys.argv", argv):
+        run_ir_optimization.main()
+
+    summary = json.loads((mock_env / "extracted-ir" / "compact-context-fits" / "test-model" /
+                          "fibonacci_cpp" / "summary.json").read_text())
+    assert summary["status"] == summary["response_mode"] == "no_change"
+    assert summary["estimated_target_function_tokens"] == 2000
+    assert summary["min_output_tokens"] == 512
+    assert summary["estimated_available_output_tokens"] == 700
+    assert summary["configured_max_output_tokens"] == 3256
+    assert summary["llm_result"]["requested_max_tokens"] == 700
+    assert call.call_args.kwargs["max_tokens"] == 700
+
+
+def test_extracted_ir_skips_when_compact_minimum_does_not_fit(mock_env, monkeypatch):
+    _configure_constrained_extracted_ir(mock_env, monkeypatch, available_output_tokens=511)
+    call = MagicMock()
+    monkeypatch.setattr("run_ir_optimization.call_llm", call)
+    argv = ["run_ir_optimization.py", "--mode", "extracted-ir", "--model", "test-model",
+            "--only", "fibonacci", "--output-root", str(mock_env), "--backend-opt-level", "O3",
+            "--benchmark-repetitions", "1", "--run-id", "compact-context-too-small"]
+    with patch("sys.argv", argv):
+        run_ir_optimization.main()
+
+    summary = json.loads((mock_env / "extracted-ir" / "compact-context-too-small" / "test-model" /
+                          "fibonacci_cpp" / "summary.json").read_text())
+    assert summary["status"] == "context_insufficient"
+    assert summary["min_output_tokens"] == 512
+    assert summary["estimated_available_output_tokens"] == 511
+    call.assert_not_called()
 
 def test_extracted_ir_missing_target_is_clean_status(mock_env, monkeypatch):
     tmp_path = mock_env
