@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <string>\n#include <vector>\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    try {\n        // Pre-calculate the total length needed\n        size_t total_length = 2; // for '[' and ']'\n        for (size_t i = 0; i < input_length; ++i) {\n            // Estimate length for each number (max 20 digits for 64-bit int)\n            total_length += 20;\n            if (i > 0) total_length += 2; // for \", \"\n        }\n\n        // Allocate buffer directly\n        std::vector<char> buffer(total_length);\n        char* ptr = buffer.data();\n\n        // Write the list\n        *ptr++ = '[';\n        for (size_t i = 0; i < input_length; ++i) {\n            if (i > 0) {\n                *ptr++ = ',';\n                *ptr++ = ' ';\n            }\n            ptr += std::snprintf(ptr, total_length - (ptr - buffer.data()), \"%d\", input[i]);\n        }\n        *ptr++ = ']';\n        *ptr = '\\0';\n\n        // Copy to C string (copy_to_c_string will handle allocation)\n        return copy_to_c_string(std::string(buffer.data(), ptr - buffer.data()));\n    } catch (...) {\n        return nullptr;\n    }\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786265006,
+  "id": "chatcmpl-zB6MIeaEULAsMYcUXrjpBKPqAadyymuu",
+  "model": "devstral-small-2-24b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 37,
+    "predicted_ms": 249208.59,
+    "predicted_n": 332,
+    "predicted_per_second": 1.3322173204382723,
+    "predicted_per_token_ms": 750.6282831325301,
+    "prompt_ms": 2667537.466,
+    "prompt_n": 27464,
+    "prompt_per_second": 10.295637961997418,
+    "prompt_per_token_ms": 97.1285124526653
+  },
+  "usage": {
+    "completion_tokens": 332,
+    "prompt_tokens": 27501,
+    "prompt_tokens_details": {
+      "cached_tokens": 37
+    },
+    "total_tokens": 27833
+  }
+}

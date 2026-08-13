@@ -1,0 +1,88 @@
+{
+  "abi_result": null,
+  "accepted_remarks": null,
+  "compile_result": null,
+  "iteration": 2,
+  "metadata": {
+    "accepted_as_best": false,
+    "available_tokens_for_remarks": 26930,
+    "context_size": 32768,
+    "duration_seconds": 215.58086640411057,
+    "fixed_tokens_est": 381,
+    "llm_result": {
+      "completion_tokens": 104,
+      "content": "```cpp\n#include \"library.h\"\n\nextern \"C\" {\n\nuint64_t fibonacci(uint64_t n) {\n    if (n <= 1) {\n        return n;\n    }\n    uint64_t a = 0, b = 1, c;\n    for (uint64_t i = 2; i <= n; ++i) {\n        c = a + b;\n        a = b;\n        b = c;\n    }\n    return b;\n}\n\n}\n```",
+      "finish_reason": "stop",
+      "prompt_tokens": 3899,
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "```cpp\n#include \"library.h\"\n\nextern \"C\" {\n\nuint64_t fibonacci(uint64_t n) {\n    if (n <= 1) {\n        return n;\n    }\n    uint64_t a = 0, b = 1, c;\n    for (uint64_t i = 2; i <= n; ++i) {\n        c = a + b;\n        a = b;\n        b = c;\n    }\n    return b;\n}\n\n}\n```",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786174064,
+        "id": "chatcmpl-Ef7yBszPnMHcr2VqLLm9Nm7i29lwTYUR",
+        "model": "qwen2.5-coder-14b-q4km",
+        "object": "chat.completion",
+        "system_fingerprint": "b9840-8c146a836",
+        "timings": {
+          "cache_n": 48,
+          "predicted_ms": 32665.285,
+          "predicted_n": 104,
+          "predicted_per_second": 3.183808131476581,
+          "predicted_per_token_ms": 314.08927884615383,
+          "prompt_ms": 182740.814,
+          "prompt_n": 3851,
+          "prompt_per_second": 21.073562690817386,
+          "prompt_per_token_ms": 47.45282108543236
+        },
+        "usage": {
+          "completion_tokens": 104,
+          "prompt_tokens": 3899,
+          "prompt_tokens_details": {
+            "cached_tokens": 48
+          },
+          "total_tokens": 4003
+        }
+      },
+      "total_tokens": 4003
+    },
+    "max_output_tokens": 4096,
+    "no_change": true,
+    "raw_response_file": "optimization_01_response.json",
+    "remark_count_in_prompt": 17,
+    "remark_count_prioritized": 17,
+    "remark_count_remaining": 0,
+    "remark_count_total": 17,
+    "remark_count_unseen": 17,
+    "template_tokens_est": 742
+  },
+  "remarks_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-02/optimization_record.yaml",
+  "shown_remarks": [
+    "Missed|loop-vectorize|MissedDetails|fibonacci|loop not vectorized",
+    "Missed|slp-vectorizer|NotPossible|fibonacci|Cannot SLP vectorize list: vectorization was impossible with available vectorization factors",
+    "Missed|slp-vectorizer|NotBeneficial|fibonacci|List vectorization was possible but not beneficial with cost 0 >= 0",
+    "Missed|regalloc|LoopSpillReloadCopies|fibonacci|3 virtual registers copies 3.000000e+01 total copies cost generated in loop",
+    "Missed|regalloc|SpillReloadCopies|fibonacci|5 virtual registers copies 3.150000e+01 total copies cost generated in function",
+    "Analysis|loop-vectorize|NonReductionValueUsedOutsideLoop|fibonacci|loop not vectorized: value that could not be identified as reduction is used outside the loop",
+    "Analysis|prologepilog|StackSize|fibonacci|0 stack bytes in function fibonacci",
+    "Analysis|asm-printer|InstructionMix|fibonacci|BasicBlock: \\nCMP64ri32: 1\\nJCC_1: 1\\nMOV64rr: 1\\n",
+    "Analysis|asm-printer|InstructionMix|fibonacci|BasicBlock: \\nCMP64ri32: 2\\nADD64ri32: 1\\nAND32ri: 1\\nCMOV64rr: 1\\nINC64r: 1\\nJCC_1: 1\\nLEA64r: 1\\nMOV32ri: 1\\nMOV32rr: 1\\n",
+    "Analysis|asm-printer|InstructionMix|fibonacci|BasicBlock: \\nJMP_1: 1\\nMOV32ri: 1\\nXOR32rr: 1\\n",
+    "Analysis|asm-printer|InstructionMix|fibonacci|BasicBlock: \\nAND64ri32: 1\\nMOV32ri: 1\\nXOR32rr: 1\\n",
+    "Analysis|asm-printer|InstructionMix|fibonacci|BasicBlock: \\nADD64rr: 8\\nADD64ri32: 1\\nJCC_1: 1\\n",
+    "Analysis|asm-printer|InstructionMix|fibonacci|BasicBlock: \\nJCC_1: 1\\nTEST64rr: 1\\n",
+    "Analysis|asm-printer|InstructionMix|fibonacci|BasicBlock: \\nMOV64rr: 3\\nADD64rr: 1\\nDEC64r: 1\\nJCC_1: 1\\n",
+    "Analysis|asm-printer|InstructionMix|fibonacci|BasicBlock: \\nRET64: 1\\n",
+    "Analysis|asm-printer|InstructionCount|fibonacci|38 instructions in function",
+    "Passed|loop-unroll|PartialUnrolled|fibonacci|unrolled loop by a factor of 8 with run-time trip count"
+  ],
+  "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-02/source_output.cpp",
+  "success": true,
+  "type": "optimization"
+}

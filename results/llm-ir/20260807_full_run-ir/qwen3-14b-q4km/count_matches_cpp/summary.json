@@ -1,0 +1,153 @@
+{
+  "backend_results": {
+    "-O0": {
+      "artifact_id": "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__candidate",
+      "baseline_artifact_id": "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__baseline",
+      "comparison": {
+        "baseline_artifact_id": "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__baseline",
+        "baseline_statistics": {
+          "maximum_calls_per_second": 10.5975,
+          "mean_calls_per_second": 10.523533333333333,
+          "median_absolute_deviation": 0.042899999999999494,
+          "median_calls_per_second": 10.508,
+          "minimum_calls_per_second": 10.4651,
+          "requested_repetitions": 3,
+          "successful_repetitions": 3
+        },
+        "candidate_artifact_id": "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__candidate",
+        "candidate_statistics": {
+          "maximum_calls_per_second": 10.6476,
+          "mean_calls_per_second": 10.6353,
+          "median_absolute_deviation": 0.008900000000000574,
+          "median_calls_per_second": 10.6387,
+          "minimum_calls_per_second": 10.6196,
+          "requested_repetitions": 3,
+          "successful_repetitions": 3
+        },
+        "classification": "unchanged_within_noise",
+        "noise_threshold_percent": 2.0,
+        "relative_change_percent": 1.2438142367719922,
+        "sequence": [
+          "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__baseline",
+          "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__candidate",
+          "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__candidate",
+          "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__baseline",
+          "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__candidate",
+          "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__baseline"
+        ]
+      },
+      "pipeline_id": "ir-o1__backend-O0"
+    },
+    "-O3": {
+      "artifact_id": "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o3__candidate",
+      "baseline_artifact_id": "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o3__baseline",
+      "comparison": {
+        "baseline_artifact_id": "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o3__baseline",
+        "baseline_statistics": {
+          "maximum_calls_per_second": 29.6386,
+          "mean_calls_per_second": 29.6039,
+          "median_absolute_deviation": 0.021599999999999397,
+          "median_calls_per_second": 29.617,
+          "minimum_calls_per_second": 29.5561,
+          "requested_repetitions": 3,
+          "successful_repetitions": 3
+        },
+        "candidate_artifact_id": "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o3__candidate",
+        "candidate_statistics": {
+          "maximum_calls_per_second": 29.6713,
+          "mean_calls_per_second": 29.6492,
+          "median_absolute_deviation": 0.004899999999999238,
+          "median_calls_per_second": 29.6406,
+          "minimum_calls_per_second": 29.6357,
+          "requested_repetitions": 3,
+          "successful_repetitions": 3
+        },
+        "classification": "unchanged_within_noise",
+        "noise_threshold_percent": 2.0,
+        "relative_change_percent": 0.07968396529019917,
+        "sequence": [
+          "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o3__baseline",
+          "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o3__candidate",
+          "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o3__candidate",
+          "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o3__baseline",
+          "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o3__candidate",
+          "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o3__baseline"
+        ]
+      },
+      "pipeline_id": "ir-o1__backend-O3"
+    }
+  },
+  "benchmark_name": "count_matches",
+  "configured_max_output_tokens": 16384,
+  "experiment_type": "llm-ir",
+  "extracted_module_sha256": "d7008d2aa32d6ef3df28b264d658edeb3c05a1c8d8b39ef77db13a7b2069244d",
+  "initial_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen3-14b-q4km/count_matches_cpp/verify/verify_ir_stderr.txt",
+  "input_file": "/home/tijl/code/llmO/SUT/count_matches.cpp",
+  "input_ir_sha256": "d7008d2aa32d6ef3df28b264d658edeb3c05a1c8d8b39ef77db13a7b2069244d",
+  "input_sha256": "d363d77d6af71a295ba7506375e16f5c4120a38a05a4bd1c93c451de36fd77f1",
+  "llm_result": {
+    "completion_tokens": 1798,
+    "duration_seconds": 602.3183410728816,
+    "finish_reason": "stop",
+    "prompt_tokens": 2100,
+    "request_finished_at": "2026-08-09T17:24:10.184993",
+    "request_started_at": "2026-08-09T17:14:07.866640",
+    "requested_max_tokens": 16384,
+    "total_tokens": 3898
+  },
+  "min_output_tokens": 4096,
+  "model_id": "qwen3-14b-q4km",
+  "optimization_inference_seconds": 602.3183410728816,
+  "preflight_validation": {
+    "errors": [],
+    "preflight_passed": true
+  },
+  "prompt_sha256": "9e0d3f0945d55681973977c14884f6ff31f0cc6b39b4d4e7ab92fec84090bb93",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "e3b84b442d41af607858cce58c90aa5b9e9be9c03c6d0f10436f78783dd13983",
+  "run_id": "20260807_full_run-ir",
+  "status": "completed",
+  "timing": {
+    "llm_inference_seconds": 602.3183410728816,
+    "optimization_pipeline_seconds": 981.0529437009245,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 602.3183410728816
+  },
+  "token_budget": {
+    "available_output_tokens": 29607,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": true,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 2137,
+    "requested_max_tokens": 16384
+  },
+  "total_inference_seconds": 602.3183410728816,
+  "total_task_seconds": 981.0525188159663,
+  "validation": {
+    "initial_verification_passed": true,
+    "module_extracted": true,
+    "preflight_passed": true,
+    "repair_attempted": false,
+    "repair_module_extracted": false,
+    "repair_preflight_passed": false,
+    "repair_response_complete": false,
+    "repair_response_received": false,
+    "repair_verification_passed": false,
+    "response_complete": true,
+    "response_received": true
+  },
+  "verify_first_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen3-14b-q4km/count_matches_cpp/extracted.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.01580112287774682,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen3-14b-q4km/count_matches_cpp/verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen3-14b-q4km/count_matches_cpp/verify/verify_ir_stdout.txt"
+  }
+}

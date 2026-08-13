@@ -1,0 +1,56 @@
+{
+  "artifact_id": "guided-cpp__qwen2-5-coder-14b-q4km__repeated_sort__iteration-01",
+  "benchmark_name": "repeated_sort",
+  "comparison_vs_previous_best": {
+    "baseline_artifact_id": "guided-cpp__qwen2-5-coder-14b-q4km__repeated_sort__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 10339.3,
+      "mean_calls_per_second": 10313.833333333334,
+      "median_absolute_deviation": 10.799999999999272,
+      "median_calls_per_second": 10306.5,
+      "minimum_calls_per_second": 10295.7,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "guided-cpp__qwen2-5-coder-14b-q4km__repeated_sort__iteration-01",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 27511.4,
+      "mean_calls_per_second": 27432.466666666667,
+      "median_absolute_deviation": 58.60000000000218,
+      "median_calls_per_second": 27452.8,
+      "minimum_calls_per_second": 27333.2,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "improved",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": 166.36394508319992,
+    "sequence": [
+      "guided-cpp__qwen2-5-coder-14b-q4km__repeated_sort__iteration-01",
+      "guided-cpp__qwen2-5-coder-14b-q4km__repeated_sort__baseline",
+      "guided-cpp__qwen2-5-coder-14b-q4km__repeated_sort__iteration-01",
+      "guided-cpp__qwen2-5-coder-14b-q4km__repeated_sort__baseline",
+      "guided-cpp__qwen2-5-coder-14b-q4km__repeated_sort__baseline",
+      "guided-cpp__qwen2-5-coder-14b-q4km__repeated_sort__iteration-01"
+    ]
+  },
+  "confirmation_status": "not-run",
+  "confirmed_improvement": false,
+  "experiment_type": "guided-cpp",
+  "model_id": "qwen2-5-coder-14b-q4km",
+  "parent_artifact_id": "guided-cpp__qwen2-5-coder-14b-q4km__repeated_sort__baseline",
+  "paths": {
+    "libsut": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/repeated_sort_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__repeated_sort__iteration-01/libSUT.so",
+    "source": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/repeated_sort_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__repeated_sort__iteration-01/source_output.cpp"
+  },
+  "pipeline_id": "cpp-llm-iterative-pass-01__clang-o3",
+  "run_id": "20260807_full_run-guided",
+  "schema_version": 2,
+  "selection_status": "improved",
+  "timing": {
+    "llm_inference_seconds": 2166.603015990928,
+    "optimization_pipeline_seconds": 2384.1012988011353,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 2166.603015990928
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <string>\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    try {\n        std::string result;\n        result.reserve(input_length * 12 + 2); // Reserve space for up to 12 digits per number and 2 brackets\n        result += \"[\";\n        for (size_t i = 0; i < input_length; ++i) {\n            if (i > 0) result += \", \";\n            result += std::to_string(input[i]);\n        }\n        result += \"]\";\n\n        return copy_to_c_string(result);\n    } catch (...) {\n        return nullptr;\n    }\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786126436,
+  "id": "chatcmpl-HqrWNo1U6zZ2OBAoTubKdQ2bAsq88B7r",
+  "model": "qwen2.5-coder-14b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 43,
+    "predicted_ms": 44452.202,
+    "predicted_n": 173,
+    "predicted_per_second": 3.8918207021555427,
+    "predicted_per_token_ms": 256.9491445086705,
+    "prompt_ms": 26169.85,
+    "prompt_n": 580,
+    "prompt_per_second": 22.16290884357381,
+    "prompt_per_token_ms": 45.120431034482756
+  },
+  "usage": {
+    "completion_tokens": 173,
+    "prompt_tokens": 623,
+    "prompt_tokens_details": {
+      "cached_tokens": 43
+    },
+    "total_tokens": 796
+  }
+}

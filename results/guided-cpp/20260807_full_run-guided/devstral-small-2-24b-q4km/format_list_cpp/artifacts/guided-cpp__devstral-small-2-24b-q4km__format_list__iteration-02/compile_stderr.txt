@@ -1,0 +1,7 @@
+/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-02/source_output.cpp:20:54: error: use of undeclared identifier 'log10'
+   20 |             size_t digits = (num == 0) ? 1 : (size_t)log10(abs(num)) + 1;
+      |                                                      ^
+/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-02/source_output.cpp:53:22: error: no member named 'reverse' in namespace 'std'
+   53 |                 std::reverse(start, ptr);
+      |                 ~~~~~^
+2 errors generated.

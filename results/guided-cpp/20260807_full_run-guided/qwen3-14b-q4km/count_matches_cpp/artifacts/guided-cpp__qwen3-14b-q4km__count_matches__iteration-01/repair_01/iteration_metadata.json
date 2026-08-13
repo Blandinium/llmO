@@ -1,0 +1,133 @@
+{
+  "abi_result": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01",
+    "duration_seconds": 0.008316327119246125,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/abi_symbols_stdout.txt"
+  },
+  "accepted_remarks": null,
+  "compile_result": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp",
+      "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+      "/home/tijl/code/llmO/SUT/format_list.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+      "-o",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 2.16724034701474,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/compile_stdout.txt"
+  },
+  "iteration": 1,
+  "metadata": {
+    "abi_error": null,
+    "accepted_as_best": true,
+    "benchmark_comparison": {
+      "baseline_artifact_id": "guided-cpp__qwen3-14b-q4km__count_matches__baseline",
+      "baseline_statistics": {
+        "maximum_calls_per_second": 59.492,
+        "mean_calls_per_second": 59.4409,
+        "median_absolute_deviation": 0.04819999999999425,
+        "median_calls_per_second": 59.4438,
+        "minimum_calls_per_second": 59.3869,
+        "requested_repetitions": 3,
+        "successful_repetitions": 3
+      },
+      "candidate_artifact_id": "guided-cpp__qwen3-14b-q4km__count_matches__iteration-01",
+      "candidate_statistics": {
+        "maximum_calls_per_second": 4730.65,
+        "mean_calls_per_second": 4710.8966666666665,
+        "median_absolute_deviation": 5.339999999999236,
+        "median_calls_per_second": 4703.69,
+        "minimum_calls_per_second": 4698.35,
+        "requested_repetitions": 3,
+        "successful_repetitions": 3
+      },
+      "classification": "improved",
+      "noise_threshold_percent": 2.0,
+      "relative_change_percent": 7812.83531671932,
+      "sequence": [
+        "guided-cpp__qwen3-14b-q4km__count_matches__iteration-01",
+        "guided-cpp__qwen3-14b-q4km__count_matches__baseline",
+        "guided-cpp__qwen3-14b-q4km__count_matches__iteration-01",
+        "guided-cpp__qwen3-14b-q4km__count_matches__baseline",
+        "guided-cpp__qwen3-14b-q4km__count_matches__baseline",
+        "guided-cpp__qwen3-14b-q4km__count_matches__iteration-01"
+      ]
+    },
+    "duration_seconds": 107.51520066312514,
+    "llm_result": {
+      "completion_tokens": 207,
+      "content": "#include \"library.h\"\n#include <unordered_set>\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    // Create a lookup set for O(1) lookups\n    const size_t allowed_size = allowed_length;\n    const int* allowed_data = allowed;\n    \n    // Use a hash set for allowed values\n    std::unordered_set<int> allowed_set(allowed_data, allowed_data + allowed_length);\n    \n    // Count matches\n    size_t matches = 0;\n    for (size_t i = 0; i < queries_length; ++i) {\n        if (allowed_set.count(queries[i])) {\n            ++matches;\n        }\n    }\n    \n    return matches;\n}\n\n}",
+      "finish_reason": "stop",
+      "prompt_tokens": 1179,
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "#include \"library.h\"\n#include <unordered_set>\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    // Create a lookup set for O(1) lookups\n    const size_t allowed_size = allowed_length;\n    const int* allowed_data = allowed;\n    \n    // Use a hash set for allowed values\n    std::unordered_set<int> allowed_set(allowed_data, allowed_data + allowed_length);\n    \n    // Count matches\n    size_t matches = 0;\n    for (size_t i = 0; i < queries_length; ++i) {\n        if (allowed_set.count(queries[i])) {\n            ++matches;\n        }\n    }\n    \n    return matches;\n}\n\n}",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786165236,
+        "id": "chatcmpl-4biisXeUTobCDF3vKJomhAZJv0xTjtb9",
+        "model": "qwen3-14b-q4km",
+        "object": "chat.completion",
+        "system_fingerprint": "b9840-8c146a836",
+        "timings": {
+          "cache_n": 33,
+          "predicted_ms": 54037.315,
+          "predicted_n": 207,
+          "predicted_per_second": 3.8306862581902887,
+          "predicted_per_token_ms": 261.04983091787443,
+          "prompt_ms": 53106.384,
+          "prompt_n": 1146,
+          "prompt_per_second": 21.579326508089874,
+          "prompt_per_token_ms": 46.340649214659685
+        },
+        "usage": {
+          "completion_tokens": 207,
+          "prompt_tokens": 1179,
+          "prompt_tokens_details": {
+            "cached_tokens": 33
+          },
+          "total_tokens": 1386
+        }
+      },
+      "total_tokens": 1386
+    }
+  },
+  "remarks_file": null,
+  "shown_remarks": null,
+  "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp",
+  "success": true,
+  "type": "repair_01"
+}

@@ -1,0 +1,56 @@
+{
+  "artifact_id": "extracted-ir__qwen2-5-coder-14b-q4km__format_list__extracted-ir-o1_backend-o0__baseline",
+  "artifact_role": "baseline",
+  "benchmark_name": "format_list",
+  "comparison": {
+    "baseline_artifact_id": "extracted-ir__qwen2-5-coder-14b-q4km__format_list__extracted-ir-o1_backend-o0__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 47635.3,
+      "mean_calls_per_second": 47411.13333333333,
+      "median_absolute_deviation": 58.900000000001455,
+      "median_calls_per_second": 47328.5,
+      "minimum_calls_per_second": 47269.6,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "extracted-ir__qwen2-5-coder-14b-q4km__format_list__extracted-ir-o1_backend-o0__candidate",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 47615.3,
+      "mean_calls_per_second": 47449.333333333336,
+      "median_absolute_deviation": 97.30000000000291,
+      "median_calls_per_second": 47415,
+      "minimum_calls_per_second": 47317.7,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "unchanged_within_noise",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": 0.18276514151092893,
+    "sequence": [
+      "extracted-ir__qwen2-5-coder-14b-q4km__format_list__extracted-ir-o1_backend-o0__baseline",
+      "extracted-ir__qwen2-5-coder-14b-q4km__format_list__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__qwen2-5-coder-14b-q4km__format_list__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__qwen2-5-coder-14b-q4km__format_list__extracted-ir-o1_backend-o0__baseline",
+      "extracted-ir__qwen2-5-coder-14b-q4km__format_list__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__qwen2-5-coder-14b-q4km__format_list__extracted-ir-o1_backend-o0__baseline"
+    ]
+  },
+  "experiment_type": "extracted-ir",
+  "is_final_artifact": true,
+  "logical_artifact_id": "extracted-ir/20260807_full_run-extracted-ir/qwen2-5-coder-14b-q4km/format_list/extracted-ir-o1_backend-o0/extracted-ir_qwen2-5-coder-14b-q4km_format_list_extracted-ir-o1_backend-o0_baseline",
+  "model_id": "qwen2-5-coder-14b-q4km",
+  "paths": {
+    "canonical_libsut": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__qwen2-5-coder-14b-q4km__format_list__extracted-ir-o1_backend-o0__baseline/libSUT.so",
+    "ir": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__qwen2-5-coder-14b-q4km__format_list__extracted-ir-o1_backend-o0__baseline/input.ll",
+    "libsut": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__qwen2-5-coder-14b-q4km__format_list__extracted-ir-o1_backend-o0__baseline/libSUT.so"
+  },
+  "pipeline_id": "extracted-ir-o1__backend-O0",
+  "run_id": "20260807_full_run-extracted-ir",
+  "schema_version": 2,
+  "timing": {
+    "llm_inference_seconds": 0.0,
+    "optimization_pipeline_seconds": 0.0,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 0.0
+  }
+}

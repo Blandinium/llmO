@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "BEGIN_REPLACEMENT_FUNCTION\ndefine i64 @count_matches(ptr noundef readonly %allowed, i64 noundef %allowed_length, ptr noundef readonly %queries, i64 noundef %queries_length) local_unnamed_addr #0 personality ptr @__gxx_personality_v0 {\nentry:\n  %cmp = icmp eq ptr %allowed, null\n  %cmp1 = icmp ne i64 %allowed_length, 0\n  %or.cond = and i1 %cmp, %cmp1\n  br i1 %or.cond, label %return, label %lor.lhs.false\n\nlor.lhs.false:                                    ; preds = %entry\n  %cmp2 = icmp ne ptr %queries, null\n  %cmp517 = icmp ne i64 %queries_length, 0\n  %or.cond20 = and i1 %cmp2, %cmp517\n  br i1 %or.cond20, label %for.body.lr.ph, label %return\n\nfor.body.lr.ph:                                   ; preds = %lor.lhs.false\n  br label %for.body\n\nfor.body:                                         ; preds = %for.body, %for.body.lr.ph\n  %matches.019 = phi i64 [ 0, %for.body.lr.ph ], [ %spec.select, %for.body ]\n  %i.018 = phi i64 [ 0, %for.body.lr.ph ], [ %inc8, %for.body ]\n  %arrayidx = getelementptr inbounds nuw i32, ptr %queries, i64 %i.018\n  %0 = load i32, ptr %arrayidx, align 4, !tbaa !4\n  %cmp.not5.not.i = icmp eq i64 %allowed_length, 0\n  br i1 %cmp.not5.not.i, label %for.body.exit, label %for.body.i\n\nfor.body.i:                                       ; preds = %for.body.i, %for.body\n  %i.06.i = phi i64 [ %inc.i, %for.body.i ], [ 0, %for.body ]\n  %add.ptr.i.i = getelementptr inbounds nuw i32, ptr %allowed, i64 %i.06.i\n  %1 = load i32, ptr %add.ptr.i.i, align 4, !tbaa !4\n  %cmp2.i = icmp eq i32 %1, %0\n  %inc.i = add nuw i64 %i.06.i, 1\n  %exitcond.not.i = icmp eq i64 %inc.i, %allowed_length\n  %or.cond.i = select i1 %cmp2.i, i1 true, i1 %exitcond.not.i\n  br i1 %or.cond.i, label %for.body.exit, label %for.body.i, !llvm.loop !8\n\nfor.body.exit:                                    ; preds = %for.body.i, %for.body\n  %cmp.not.lcssa.i = phi i64 [ 0, %for.body ], [ %2, %for.body.exit ]\n  %spec.select = add i64 %matches.019, %cmp.not.lcssa.i\n  %inc8 = add nuw i64 %i.018, 1\n  %exitcond.not = icmp eq i64 %inc8, %queries_length\n  br i1 %exitcond.not, label %return, label %for.body, !llvm.loop !11\n\nreturn:                                           ; preds = %for.body.exit, %lor.lhs.false, %entry\n  %retval.0 = phi i64 [ 0, %lor.lhs.false ], [ 0, %entry ], [ %spec.select, %for.body.exit ]\n  ret i64 %retval.0\n}\nEND_REPLACEMENT_FUNCTION",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786526347,
+  "id": "chatcmpl-3KPu86QdJAMHeYVY4i9tnqBAl5wb2BZP",
+  "model": "devstral-small-2-24b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 432,
+    "predicted_ms": 390240.695,
+    "predicted_n": 883,
+    "predicted_per_second": 2.262706097322833,
+    "predicted_per_token_ms": 441.9486919592299,
+    "prompt_ms": 151288.478,
+    "prompt_n": 1854,
+    "prompt_per_second": 12.254733635432567,
+    "prompt_per_token_ms": 81.60112081984897
+  },
+  "usage": {
+    "completion_tokens": 883,
+    "prompt_tokens": 2286,
+    "prompt_tokens_details": {
+      "cached_tokens": 432
+    },
+    "total_tokens": 3169
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "artifact_id": "llm-ir__devstral-small-2-24b-q4km__count_matches__ir-o1_backend-o0__baseline",
+  "artifact_role": "baseline",
+  "benchmark_name": "count_matches",
+  "comparison": {
+    "baseline_artifact_id": "llm-ir__devstral-small-2-24b-q4km__count_matches__ir-o1_backend-o0__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 10.6407,
+      "mean_calls_per_second": 10.590766666666667,
+      "median_absolute_deviation": 0.042500000000000426,
+      "median_calls_per_second": 10.5982,
+      "minimum_calls_per_second": 10.5334,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "llm-ir__devstral-small-2-24b-q4km__count_matches__ir-o1_backend-o0__candidate",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 11.0407,
+      "mean_calls_per_second": 10.785133333333333,
+      "median_absolute_deviation": 0.006700000000000372,
+      "median_calls_per_second": 10.6607,
+      "minimum_calls_per_second": 10.654,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "unchanged_within_noise",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": 0.5897227831141137,
+    "sequence": [
+      "llm-ir__devstral-small-2-24b-q4km__count_matches__ir-o1_backend-o0__baseline",
+      "llm-ir__devstral-small-2-24b-q4km__count_matches__ir-o1_backend-o0__candidate",
+      "llm-ir__devstral-small-2-24b-q4km__count_matches__ir-o1_backend-o0__candidate",
+      "llm-ir__devstral-small-2-24b-q4km__count_matches__ir-o1_backend-o0__baseline",
+      "llm-ir__devstral-small-2-24b-q4km__count_matches__ir-o1_backend-o0__candidate",
+      "llm-ir__devstral-small-2-24b-q4km__count_matches__ir-o1_backend-o0__baseline"
+    ]
+  },
+  "experiment_type": "llm-ir",
+  "is_final_artifact": true,
+  "model_id": "devstral-small-2-24b-q4km",
+  "paths": {
+    "canonical_libsut": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/artifacts/llm-ir__devstral-small-2-24b-q4km__count_matches__ir-o1_backend-o0__baseline/libSUT.so",
+    "ir": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/artifacts/llm-ir__devstral-small-2-24b-q4km__count_matches__ir-o1_backend-o0__baseline/input.ll",
+    "libsut": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/artifacts/llm-ir__devstral-small-2-24b-q4km__count_matches__ir-o1_backend-o0__baseline/libSUT.so"
+  },
+  "pipeline_id": "ir-o1__backend-O0",
+  "run_id": "20260807_full_run-ir",
+  "schema_version": 2,
+  "timing": {
+    "llm_inference_seconds": 0.0,
+    "optimization_pipeline_seconds": 0.0,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 0.0
+  }
+}

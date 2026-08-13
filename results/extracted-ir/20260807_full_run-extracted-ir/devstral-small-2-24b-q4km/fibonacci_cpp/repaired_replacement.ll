@@ -1,0 +1,16 @@
+define i64 @fibonacci(i64 noundef %n) local_unnamed_addr #0 {
+entry:
+  %cmp = icmp ult i64 %n, 2
+  br i1 %cmp, label %return, label %loop
+
+loop:
+  %sub = add i64 %n, -1
+  %call = tail call i64 @fibonacci(i64 noundef %sub)
+  %add = add i64 %call, %n
+  %sub1 = add i64 %n, -2
+  %n = add i64 %n, -1
+  br label %loop
+
+return:
+  ret i64 %n
+}

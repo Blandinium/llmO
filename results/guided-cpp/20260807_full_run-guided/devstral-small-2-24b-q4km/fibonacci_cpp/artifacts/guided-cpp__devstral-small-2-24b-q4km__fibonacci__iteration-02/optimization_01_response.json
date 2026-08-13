@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n\nextern \"C\" {\n\nuint64_t fibonacci(uint64_t n) {\n    if (n <= 1) {\n        return n;\n    }\n\n    uint64_t a = 0;\n    uint64_t b = 1;\n    uint64_t c;\n\n    // Use a larger unroll factor to reduce loop overhead\n    const uint64_t unroll = 8;\n    uint64_t i = 2;\n\n    // Process 8 iterations at a time\n    for (; i + unroll - 1 <= n; i += unroll) {\n        c = a + b; a = b; b = c;\n        c = a + b; a = b; b = c;\n        c = a + b; a = b; b = c;\n        c = a + b; a = b; b = c;\n        c = a + b; a = b; b = c;\n        c = a + b; a = b; b = c;\n        c = a + b; a = b; b = c;\n        c = a + b; a = b; b = c;\n    }\n\n    // Process remaining iterations\n    for (; i <= n; ++i) {\n        c = a + b;\n        a = b;\n        b = c;\n    }\n\n    return b;\n}\n\n}",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786261686,
+  "id": "chatcmpl-cAyUhxi7cTV1yWqbVA0HoGz9DLGqSaLc",
+  "model": "devstral-small-2-24b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 45,
+    "predicted_ms": 134681.171,
+    "predicted_n": 294,
+    "predicted_per_second": 2.182933203038456,
+    "predicted_per_token_ms": 458.0992210884354,
+    "prompt_ms": 319877.186,
+    "prompt_n": 3932,
+    "prompt_per_second": 12.292217676317811,
+    "prompt_per_token_ms": 81.35228535096643
+  },
+  "usage": {
+    "completion_tokens": 294,
+    "prompt_tokens": 3977,
+    "prompt_tokens_details": {
+      "cached_tokens": 45
+    },
+    "total_tokens": 4271
+  }
+}

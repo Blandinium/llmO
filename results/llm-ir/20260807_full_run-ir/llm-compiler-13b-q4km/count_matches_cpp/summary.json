@@ -1,0 +1,98 @@
+{
+  "benchmark_name": "count_matches",
+  "configured_max_output_tokens": 16384,
+  "experiment_type": "llm-ir",
+  "extracted_module_sha256": "35874e85a198abc2357d191b20d125281510b5daaa2011cc5ea973023dacd5c3",
+  "initial_verifier_error_excerpt": "opt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-13b-q4km/count_matches_cpp/extracted.ll:1:1: error: expected top-level entity\nYou are an expert LLVM IR performance engineer.\n^\n",
+  "initial_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-13b-q4km/count_matches_cpp/verify/verify_ir_stderr.txt",
+  "input_file": "/home/tijl/code/llmO/SUT/count_matches.cpp",
+  "input_ir_sha256": "d7008d2aa32d6ef3df28b264d658edeb3c05a1c8d8b39ef77db13a7b2069244d",
+  "input_sha256": "d363d77d6af71a295ba7506375e16f5c4120a38a05a4bd1c93c451de36fd77f1",
+  "llm_result": {
+    "completion_tokens": 2428,
+    "duration_seconds": 920.9114373701159,
+    "finish_reason": "stop",
+    "prompt_tokens": 2482,
+    "request_finished_at": "2026-08-09T23:09:53.862855",
+    "request_started_at": "2026-08-09T22:54:32.951408",
+    "requested_max_tokens": 12872,
+    "total_tokens": 4910
+  },
+  "min_output_tokens": 4096,
+  "model_id": "llm-compiler-13b-q4km",
+  "optimization_inference_seconds": 920.9114373701159,
+  "preflight_validation": {
+    "errors": [],
+    "preflight_passed": true
+  },
+  "prompt_sha256": "9e0d3f0945d55681973977c14884f6ff31f0cc6b39b4d4e7ab92fec84090bb93",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "35874e85a198abc2357d191b20d125281510b5daaa2011cc5ea973023dacd5c3",
+  "repair_inference_seconds": 6128.964030491887,
+  "repair_raw_response_file": "repair_response.json",
+  "repair_response_sha256": "fe5f49978fe30040943e66195719ef200cada0dbb064322b5ad30cef36acc16b",
+  "repair_result": {
+    "completion_tokens": 12676,
+    "duration_seconds": 6128.964030491887,
+    "finish_reason": "length",
+    "prompt_tokens": 2678,
+    "request_finished_at": "2026-08-10T00:52:02.847203",
+    "request_started_at": "2026-08-09T23:09:53.883163",
+    "requested_max_tokens": 12676,
+    "total_tokens": 15354
+  },
+  "repair_token_budget": {
+    "available_output_tokens": 12676,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": false,
+    "effective_context_size": 16384,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 2684,
+    "requested_max_tokens": 16384
+  },
+  "run_id": "20260807_full_run-ir",
+  "status": "repair_response_truncated",
+  "timing": {
+    "llm_inference_seconds": 920.9114373701159,
+    "optimization_pipeline_seconds": 7050.020958069945,
+    "repair_inference_seconds": 6128.964030491887,
+    "total_llm_seconds": 7049.875467862003
+  },
+  "token_budget": {
+    "available_output_tokens": 12872,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": false,
+    "effective_context_size": 16384,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 2488,
+    "requested_max_tokens": 16384
+  },
+  "total_inference_seconds": 7049.875467862003,
+  "total_task_seconds": 7050.020950976992,
+  "validation": {
+    "initial_verification_passed": false,
+    "module_extracted": true,
+    "preflight_passed": true,
+    "repair_attempted": true,
+    "repair_module_extracted": false,
+    "repair_preflight_passed": false,
+    "repair_response_complete": false,
+    "repair_response_received": true,
+    "repair_verification_passed": false,
+    "response_complete": true,
+    "response_received": true
+  },
+  "verify_first_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-13b-q4km/count_matches_cpp/extracted.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.015707110054790974,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-13b-q4km/count_matches_cpp/verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-13b-q4km/count_matches_cpp/verify/verify_ir_stdout.txt"
+  }
+}

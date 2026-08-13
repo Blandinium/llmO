@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n\n#include <cstdint>\n#include <vector>\n#include <algorithm>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    try {\n        if (input_length == 0) {\n            return 0;\n        }\n\n        std::int64_t total = 0;\n\n        // Use a fixed-size buffer to avoid dynamic allocations\n        std::vector<int> values(input, input + input_length);\n        const size_t size = values.size();\n\n        for (int r = 0; r < rounds; ++r) {\n            // Sort the array in-place\n            std::sort(values.begin(), values.end());\n\n            const size_t mid = size / 2;\n            const int median = (size % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n                : values[mid];\n\n            total += median;\n            total += values[r % size];\n        }\n\n        return total;\n    } catch (...) {\n        return 0;\n    }\n}\n\n}",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786162021,
+  "id": "chatcmpl-9UwB35kGU9gcCxgYJLCPSQLYa6Sgnsw6",
+  "model": "qwen3-14b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 33,
+    "predicted_ms": 67486.35,
+    "predicted_n": 262,
+    "predicted_per_second": 3.8822665620529184,
+    "predicted_per_token_ms": 257.58148854961837,
+    "prompt_ms": 37278.194,
+    "prompt_n": 808,
+    "prompt_per_second": 21.674869764345342,
+    "prompt_per_token_ms": 46.13637871287129
+  },
+  "usage": {
+    "completion_tokens": 262,
+    "prompt_tokens": 841,
+    "prompt_tokens_details": {
+      "cached_tokens": 33
+    },
+    "total_tokens": 1103
+  }
+}

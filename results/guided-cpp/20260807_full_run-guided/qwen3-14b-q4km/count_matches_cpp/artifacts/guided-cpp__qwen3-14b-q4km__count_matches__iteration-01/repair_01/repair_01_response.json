@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n#include <unordered_set>\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    // Create a lookup set for O(1) lookups\n    const size_t allowed_size = allowed_length;\n    const int* allowed_data = allowed;\n    \n    // Use a hash set for allowed values\n    std::unordered_set<int> allowed_set(allowed_data, allowed_data + allowed_length);\n    \n    // Count matches\n    size_t matches = 0;\n    for (size_t i = 0; i < queries_length; ++i) {\n        if (allowed_set.count(queries[i])) {\n            ++matches;\n        }\n    }\n    \n    return matches;\n}\n\n}",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786165236,
+  "id": "chatcmpl-4biisXeUTobCDF3vKJomhAZJv0xTjtb9",
+  "model": "qwen3-14b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 33,
+    "predicted_ms": 54037.315,
+    "predicted_n": 207,
+    "predicted_per_second": 3.8306862581902887,
+    "predicted_per_token_ms": 261.04983091787443,
+    "prompt_ms": 53106.384,
+    "prompt_n": 1146,
+    "prompt_per_second": 21.579326508089874,
+    "prompt_per_token_ms": 46.340649214659685
+  },
+  "usage": {
+    "completion_tokens": 207,
+    "prompt_tokens": 1179,
+    "prompt_tokens_details": {
+      "cached_tokens": 33
+    },
+    "total_tokens": 1386
+  }
+}

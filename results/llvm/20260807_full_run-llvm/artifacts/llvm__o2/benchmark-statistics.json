@@ -1,0 +1,47 @@
+{
+  "count_matches": {
+    "maximum_calls_per_second": 59.1054,
+    "mean_calls_per_second": 58.60196666666667,
+    "median_absolute_deviation": 0.03930000000000433,
+    "median_calls_per_second": 58.3699,
+    "minimum_calls_per_second": 58.3306,
+    "requested_repetitions": 3,
+    "successful_repetitions": 3
+  },
+  "fibonacci": {
+    "maximum_calls_per_second": 63.177,
+    "mean_calls_per_second": 62.98406666666667,
+    "median_absolute_deviation": 0.16799999999999926,
+    "median_calls_per_second": 62.9716,
+    "minimum_calls_per_second": 62.8036,
+    "requested_repetitions": 3,
+    "successful_repetitions": 3
+  },
+  "format_list": {
+    "maximum_calls_per_second": 74296,
+    "mean_calls_per_second": 73734.0,
+    "median_absolute_deviation": 34.10000000000582,
+    "median_calls_per_second": 74261.9,
+    "minimum_calls_per_second": 72644.1,
+    "requested_repetitions": 3,
+    "successful_repetitions": 3
+  },
+  "repeated_sort": {
+    "maximum_calls_per_second": 10449,
+    "mean_calls_per_second": 10428.199999999999,
+    "median_absolute_deviation": 0.2000000000007276,
+    "median_calls_per_second": 10448.8,
+    "minimum_calls_per_second": 10386.8,
+    "requested_repetitions": 3,
+    "successful_repetitions": 3
+  },
+  "top_words_from_file": {
+    "maximum_calls_per_second": 2530.26,
+    "mean_calls_per_second": 2507.2766666666666,
+    "median_absolute_deviation": 18.020000000000437,
+    "median_calls_per_second": 2512.24,
+    "minimum_calls_per_second": 2479.33,
+    "requested_repetitions": 3,
+    "successful_repetitions": 3
+  }
+}

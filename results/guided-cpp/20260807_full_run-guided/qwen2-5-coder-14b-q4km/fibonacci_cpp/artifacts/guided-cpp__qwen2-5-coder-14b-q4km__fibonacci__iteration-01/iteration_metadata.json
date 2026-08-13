@@ -1,0 +1,161 @@
+{
+  "abi_result": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01",
+    "duration_seconds": 0.00892100390046835,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01/abi_symbols_stdout.txt"
+  },
+  "accepted_remarks": null,
+  "compile_result": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01/source_output.cpp",
+      "/home/tijl/code/llmO/SUT/count_matches.cpp",
+      "/home/tijl/code/llmO/SUT/format_list.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+      "-o",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 2.067690690048039,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01/compile_stdout.txt"
+  },
+  "iteration": 1,
+  "metadata": {
+    "accepted_as_best": true,
+    "available_tokens_for_remarks": 26975,
+    "benchmark_comparison": {
+      "baseline_artifact_id": "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__baseline",
+      "baseline_statistics": {
+        "maximum_calls_per_second": 54.1309,
+        "mean_calls_per_second": 54.0876,
+        "median_absolute_deviation": 0.02009999999999934,
+        "median_calls_per_second": 54.076,
+        "minimum_calls_per_second": 54.0559,
+        "requested_repetitions": 3,
+        "successful_repetitions": 3
+      },
+      "candidate_artifact_id": "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01",
+      "candidate_statistics": {
+        "maximum_calls_per_second": 246947000.0,
+        "mean_calls_per_second": 246558333.33333334,
+        "median_absolute_deviation": 39000.0,
+        "median_calls_per_second": 246908000.0,
+        "minimum_calls_per_second": 245820000.0,
+        "requested_repetitions": 3,
+        "successful_repetitions": 3
+      },
+      "classification": "improved",
+      "noise_threshold_percent": 2.0,
+      "relative_change_percent": 456594322.66439825,
+      "sequence": [
+        "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01",
+        "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__baseline",
+        "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01",
+        "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__baseline",
+        "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__baseline",
+        "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01"
+      ]
+    },
+    "context_size": 32768,
+    "duration_seconds": 215.61487848102115,
+    "fixed_tokens_est": 336,
+    "libsut": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01/libSUT.so",
+    "llm_result": {
+      "completion_tokens": 104,
+      "content": "```cpp\n#include \"library.h\"\n\nextern \"C\" {\n\nuint64_t fibonacci(uint64_t n) {\n    if (n <= 1) {\n        return n;\n    }\n    uint64_t a = 0, b = 1, c;\n    for (uint64_t i = 2; i <= n; ++i) {\n        c = a + b;\n        a = b;\n        b = c;\n    }\n    return b;\n}\n\n}\n```",
+      "finish_reason": "stop",
+      "prompt_tokens": 3842,
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "```cpp\n#include \"library.h\"\n\nextern \"C\" {\n\nuint64_t fibonacci(uint64_t n) {\n    if (n <= 1) {\n        return n;\n    }\n    uint64_t a = 0, b = 1, c;\n    for (uint64_t i = 2; i <= n; ++i) {\n        c = a + b;\n        a = b;\n        b = c;\n    }\n    return b;\n}\n\n}\n```",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786173661,
+        "id": "chatcmpl-svg5tFFtQbHcdeA4OIWS9KWYpD9YlQVS",
+        "model": "qwen2.5-coder-14b-q4km",
+        "object": "chat.completion",
+        "system_fingerprint": "b9840-8c146a836",
+        "timings": {
+          "cache_n": 25,
+          "predicted_ms": 32622.427,
+          "predicted_n": 104,
+          "predicted_per_second": 3.1879908873732785,
+          "predicted_per_token_ms": 313.67718269230767,
+          "prompt_ms": 182981.999,
+          "prompt_n": 3817,
+          "prompt_per_second": 20.859975412116903,
+          "prompt_per_token_ms": 47.93869504846739
+        },
+        "usage": {
+          "completion_tokens": 104,
+          "prompt_tokens": 3842,
+          "prompt_tokens_details": {
+            "cached_tokens": 25
+          },
+          "total_tokens": 3946
+        }
+      },
+      "total_tokens": 3946
+    },
+    "max_output_tokens": 4096,
+    "raw_response_file": "optimization_01_response.json",
+    "remark_count_in_prompt": 16,
+    "remark_count_prioritized": 16,
+    "remark_count_remaining": 0,
+    "remark_count_total": 16,
+    "remark_count_unseen": 16,
+    "template_tokens_est": 697
+  },
+  "remarks_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01/optimization_record.yaml",
+  "shown_remarks": [
+    "Missed|inline|NeverInline|fibonacci|fibonacci not inlined into fibonacci because it should never be inlined (cost=never): recursive",
+    "Missed|inline|NeverInline|fibonacci|fibonacci not inlined into fibonacci because it should never be inlined (cost=never): recursive",
+    "Missed|loop-vectorize|MissedDetails|fibonacci|loop not vectorized",
+    "Missed|regalloc|SpillReloadCopies|fibonacci|2 virtual registers copies 2.000000e+00 total copies cost generated in function",
+    "Missed|slp-vectorizer|NotBeneficial|fibonacci|List vectorization was possible but not beneficial with cost 0 >= 0",
+    "Missed|slp-vectorizer|NotBeneficial|fibonacci|List vectorization was possible but not beneficial with cost 0 >= 0",
+    "Missed|slp-vectorizer|NotBeneficial|fibonacci|List vectorization was possible but not beneficial with cost 0 >= 0",
+    "Analysis|loop-vectorize|CantVectorizeLibcall|fibonacci|loop not vectorized: call instruction cannot be vectorized",
+    "Analysis|prologepilog|StackSize|fibonacci|24 stack bytes in function fibonacci",
+    "Analysis|asm-printer|InstructionMix|fibonacci|BasicBlock: \\nADD64ri32: 1\\nADD64rr: 1\\nCALL64pcrel32: 1\\nCMP64ri32: 1\\nJCC_1: 1\\nLEA64r: 1\\n",
+    "Analysis|asm-printer|InstructionCount|fibonacci|19 instructions in function",
+    "Analysis|asm-printer|InstructionMix|fibonacci|BasicBlock: \\nPUSH64r: 3\\nCMP64ri32: 1\\nJCC_1: 1\\nMOV64rr: 1\\nXOR32rr: 1\\n",
+    "Analysis|asm-printer|InstructionMix|fibonacci|BasicBlock: \\nPOP64r: 2\\nADD64ri32: 1\\nADD64rr: 1\\nMOV64rr: 1\\nRET64: 1\\n",
+    "Passed|tailcallelim|tailcall-recursion|fibonacci|transforming tail recursion into loop",
+    "Passed|TTI|DontUnroll|fibonacci|advising against unrolling the loop because it contains a call",
+    "Passed|TTI|DontUnroll|fibonacci|advising against unrolling the loop because it contains a call"
+  ],
+  "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__iteration-01/source_output.cpp",
+  "success": true,
+  "type": "optimization"
+}

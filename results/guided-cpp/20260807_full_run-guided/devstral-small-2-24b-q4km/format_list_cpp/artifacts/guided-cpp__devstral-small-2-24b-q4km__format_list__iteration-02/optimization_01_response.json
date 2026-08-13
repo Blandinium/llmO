@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <string>\n#include <vector>\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    try {\n        // Pre-calculate the total size needed for the output string\n        size_t total_size = 2; // for '[' and ']'\n        for (size_t i = 0; i < input_length; ++i) {\n            // Estimate the number of digits in each number (plus comma and space)\n            int num = input[i];\n            size_t digits = (num == 0) ? 1 : (size_t)log10(abs(num)) + 1;\n            total_size += digits + (i > 0 ? 2 : 0); // +2 for \", \"\n        }\n\n        // Allocate the buffer directly\n        std::vector<char> buffer(total_size);\n        char* ptr = buffer.data();\n\n        // Write the opening bracket\n        *ptr++ = '[';\n\n        // Write each number with comma separator\n        for (size_t i = 0; i < input_length; ++i) {\n            if (i > 0) {\n                *ptr++ = ',';\n                *ptr++ = ' ';\n            }\n\n            // Convert number to string directly into buffer\n            int num = input[i];\n            if (num == 0) {\n                *ptr++ = '0';\n            } else {\n                char* start = ptr;\n                if (num < 0) {\n                    *ptr++ = '-';\n                    num = -num;\n                }\n                while (num > 0) {\n                    *ptr++ = '0' + (num % 10);\n                    num /= 10;\n                }\n                // Reverse the digits\n                std::reverse(start, ptr);\n            }\n        }\n\n        // Write the closing bracket\n        *ptr++ = ']';\n        *ptr = '\\0';\n\n        // Copy to C string (copy_to_c_string will handle allocation)\n        return copy_to_c_string(std::string(buffer.data(), ptr - buffer.data()));\n    } catch (...) {\n        return nullptr;\n    }\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786268266,
+  "id": "chatcmpl-83OAnlgiEWetILlllayX0JaUm2ofDhrk",
+  "model": "devstral-small-2-24b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 45,
+    "predicted_ms": 362706.901,
+    "predicted_n": 479,
+    "predicted_per_second": 1.3206255482853357,
+    "predicted_per_token_ms": 757.2169123173278,
+    "prompt_ms": 2711029.389,
+    "prompt_n": 27769,
+    "prompt_per_second": 10.24297269246608,
+    "prompt_per_token_ms": 97.62790842306168
+  },
+  "usage": {
+    "completion_tokens": 479,
+    "prompt_tokens": 27814,
+    "prompt_tokens_details": {
+      "cached_tokens": 45
+    },
+    "total_tokens": 28293
+  }
+}

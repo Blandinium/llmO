@@ -1,0 +1,34 @@
+{
+  "artifact_id": "naive-cpp__llm-compiler-7b-q4km__fibonacci__candidate",
+  "artifact_role": "candidate",
+  "benchmark_name": "fibonacci",
+  "confirmation_status": "not-run",
+  "confirmed_improvement": false,
+  "experiment_type": "naive-cpp",
+  "input_file": "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+  "input_sha256": "0795375344b3458e2fdc3f3d076875d4e80e56d82f1825893476aa2037984ce1",
+  "is_final_artifact": true,
+  "llm_result": {
+    "completion_tokens": 286,
+    "duration_seconds": 57.95585698494688,
+    "finish_reason": "stop",
+    "prompt_tokens": 793,
+    "request_finished_at": "2026-08-07T20:27:24.531887",
+    "request_started_at": "2026-08-07T20:26:26.576020",
+    "total_tokens": 1079
+  },
+  "model_id": "llm-compiler-7b-q4km",
+  "optimization_inference_seconds": 57.95585698494688,
+  "prompt_sha256": "66732daa0ab90c304abe97ed310a40a2893654f25d58c191a7cda00b07d0ee48",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "c5be95b0a9f3037b8bb3a3d86547c86b686f0fb9cf0a21a36af4066934805b73",
+  "run_id": "20260807_full_run-naive",
+  "selection_status": "not-run",
+  "status": "candidate_compile_failed",
+  "timing": {
+    "llm_inference_seconds": 57.95585698494688,
+    "optimization_pipeline_seconds": 62.099765124032274,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 57.95585698494688
+  }
+}

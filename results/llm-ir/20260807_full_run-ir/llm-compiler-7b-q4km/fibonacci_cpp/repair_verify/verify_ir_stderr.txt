@@ -1,0 +1,3 @@
+opt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/fibonacci_cpp/repaired.ll:1:1: error: expected top-level entity
+You are a compiler and LLVM IR optimization assistant. Return only the requested IR module.<|im_end|>
+^

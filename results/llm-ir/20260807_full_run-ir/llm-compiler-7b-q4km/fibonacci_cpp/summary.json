@@ -1,0 +1,115 @@
+{
+  "benchmark_name": "fibonacci",
+  "configured_max_output_tokens": 16384,
+  "experiment_type": "llm-ir",
+  "extracted_module_sha256": "184d1797d11f3bda5cf442648deaf8b2d0e071b9931813f1abbe3b2c34109ef5",
+  "initial_verifier_error_excerpt": "opt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/fibonacci_cpp/extracted.ll:1:1: error: expected top-level entity\nYou are a compiler and LLVM IR optimization assistant. Return only the requested IR module.<|im_end|>\n^\n",
+  "initial_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/fibonacci_cpp/verify/verify_ir_stderr.txt",
+  "input_file": "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+  "input_ir_sha256": "6b897c6e2e85e019e3fab701e1b3caa278c26f9052a9764073f5c60d746caff9",
+  "input_sha256": "0795375344b3458e2fdc3f3d076875d4e80e56d82f1825893476aa2037984ce1",
+  "llm_result": {
+    "completion_tokens": 1185,
+    "duration_seconds": 212.5962816469837,
+    "finish_reason": "stop",
+    "prompt_tokens": 1183,
+    "request_finished_at": "2026-08-09T20:22:02.203851",
+    "request_started_at": "2026-08-09T20:18:29.607558",
+    "requested_max_tokens": 14171,
+    "total_tokens": 2368
+  },
+  "min_output_tokens": 4096,
+  "model_id": "llm-compiler-7b-q4km",
+  "optimization_inference_seconds": 212.5962816469837,
+  "preflight_validation": {
+    "errors": [],
+    "preflight_passed": true
+  },
+  "prompt_sha256": "f38c0a3c861ec1d8fd50a487597d2b2f85d8438292c4bc4e55818e1cc60cd91d",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "db63af45ba96a13a2a854549777e2d39a28a055611cecb579f375725d26f2a6d",
+  "repair_inference_seconds": 265.33021471695974,
+  "repair_module_changed": true,
+  "repair_module_sha256": "ddbe90e45d3629eca64c39406183e16a39375e99eef821b5b7c59cd07943cfc4",
+  "repair_raw_response_file": "repair_response.json",
+  "repair_response_sha256": "ef497ded2f0c67eba5136bccc1298166960f97fcd57cce896fe50882d55384bb",
+  "repair_result": {
+    "completion_tokens": 1421,
+    "duration_seconds": 265.33021471695974,
+    "finish_reason": "stop",
+    "prompt_tokens": 1450,
+    "request_finished_at": "2026-08-09T20:26:27.553586",
+    "request_started_at": "2026-08-09T20:22:02.223360",
+    "requested_max_tokens": 13904,
+    "total_tokens": 2871
+  },
+  "repair_token_budget": {
+    "available_output_tokens": 13904,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": false,
+    "effective_context_size": 16384,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 1456,
+    "requested_max_tokens": 16384
+  },
+  "repair_verifier_error_excerpt": "opt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/fibonacci_cpp/repaired.ll:1:1: error: expected top-level entity\nYou are a compiler and LLVM IR optimization assistant. Return only the requested IR module.<|im_end|>\n^\n",
+  "repair_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/fibonacci_cpp/repair_verify/verify_ir_stderr.txt",
+  "run_id": "20260807_full_run-ir",
+  "status": "invalid_after_repair",
+  "timing": {
+    "llm_inference_seconds": 212.5962816469837,
+    "optimization_pipeline_seconds": 477.988731617108,
+    "repair_inference_seconds": 265.33021471695974,
+    "total_llm_seconds": 477.92649636394344
+  },
+  "token_budget": {
+    "available_output_tokens": 14171,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": false,
+    "effective_context_size": 16384,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 1189,
+    "requested_max_tokens": 16384
+  },
+  "total_inference_seconds": 477.92649636394344,
+  "total_task_seconds": 477.98872448317707,
+  "validation": {
+    "initial_verification_passed": false,
+    "module_extracted": true,
+    "preflight_passed": true,
+    "repair_attempted": true,
+    "repair_module_extracted": true,
+    "repair_preflight_passed": true,
+    "repair_response_complete": true,
+    "repair_response_received": true,
+    "repair_verification_passed": false,
+    "response_complete": true,
+    "response_received": true
+  },
+  "verify_first_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/fibonacci_cpp/extracted.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.015832494013011456,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/fibonacci_cpp/verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/fibonacci_cpp/verify/verify_ir_stdout.txt"
+  },
+  "verify_repair_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/fibonacci_cpp/repaired.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.016374802915379405,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/fibonacci_cpp/repair_verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/fibonacci_cpp/repair_verify/verify_ir_stdout.txt"
+  }
+}

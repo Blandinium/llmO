@@ -1,0 +1,133 @@
+{
+  "abi_result": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/repeated_sort_cpp/artifacts/guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01/repair_01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/repeated_sort_cpp/artifacts/guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01/repair_01",
+    "duration_seconds": 0.008153234841302037,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/repeated_sort_cpp/artifacts/guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01/repair_01/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/repeated_sort_cpp/artifacts/guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01/repair_01/abi_symbols_stdout.txt"
+  },
+  "accepted_remarks": null,
+  "compile_result": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/repeated_sort_cpp/artifacts/guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01/repair_01",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/repeated_sort_cpp/artifacts/guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01/repair_01/source_output.cpp",
+      "/home/tijl/code/llmO/SUT/count_matches.cpp",
+      "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+      "/home/tijl/code/llmO/SUT/format_list.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+      "-o",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/repeated_sort_cpp/artifacts/guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01/repair_01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 2.0670582361053675,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/repeated_sort_cpp/artifacts/guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01/repair_01/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/repeated_sort_cpp/artifacts/guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01/repair_01/compile_stdout.txt"
+  },
+  "iteration": 1,
+  "metadata": {
+    "abi_error": null,
+    "accepted_as_best": true,
+    "benchmark_comparison": {
+      "baseline_artifact_id": "guided-cpp__qwen3-14b-q4km__repeated_sort__baseline",
+      "baseline_statistics": {
+        "maximum_calls_per_second": 10346.3,
+        "mean_calls_per_second": 10316.933333333332,
+        "median_absolute_deviation": 11.299999999999272,
+        "median_calls_per_second": 10307.9,
+        "minimum_calls_per_second": 10296.6,
+        "requested_repetitions": 3,
+        "successful_repetitions": 3
+      },
+      "candidate_artifact_id": "guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01",
+      "candidate_statistics": {
+        "maximum_calls_per_second": 18490.5,
+        "mean_calls_per_second": 18428.866666666665,
+        "median_absolute_deviation": 51.70000000000073,
+        "median_calls_per_second": 18438.8,
+        "minimum_calls_per_second": 18357.3,
+        "requested_repetitions": 3,
+        "successful_repetitions": 3
+      },
+      "classification": "improved",
+      "noise_threshold_percent": 2.0,
+      "relative_change_percent": 78.88027629294037,
+      "sequence": [
+        "guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01",
+        "guided-cpp__qwen3-14b-q4km__repeated_sort__baseline",
+        "guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01",
+        "guided-cpp__qwen3-14b-q4km__repeated_sort__baseline",
+        "guided-cpp__qwen3-14b-q4km__repeated_sort__baseline",
+        "guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01"
+      ]
+    },
+    "duration_seconds": 106.10249568196014,
+    "llm_result": {
+      "completion_tokens": 262,
+      "content": "#include \"library.h\"\n\n#include <cstdint>\n#include <vector>\n#include <algorithm>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    try {\n        if (input_length == 0) {\n            return 0;\n        }\n\n        std::int64_t total = 0;\n\n        // Use a fixed-size buffer to avoid dynamic allocations\n        std::vector<int> values(input, input + input_length);\n        const size_t size = values.size();\n\n        for (int r = 0; r < rounds; ++r) {\n            // Sort the array in-place\n            std::sort(values.begin(), values.end());\n\n            const size_t mid = size / 2;\n            const int median = (size % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n                : values[mid];\n\n            total += median;\n            total += values[r % size];\n        }\n\n        return total;\n    } catch (...) {\n        return 0;\n    }\n}\n\n}",
+      "finish_reason": "stop",
+      "prompt_tokens": 841,
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "#include \"library.h\"\n\n#include <cstdint>\n#include <vector>\n#include <algorithm>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    try {\n        if (input_length == 0) {\n            return 0;\n        }\n\n        std::int64_t total = 0;\n\n        // Use a fixed-size buffer to avoid dynamic allocations\n        std::vector<int> values(input, input + input_length);\n        const size_t size = values.size();\n\n        for (int r = 0; r < rounds; ++r) {\n            // Sort the array in-place\n            std::sort(values.begin(), values.end());\n\n            const size_t mid = size / 2;\n            const int median = (size % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n                : values[mid];\n\n            total += median;\n            total += values[r % size];\n        }\n\n        return total;\n    } catch (...) {\n        return 0;\n    }\n}\n\n}",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786162021,
+        "id": "chatcmpl-9UwB35kGU9gcCxgYJLCPSQLYa6Sgnsw6",
+        "model": "qwen3-14b-q4km",
+        "object": "chat.completion",
+        "system_fingerprint": "b9840-8c146a836",
+        "timings": {
+          "cache_n": 33,
+          "predicted_ms": 67486.35,
+          "predicted_n": 262,
+          "predicted_per_second": 3.8822665620529184,
+          "predicted_per_token_ms": 257.58148854961837,
+          "prompt_ms": 37278.194,
+          "prompt_n": 808,
+          "prompt_per_second": 21.674869764345342,
+          "prompt_per_token_ms": 46.13637871287129
+        },
+        "usage": {
+          "completion_tokens": 262,
+          "prompt_tokens": 841,
+          "prompt_tokens_details": {
+            "cached_tokens": 33
+          },
+          "total_tokens": 1103
+        }
+      },
+      "total_tokens": 1103
+    }
+  },
+  "remarks_file": null,
+  "shown_remarks": null,
+  "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/repeated_sort_cpp/artifacts/guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01/repair_01/source_output.cpp",
+  "success": true,
+  "type": "repair_01"
+}

@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n\n#include <algorithm>\n#include <bit>\n#include <span>\n\nstatic constexpr std::size_t BITS_PER_WORD = 64;\nstatic constexpr std::size_t WORDS_PER_LONG = sizeof(unsigned long) * BITS_PER_WORD;\n\nstatic bool contains(const std::span<const int> input, const int needle) {\n    for (std::size_t i = 0; i < input.size(); ++i) {\n        if (input[i] == needle) {\n            return true;\n        }\n    }\n    return false;\n}\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    try {\n        const std::span<const int> allowed_span{allowed, allowed_length};\n        std::size_t matches = 0;\n\n        for (std::size_t i = 0; i < queries_length; ++i) {\n            if (contains(allowed_span, queries[i])) {\n                ++matches;\n            }\n        }\n\n        return matches;\n    } catch (...) {\n        return 0;\n    }\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786282901,
+  "id": "chatcmpl-ysngSmsKWSdUJbZBXLEjg0b4Yh8SPbPx",
+  "model": "devstral-small-2-24b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 37,
+    "predicted_ms": 152678.876,
+    "predicted_n": 282,
+    "predicted_per_second": 1.847013859337031,
+    "predicted_per_token_ms": 541.4144539007092,
+    "prompt_ms": 914462.569,
+    "prompt_n": 10665,
+    "prompt_per_second": 11.66258779915135,
+    "prompt_per_token_ms": 85.74426338490389
+  },
+  "usage": {
+    "completion_tokens": 282,
+    "prompt_tokens": 10702,
+    "prompt_tokens_details": {
+      "cached_tokens": 37
+    },
+    "total_tokens": 10984
+  }
+}

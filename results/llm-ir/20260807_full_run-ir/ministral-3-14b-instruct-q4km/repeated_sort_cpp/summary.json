@@ -1,0 +1,28 @@
+{
+  "benchmark_name": "repeated_sort",
+  "configured_max_output_tokens": 16384,
+  "experiment_type": "llm-ir",
+  "input_file": "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+  "input_ir_sha256": "87235151d6aa78d86fce15a9cf69f2277bc275db410af1c47cfa602b41dd32df",
+  "input_sha256": "f49a2c09ad06b29bc07b5bc970562871d8b211b73120564520ed3277fc9f044f",
+  "min_output_tokens": 16593,
+  "model_id": "ministral-3-14b-instruct-q4km",
+  "prompt_sha256": "40e6187fd494e728b5d015ac3b762cb36aac44ca449b9fd42df3c8f0bf03ffd6",
+  "run_id": "20260807_full_run-ir",
+  "status": "context_insufficient",
+  "timing": {
+    "llm_inference_seconds": 0.0,
+    "optimization_pipeline_seconds": 0.33588741603307426,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 0.0
+  },
+  "token_budget": {
+    "available_output_tokens": 10645,
+    "can_fit_minimum_expected_output": false,
+    "can_fit_requested_maximum": false,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 16593,
+    "prompt_tokens": 21099,
+    "requested_max_tokens": 16384
+  }
+}

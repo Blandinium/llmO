@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "BEGIN_REPLACEMENT_FUNCTION\n; Function Attrs: mustprogress nofree nosync nounwind willreturn memory(none) uwtable\ndefine i64 @fibonacci(i64 noundef %n) local_unnamed_addr #0 {\nentry:\n  %cmp = icmp ult i64 %n, 2\n  br i1 %cmp, label %base_case, label %recursive_case\n\nbase_case:\n  ret i64 %n\n\nrecursive_case:                                   ; preds = %entry\n  %sub = add i64 %n, -1\n  %call1 = tail call i64 @fibonacci(i64 noundef %sub)\n  %sub2 = add i64 %n, -2\n  %call2 = tail call i64 @fibonacci(i64 noundef %sub2)\n  %add = add i64 %call1, %call2\n  ret i64 %add\n}\nEND_REPLACEMENT_FUNCTION",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786506851,
+  "id": "chatcmpl-b6pa4LonEJ5N7vuXvXXH8BZoMKjnLBjj",
+  "model": "ministral-3-14b-instruct-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 7,
+    "predicted_ms": 52305.363,
+    "predicted_n": 220,
+    "predicted_per_second": 4.20606965293406,
+    "predicted_per_token_ms": 237.75164999999998,
+    "prompt_ms": 47974.431,
+    "prompt_n": 1089,
+    "prompt_per_second": 22.699591788800998,
+    "prompt_per_token_ms": 44.05365564738292
+  },
+  "usage": {
+    "completion_tokens": 220,
+    "prompt_tokens": 1096,
+    "prompt_tokens_details": {
+      "cached_tokens": 7
+    },
+    "total_tokens": 1316
+  }
+}

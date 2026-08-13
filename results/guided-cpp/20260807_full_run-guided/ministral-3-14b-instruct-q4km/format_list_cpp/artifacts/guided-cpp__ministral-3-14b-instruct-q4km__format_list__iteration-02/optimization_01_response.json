@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <string>\n#include <string_view>\n#include <charconv>\n#include <cstdint>\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    try {\n        // Pre-calculate total required capacity to minimize reallocations\n        size_t total_length = 2 + input_length * 2; // \"[\", \"]\" and \", \" separators\n        for (size_t i = 0; i < input_length; ++i) {\n            int value = input[i];\n            total_length += (value < 0) ? 12 : 11; // \"-2147483648\" vs \"2147483647\"\n        }\n\n        std::string result;\n        result.reserve(total_length);\n\n        result += '[';\n        for (size_t i = 0; i < input_length; ++i) {\n            if (i > 0) {\n                result += \", \";\n            }\n\n            int value = input[i];\n            char buffer[32];\n            auto [ptr, ec] = std::to_chars(buffer, buffer + sizeof(buffer), value);\n            result.append(buffer, ptr);\n        }\n        result += ']';\n\n        return copy_to_c_string(result);\n    } catch (...) {\n        return nullptr;\n    }\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786229608,
+  "id": "chatcmpl-zvmjTOf9RGKMSeX8WFc066zfymx5Wh9z",
+  "model": "ministral-3-14b-instruct-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 29,
+    "predicted_ms": 176022.925,
+    "predicted_n": 319,
+    "predicted_per_second": 1.8122639423245581,
+    "predicted_per_token_ms": 551.7960031347963,
+    "prompt_ms": 1718471.234,
+    "prompt_n": 27700,
+    "prompt_per_second": 16.118977991574575,
+    "prompt_per_token_ms": 62.03867270758123
+  },
+  "usage": {
+    "completion_tokens": 319,
+    "prompt_tokens": 27729,
+    "prompt_tokens_details": {
+      "cached_tokens": 29
+    },
+    "total_tokens": 28048
+  }
+}

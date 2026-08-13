@@ -1,0 +1,65 @@
+{
+  "abi_check": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/results/llvm/20260807_full_run-llvm/artifacts/llvm__ofast/SUT/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/results/llvm/20260807_full_run-llvm/artifacts/llvm__ofast",
+    "duration_seconds": 0.008110231021419168,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/llvm/20260807_full_run-llvm/artifacts/llvm__ofast/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llvm/20260807_full_run-llvm/artifacts/llvm__ofast/abi_symbols_stdout.txt"
+  },
+  "benchmark": [],
+  "build": {
+    "command": [
+      "cmake",
+      "--build",
+      "/home/tijl/code/llmO/results/llvm/20260807_full_run-llvm/artifacts/llvm__ofast",
+      "--parallel",
+      "32"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 1.6520212271716446,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/llvm/20260807_full_run-llvm/artifacts/llvm__ofast/build_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llvm/20260807_full_run-llvm/artifacts/llvm__ofast/build_stdout.txt"
+  },
+  "build_dir": "/home/tijl/code/llmO/results/llvm/20260807_full_run-llvm/artifacts/llvm__ofast",
+  "c_compiler": "clang",
+  "cmake_generator": "Ninja",
+  "configure": {
+    "command": [
+      "cmake",
+      "-S",
+      "/home/tijl/code/llmO",
+      "-B",
+      "/home/tijl/code/llmO/results/llvm/20260807_full_run-llvm/artifacts/llvm__ofast",
+      "-DCMAKE_C_COMPILER=clang",
+      "-DCMAKE_CXX_COMPILER=clang++",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_C_FLAGS=-Ofast",
+      "-DCMAKE_CXX_FLAGS=-Ofast",
+      "-DCMAKE_CXX_FLAGS_RELEASE=-Ofast -DNDEBUG",
+      "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+      "-G",
+      "Ninja"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.2192894290201366,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/llvm/20260807_full_run-llvm/artifacts/llvm__ofast/configure_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llvm/20260807_full_run-llvm/artifacts/llvm__ofast/configure_stdout.txt"
+  },
+  "cxx_compiler": "clang++",
+  "libsut_path": "/home/tijl/code/llmO/results/llvm/20260807_full_run-llvm/artifacts/llvm__ofast/SUT/libSUT.so",
+  "project_root": "/home/tijl/code/llmO",
+  "runner_path": null,
+  "total_duration_seconds": 1.880183223169297,
+  "variant": {
+    "clang_optimization_flag": "-Ofast",
+    "name": "llvm__ofast"
+  }
+}

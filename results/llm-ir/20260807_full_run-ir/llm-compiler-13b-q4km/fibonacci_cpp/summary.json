@@ -1,0 +1,98 @@
+{
+  "benchmark_name": "fibonacci",
+  "configured_max_output_tokens": 16384,
+  "experiment_type": "llm-ir",
+  "extracted_module_sha256": "2bc1e87466d8a6f5dac2ae403de1fd3d03c884424aa48ee57e96b21026a83e57",
+  "initial_verifier_error_excerpt": "opt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-13b-q4km/fibonacci_cpp/extracted.ll:1:1: error: expected top-level entity\nYou are an expert LLVM IR performance engineer.\n^\n",
+  "initial_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-13b-q4km/fibonacci_cpp/verify/verify_ir_stderr.txt",
+  "input_file": "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+  "input_ir_sha256": "6b897c6e2e85e019e3fab701e1b3caa278c26f9052a9764073f5c60d746caff9",
+  "input_sha256": "0795375344b3458e2fdc3f3d076875d4e80e56d82f1825893476aa2037984ce1",
+  "llm_result": {
+    "completion_tokens": 1129,
+    "duration_seconds": 365.70672290213406,
+    "finish_reason": "stop",
+    "prompt_tokens": 1183,
+    "request_finished_at": "2026-08-09T21:07:23.935033",
+    "request_started_at": "2026-08-09T21:01:18.228299",
+    "requested_max_tokens": 14171,
+    "total_tokens": 2312
+  },
+  "min_output_tokens": 4096,
+  "model_id": "llm-compiler-13b-q4km",
+  "optimization_inference_seconds": 365.70672290213406,
+  "preflight_validation": {
+    "errors": [],
+    "preflight_passed": true
+  },
+  "prompt_sha256": "f38c0a3c861ec1d8fd50a487597d2b2f85d8438292c4bc4e55818e1cc60cd91d",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "2bc1e87466d8a6f5dac2ae403de1fd3d03c884424aa48ee57e96b21026a83e57",
+  "repair_inference_seconds": 6428.255931321997,
+  "repair_raw_response_file": "repair_response.json",
+  "repair_response_sha256": "7ddf081d90bc420cbde35741380ed6414de2b72f5fb499d33fe2b87d811166fc",
+  "repair_result": {
+    "completion_tokens": 13974,
+    "duration_seconds": 6428.255931321997,
+    "finish_reason": "length",
+    "prompt_tokens": 1380,
+    "request_finished_at": "2026-08-09T22:54:32.210935",
+    "request_started_at": "2026-08-09T21:07:23.954994",
+    "requested_max_tokens": 13974,
+    "total_tokens": 15354
+  },
+  "repair_token_budget": {
+    "available_output_tokens": 13974,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": false,
+    "effective_context_size": 16384,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 1386,
+    "requested_max_tokens": 16384
+  },
+  "run_id": "20260807_full_run-ir",
+  "status": "repair_response_truncated",
+  "timing": {
+    "llm_inference_seconds": 365.70672290213406,
+    "optimization_pipeline_seconds": 6794.007294575917,
+    "repair_inference_seconds": 6428.255931321997,
+    "total_llm_seconds": 6793.962654224131
+  },
+  "token_budget": {
+    "available_output_tokens": 14171,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": false,
+    "effective_context_size": 16384,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 1189,
+    "requested_max_tokens": 16384
+  },
+  "total_inference_seconds": 6793.962654224131,
+  "total_task_seconds": 6794.0072868510615,
+  "validation": {
+    "initial_verification_passed": false,
+    "module_extracted": true,
+    "preflight_passed": true,
+    "repair_attempted": true,
+    "repair_module_extracted": false,
+    "repair_preflight_passed": false,
+    "repair_response_complete": false,
+    "repair_response_received": true,
+    "repair_verification_passed": false,
+    "response_complete": true,
+    "response_received": true
+  },
+  "verify_first_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-13b-q4km/fibonacci_cpp/extracted.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.015932996990159154,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-13b-q4km/fibonacci_cpp/verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-13b-q4km/fibonacci_cpp/verify/verify_ir_stdout.txt"
+  }
+}

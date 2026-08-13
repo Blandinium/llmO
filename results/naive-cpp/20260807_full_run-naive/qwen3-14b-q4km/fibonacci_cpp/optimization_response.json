@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n\nextern \"C\" {\n\nuint64_t fibonacci(uint64_t n) {\n    if (n <= 1) {\n        return n;\n    }\n    uint64_t a = 0, b = 1, c;\n    for (uint64_t i = 2; i <= n; i++) {\n        c = a + b;\n        a = b;\n        b = c;\n    }\n    return b;\n}\n\n}",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786123635,
+  "id": "chatcmpl-Q8wh9r1LKeGBjzof7ApQLW9jTsSzChld",
+  "model": "qwen3-14b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 25,
+    "predicted_ms": 26097.351,
+    "predicted_n": 103,
+    "predicted_per_second": 3.946760726787941,
+    "predicted_per_token_ms": 253.37233980582522,
+    "prompt_ms": 22981.844,
+    "prompt_n": 514,
+    "prompt_per_second": 22.36548120333599,
+    "prompt_per_token_ms": 44.711758754863816
+  },
+  "usage": {
+    "completion_tokens": 103,
+    "prompt_tokens": 539,
+    "prompt_tokens_details": {
+      "cached_tokens": 25
+    },
+    "total_tokens": 642
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n#include <algorithm>\n#include <cstddef>\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    // Use a bitmask for allowed values (assuming int is 32-bit)\n    // This is only efficient if the range of allowed values is small\n    const size_t max_int = static_cast<size_t>(1) << 31;\n    if (allowed_length > max_int / sizeof(size_t)) {\n        // Fallback to hash set if the range is too large\n        std::unordered_set<int> allowed_set(allowed, allowed + allowed_length);\n        size_t matches = 0;\n        for (size_t i = 0; i < queries_length; ++i) {\n            if (allowed_set.count(queries[i])) {\n                ++matches;\n            }\n        }\n        return matches;\n    }\n\n    // Create a bitmask for allowed values\n    size_t allowed_mask = 0;\n    for (size_t i = 0; i < allowed_length; ++i) {\n        allowed_mask |= static_cast<size_t>(1) << (allowed[i] & 0x1F);\n    }\n\n    // Count matches using bitmask\n    size_t matches = 0;\n    for (size_t i = 0; i < queries_length; ++i) {\n        if ((allowed_mask & (static_cast<size_t>(1) << (queries[i] & 0x1F))) != 0) {\n            ++matches;\n        }\n    }\n\n    return matches;\n}\n\n}",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786167515,
+  "id": "chatcmpl-qIqhua5T1AMjBVmSaVvNWiZMSYu8L7UO",
+  "model": "qwen3-14b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 33,
+    "predicted_ms": 225418.799,
+    "predicted_n": 378,
+    "predicted_per_second": 1.6768787770890394,
+    "predicted_per_token_ms": 596.3460291005291,
+    "prompt_ms": 1865711.434,
+    "prompt_n": 27216,
+    "prompt_per_second": 14.587464869446686,
+    "prompt_per_token_ms": 68.55200742210464
+  },
+  "usage": {
+    "completion_tokens": 378,
+    "prompt_tokens": 27249,
+    "prompt_tokens_details": {
+      "cached_tokens": 33
+    },
+    "total_tokens": 27627
+  }
+}

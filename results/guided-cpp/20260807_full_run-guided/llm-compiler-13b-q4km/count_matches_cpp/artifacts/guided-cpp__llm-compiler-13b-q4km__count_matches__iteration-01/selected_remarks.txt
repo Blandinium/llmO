@@ -1,0 +1,757 @@
+!Missed
+Pass:            loop-vectorize
+Name:            MissedDetails
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 6, Column: 5 }
+Function:        count_matches
+Args:
+  - String:          loop not vectorized
+...
+---
+!Missed
+Pass:            regalloc
+Name:            SpillReloadCopies
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 16, Column: 1 }
+Function:        count_matches
+Args:
+  - NumVRCopies:     '1'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '1.250000e-01'
+  - String:          ' total copies cost '
+  - String:          generated in function
+...
+---
+!Missed
+Pass:            slp-vectorizer
+Name:            NotPossible
+Function:        count_matches
+Args:
+  - String:          'Cannot SLP vectorize list: vectorization was impossible'
+  - String:          ' with available vectorization factors'
+...
+---
+!Missed
+Pass:            slp-vectorizer
+Name:            NotBeneficial
+Function:        count_matches
+Args:
+  - String:          'List vectorization was possible but not beneficial with cost '
+  - Cost:            '0'
+  - String:          ' >= '
+  - Treshold:        '0'
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            PotentiallyFaultingEarlyExitLoop
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 6, Column: 5 }
+Function:        count_matches
+Args:
+  - String:          'loop not vectorized: '
+  - String:          Cannot vectorize potentially faulting early exit loop
+...
+---
+!Analysis
+Pass:            prologepilog
+Name:            StackSize
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 21, Column: 0 }
+Function:        count_matches
+Args:
+  - NumStackBytes:   '0'
+  - String:          ' stack bytes in function '''
+  - Function:        count_matches
+  - String:          ''''
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 22, Column: 18 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          SETCCr
+  - String:          ': '
+  - INST_SETCCr:     '2'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '2'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          TEST8rr
+  - String:          ': '
+  - INST_TEST8rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 23, Column: 18 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          SETCCr
+  - String:          ': '
+  - INST_SETCCr:     '3'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '3'
+  - String:          "\n"
+  - String:          OR8rr
+  - String:          ': '
+  - INST_OR8rr:      '2'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 31, Column: 9 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64ri32
+  - String:          ': '
+  - INST_CMP64ri32:  '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 6, Column: 5 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          TEST8ri
+  - String:          ': '
+  - INST_TEST8ri:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 32, Column: 40 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOV32rm
+  - String:          ': '
+  - INST_MOV32rm:    '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 7, Column: 22 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32mr
+  - String:          ': '
+  - INST_CMP32mr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 6, Column: 47 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '1'
+  - String:          "\n"
+  - String:          INC64r
+  - String:          ': '
+  - INST_INC64r:     '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 41, Column: 1 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          RET64
+  - String:          ': '
+  - INST_RET64:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 31, Column: 9 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '2'
+  - String:          "\n"
+  - String:          AND64ri32
+  - String:          ': '
+  - INST_AND64ri32:  '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 31, Column: 53 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          ADD64ri32
+  - String:          ': '
+  - INST_ADD64ri32:  '1'
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 32, Column: 40 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOV32rm
+  - String:          ': '
+  - INST_MOV32rm:    '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 7, Column: 22 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32mr
+  - String:          ': '
+  - INST_CMP32mr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 6, Column: 47 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '1'
+  - String:          "\n"
+  - String:          INC64r
+  - String:          ': '
+  - INST_INC64r:     '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 32, Column: 40 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOV32rm
+  - String:          ': '
+  - INST_MOV32rm:    '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 7, Column: 22 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32mr
+  - String:          ': '
+  - INST_CMP32mr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 6, Column: 47 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '1'
+  - String:          "\n"
+  - String:          INC64r
+  - String:          ': '
+  - INST_INC64r:     '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionCount
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 21, Column: 0 }
+Function:        count_matches
+Args:
+  - NumInstructions: '61'
+  - String:          ' instructions in function'
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          RET64
+  - String:          ': '
+  - INST_RET64:      '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          RET64
+  - String:          ': '
+  - INST_RET64:      '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '2'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          INC64r
+  - String:          ': '
+  - INST_INC64r:     '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          INC64r
+  - String:          ': '
+  - INST_INC64r:     '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          INC64r
+  - String:          ': '
+  - INST_INC64r:     '1'
+  - String:          "\n"
+  - String:          RET64
+  - String:          ': '
+  - INST_RET64:      '1'
+  - String:          "\n"
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 6, Column: 39 }
+Function:        _ZL8containsSt4spanIKiLm18446744073709551615EEi
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt4spanIKiLm18446744073709551615EE4sizeEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/span', 
+                       Line: 252, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZL8containsSt4spanIKiLm18446744073709551615EEi
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                       Line: 5, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          contains
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '39'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 7, Column: 13 }
+Function:        _ZL8containsSt4spanIKiLm18446744073709551615EEi
+Args:
+  - String:          ''''
+  - Callee:          _ZNKSt4spanIKiLm18446744073709551615EEixEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/span', 
+                       Line: 285, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZL8containsSt4spanIKiLm18446744073709551615EEi
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                       Line: 5, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-40'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          contains
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '13'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 28, Column: 36 }
+Function:        count_matches
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt4spanIKiLm18446744073709551615EEC2ITkSt19contiguous_iteratorPS0_Qsr19__is_compatible_refIDTdeclsr3stdE7declvalIRTL0__EEEEE5valueEET_m
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/span', 
+                       Line: 160, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          count_matches
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                       Line: 21, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-45'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          count_matches
+  - String:          ':'
+  - Line:            '12'
+  - String:          ':'
+  - Column:          '36'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 32, Column: 17 }
+Function:        count_matches
+Args:
+  - String:          ''''
+  - Callee:          _ZL8containsSt4spanIKiLm18446744073709551615EEi
+  - String:          ''' inlined into '''
+  - Caller:          count_matches
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                       Line: 21, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-15005'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          count_matches
+  - String:          ':'
+  - Line:            '16'
+  - String:          ':'
+  - Column:          '17'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            licm
+Name:            Hoisted
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 6, Column: 31 }
+Function:        count_matches
+Args:
+  - String:          'hoisting '
+  - Inst:            icmp
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                       Line: 6, Column: 31 }
+...
+---
+!Passed
+Pass:            loop-unroll
+Name:            PartialUnrolled
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 31, Column: 9 }
+Function:        count_matches
+Args:
+  - String:          'unrolled loop by a factor of '
+  - UnrollCount:     '2'
+  - String:          ' with run-time trip count'
+...
+---
+!Passed
+Pass:            loop-delete
+Name:            Invariant
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/llm-compiler-13b-q4km/count_matches_cpp/artifacts/guided-cpp__llm-compiler-13b-q4km__count_matches__baseline/count_matches.cpp', 
+                   Line: 31, Column: 9 }
+Function:        count_matches
+Args:
+  - String:          Loop deleted because it is invariant
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ptr_traits.h', 
+                   Line: 242, Column: 14 }
+Function:        _ZSt10to_addressIKiEPT_S2_
+Args:
+  - String:          ''''
+  - Callee:          _ZSt12__to_addressIKiEPT_S2_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ptr_traits.h', 
+                       Line: 206, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZSt10to_addressIKiEPT_S2_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ptr_traits.h', 
+                       Line: 242, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          'to_address<const int>'
+  - String:          ':'
+  - Line:            '1'
+  - String:          ':'
+  - Column:          '14'
+  - String:          ';'
+...
+---
+!Passed
+Pass:            inline
+Name:            Inlined
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/span', 
+                   Line: 159, Column: 11 }
+Function:        _ZNSt4spanIKiLm18446744073709551615EEC2ITkSt19contiguous_iteratorPS0_Qsr19__is_compatible_refIDTdeclsr3stdE7declvalIRTL0__EEEEE5valueEET_m
+Args:
+  - String:          ''''
+  - Callee:          _ZSt10to_addressIKiEPT_S2_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ptr_traits.h', 
+                       Line: 242, Column: 0 }
+  - String:          ''' inlined into '''
+  - Caller:          _ZNSt4spanIKiLm18446744073709551615EEC2ITkSt19contiguous_iteratorPS0_Qsr19__is_compatible_refIDTdeclsr3stdE7declvalIRTL0__EEEEE5valueEET_m
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/span', 
+                       Line: 160, Column: 0 }
+  - String:          ''''
+  - String:          ' with '
+  - String:          '(cost='
+  - Cost:            '-35'
+  - String:          ', threshold='
+  - Threshold:       '375'
+  - String:          ')'
+  - String:          ' at callsite '
+  - String:          'span<const int *>'
+  - String:          ':'
+  - Line:            '2'
+  - String:          ':'
+  - Column:          '11'
+  - String:          ';'
+...

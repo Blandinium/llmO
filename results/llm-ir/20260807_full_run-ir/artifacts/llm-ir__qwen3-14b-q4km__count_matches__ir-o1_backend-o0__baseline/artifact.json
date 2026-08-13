@@ -1,0 +1,55 @@
+{
+  "artifact_id": "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__baseline",
+  "artifact_role": "baseline",
+  "benchmark_name": "count_matches",
+  "comparison": {
+    "baseline_artifact_id": "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 10.5975,
+      "mean_calls_per_second": 10.523533333333333,
+      "median_absolute_deviation": 0.042899999999999494,
+      "median_calls_per_second": 10.508,
+      "minimum_calls_per_second": 10.4651,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__candidate",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 10.6476,
+      "mean_calls_per_second": 10.6353,
+      "median_absolute_deviation": 0.008900000000000574,
+      "median_calls_per_second": 10.6387,
+      "minimum_calls_per_second": 10.6196,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "unchanged_within_noise",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": 1.2438142367719922,
+    "sequence": [
+      "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__baseline",
+      "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__candidate",
+      "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__candidate",
+      "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__baseline",
+      "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__candidate",
+      "llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__baseline"
+    ]
+  },
+  "experiment_type": "llm-ir",
+  "is_final_artifact": true,
+  "model_id": "qwen3-14b-q4km",
+  "paths": {
+    "canonical_libsut": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/artifacts/llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__baseline/libSUT.so",
+    "ir": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/artifacts/llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__baseline/input.ll",
+    "libsut": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/artifacts/llm-ir__qwen3-14b-q4km__count_matches__ir-o1_backend-o0__baseline/libSUT.so"
+  },
+  "pipeline_id": "ir-o1__backend-O0",
+  "run_id": "20260807_full_run-ir",
+  "schema_version": 2,
+  "timing": {
+    "llm_inference_seconds": 0.0,
+    "optimization_pipeline_seconds": 0.0,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 0.0
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n#include <algorithm>\n#include <cstddef>\n#include <cstring>\n#include <array>\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    if (queries_length == 0 || allowed_length == 0) {\n        return 0;\n    }\n\n    // Use a fixed-size array for small allowed sets to avoid heap allocation\n    constexpr size_t small_threshold = 16;\n    std::array<int, small_threshold> small_allowed;\n    bool use_small_array = (allowed_length <= small_threshold);\n\n    // Sort and unique the allowed values\n    if (use_small_array) {\n        std::memcpy(small_allowed.data(), allowed, allowed_length * sizeof(int));\n        std::sort(small_allowed.begin(), small_allowed.begin() + allowed_length);\n        auto last = std::unique(small_allowed.begin(), small_allowed.begin() + allowed_length);\n        allowed_length = std::distance(small_allowed.begin(), last);\n    } else {\n        std::vector<int> allowed_copy(allowed, allowed + allowed_length);\n        std::sort(allowed_copy.begin(), allowed_copy.end());\n        auto last = std::unique(allowed_copy.begin(), allowed_copy.end());\n        allowed_copy.erase(last, allowed_copy.end());\n        allowed = allowed_copy.data();\n    }\n\n    size_t matches = 0;\n    const int* query_end = queries + queries_length;\n\n    // Use binary search for O(log n) lookups\n    for (const int* query = queries; query != query_end; ++query) {\n        if (use_small_array) {\n            if (std::binary_search(small_allowed.begin(), small_allowed.begin() + allowed_length, *query)) {\n                ++matches;\n            }\n        } else {\n            if (std::binary_search(allowed, allowed + allowed_length, *query)) {\n                ++matches;\n            }\n        }\n    }\n\n    return matches;\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786244673,
+  "id": "chatcmpl-m9sskc9RyKOjL8pFjfITRu6aNFk2xWmD",
+  "model": "ministral-3-14b-instruct-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 46,
+    "predicted_ms": 256408.939,
+    "predicted_n": 467,
+    "predicted_per_second": 1.8213093577053487,
+    "predicted_per_token_ms": 549.0555438972164,
+    "prompt_ms": 1714767.634,
+    "prompt_n": 27681,
+    "prompt_per_second": 16.14271196350327,
+    "prompt_per_token_ms": 61.9474597738521
+  },
+  "usage": {
+    "completion_tokens": 467,
+    "prompt_tokens": 27727,
+    "prompt_tokens_details": {
+      "cached_tokens": 46
+    },
+    "total_tokens": 28194
+  }
+}

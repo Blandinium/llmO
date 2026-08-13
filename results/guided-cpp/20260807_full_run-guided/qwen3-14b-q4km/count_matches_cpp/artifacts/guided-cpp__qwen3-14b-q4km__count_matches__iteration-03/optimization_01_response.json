@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n#include <algorithm>\n#include <numeric>\n#include <vector>\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    // Use a bitmask for allowed values (assuming int is 32-bit)\n    // This is only efficient if the range of allowed values is small\n    const size_t max_int = static_cast<size_t>(1) << 31;\n    std::vector<bool> allowed_mask(max_int, false);\n\n    // Populate the allowed mask\n    for (size_t i = 0; i < allowed_length; ++i) {\n        if (allowed[i] >= 0 && static_cast<size_t>(allowed[i]) < max_int) {\n            allowed_mask[static_cast<size_t>(allowed[i])] = true;\n        }\n    }\n\n    // Count matches using a simple loop\n    size_t matches = 0;\n    for (size_t i = 0; i < queries_length; ++i) {\n        if (queries[i] >= 0 && static_cast<size_t>(queries[i]) < max_int && \n            allowed_mask[static_cast<size_t>(queries[i])]) {\n            ++matches;\n        }\n    }\n\n    return matches;\n}\n\n}",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786169844,
+  "id": "chatcmpl-R3LOrYCDVZ1HAzkkXofibd40or3k8nuK",
+  "model": "qwen3-14b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 33,
+    "predicted_ms": 187799.248,
+    "predicted_n": 311,
+    "predicted_per_second": 1.6560236705527172,
+    "predicted_per_token_ms": 603.8561028938907,
+    "prompt_ms": 1902725.284,
+    "prompt_n": 27636,
+    "prompt_per_second": 14.52442989662821,
+    "prompt_per_token_ms": 68.84951816471269
+  },
+  "usage": {
+    "completion_tokens": 311,
+    "prompt_tokens": 27669,
+    "prompt_tokens_details": {
+      "cached_tokens": 33
+    },
+    "total_tokens": 27980
+  }
+}

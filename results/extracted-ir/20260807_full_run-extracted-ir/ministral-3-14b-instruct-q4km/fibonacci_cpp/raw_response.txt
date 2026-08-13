@@ -1,0 +1,19 @@
+BEGIN_REPLACEMENT_FUNCTION
+; Function Attrs: mustprogress nofree nosync nounwind willreturn memory(none) uwtable
+define i64 @fibonacci(i64 noundef %n) local_unnamed_addr #0 {
+entry:
+  %cmp = icmp ult i64 %n, 2
+  br i1 %cmp, label %base_case, label %recursive_case
+
+base_case:
+  ret i64 %n
+
+recursive_case:                                   ; preds = %entry
+  %sub = add i64 %n, -1
+  %call1 = tail call i64 @fibonacci(i64 noundef %sub)
+  %sub2 = add i64 %n, -2
+  %call2 = tail call i64 @fibonacci(i64 noundef %sub2)
+  %add = add i64 %call1, %call2
+  ret i64 %add
+}
+END_REPLACEMENT_FUNCTION

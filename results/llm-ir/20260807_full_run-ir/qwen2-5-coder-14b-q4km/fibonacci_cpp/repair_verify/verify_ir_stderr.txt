@@ -1,0 +1,7 @@
+Instruction does not dominate all uses!
+  %accumulator.tr = phi i64 [ 0, %entry ], [ %add, %tailrecurse ]
+  %accumulator.ret.tr = add i64 %accumulator.tr, %n.tr
+Instruction does not dominate all uses!
+  %n.tr = phi i64 [ %n, %entry ], [ %sub1, %tailrecurse ]
+  %accumulator.ret.tr = add i64 %accumulator.tr, %n.tr
+opt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen2-5-coder-14b-q4km/fibonacci_cpp/repaired.ll: error: input module is broken!

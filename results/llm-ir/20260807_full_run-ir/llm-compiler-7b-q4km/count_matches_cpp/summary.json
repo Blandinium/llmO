@@ -1,0 +1,115 @@
+{
+  "benchmark_name": "count_matches",
+  "configured_max_output_tokens": 16384,
+  "experiment_type": "llm-ir",
+  "extracted_module_sha256": "cc278faccba6d09be62e231e0b71e717fb3a86ef5111ce1d5c80eff00458a2e5",
+  "initial_verifier_error_excerpt": "opt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/count_matches_cpp/extracted.ll:1:1: error: expected top-level entity\nYou are an LLVM IR optimization assistant. Return only the requested LLVM IR module.\n^\n",
+  "initial_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/count_matches_cpp/verify/verify_ir_stderr.txt",
+  "input_file": "/home/tijl/code/llmO/SUT/count_matches.cpp",
+  "input_ir_sha256": "d7008d2aa32d6ef3df28b264d658edeb3c05a1c8d8b39ef77db13a7b2069244d",
+  "input_sha256": "d363d77d6af71a295ba7506375e16f5c4120a38a05a4bd1c93c451de36fd77f1",
+  "llm_result": {
+    "completion_tokens": 2097,
+    "duration_seconds": 454.30687052803114,
+    "finish_reason": "stop",
+    "prompt_tokens": 2482,
+    "request_finished_at": "2026-08-09T20:34:02.621607",
+    "request_started_at": "2026-08-09T20:26:28.314726",
+    "requested_max_tokens": 12872,
+    "total_tokens": 4579
+  },
+  "min_output_tokens": 4096,
+  "model_id": "llm-compiler-7b-q4km",
+  "optimization_inference_seconds": 454.30687052803114,
+  "preflight_validation": {
+    "errors": [],
+    "preflight_passed": true
+  },
+  "prompt_sha256": "9e0d3f0945d55681973977c14884f6ff31f0cc6b39b4d4e7ab92fec84090bb93",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "274cc5a9774c7f57b8ca9abb483a043288b7b57acfd625b0c5b78f6e36a4593a",
+  "repair_inference_seconds": 447.1265754168853,
+  "repair_module_changed": false,
+  "repair_module_sha256": "cc278faccba6d09be62e231e0b71e717fb3a86ef5111ce1d5c80eff00458a2e5",
+  "repair_raw_response_file": "repair_response.json",
+  "repair_response_sha256": "274cc5a9774c7f57b8ca9abb483a043288b7b57acfd625b0c5b78f6e36a4593a",
+  "repair_result": {
+    "completion_tokens": 2097,
+    "duration_seconds": 447.1265754168853,
+    "finish_reason": "stop",
+    "prompt_tokens": 2355,
+    "request_finished_at": "2026-08-09T20:41:29.767702",
+    "request_started_at": "2026-08-09T20:34:02.641116",
+    "requested_max_tokens": 12999,
+    "total_tokens": 4452
+  },
+  "repair_token_budget": {
+    "available_output_tokens": 12999,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": false,
+    "effective_context_size": 16384,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 2361,
+    "requested_max_tokens": 16384
+  },
+  "repair_verifier_error_excerpt": "opt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/count_matches_cpp/repaired.ll:1:1: error: expected top-level entity\nYou are an LLVM IR optimization assistant. Return only the requested LLVM IR module.\n^\n",
+  "repair_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/count_matches_cpp/repair_verify/verify_ir_stderr.txt",
+  "run_id": "20260807_full_run-ir",
+  "status": "repair_unchanged_invalid",
+  "timing": {
+    "llm_inference_seconds": 454.30687052803114,
+    "optimization_pipeline_seconds": 901.599417392863,
+    "repair_inference_seconds": 447.1265754168853,
+    "total_llm_seconds": 901.4334459449165
+  },
+  "token_budget": {
+    "available_output_tokens": 12872,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": false,
+    "effective_context_size": 16384,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 2488,
+    "requested_max_tokens": 16384
+  },
+  "total_inference_seconds": 901.4334459449165,
+  "total_task_seconds": 901.5994101788383,
+  "validation": {
+    "initial_verification_passed": false,
+    "module_extracted": true,
+    "preflight_passed": true,
+    "repair_attempted": true,
+    "repair_module_extracted": true,
+    "repair_preflight_passed": true,
+    "repair_response_complete": true,
+    "repair_response_received": true,
+    "repair_verification_passed": false,
+    "response_complete": true,
+    "response_received": true
+  },
+  "verify_first_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/count_matches_cpp/extracted.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.015744189033284783,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/count_matches_cpp/verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/count_matches_cpp/verify/verify_ir_stdout.txt"
+  },
+  "verify_repair_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/count_matches_cpp/repaired.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.016800241079181433,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/count_matches_cpp/repair_verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/llm-compiler-7b-q4km/count_matches_cpp/repair_verify/verify_ir_stdout.txt"
+  }
+}

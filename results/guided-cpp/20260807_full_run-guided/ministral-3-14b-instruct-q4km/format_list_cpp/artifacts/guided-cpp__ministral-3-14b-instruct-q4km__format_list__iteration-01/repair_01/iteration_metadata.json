@@ -1,0 +1,133 @@
+{
+  "abi_result": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/format_list_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01/repair_01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/format_list_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01/repair_01",
+    "duration_seconds": 0.00808492791838944,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/format_list_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01/repair_01/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/format_list_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01/repair_01/abi_symbols_stdout.txt"
+  },
+  "accepted_remarks": null,
+  "compile_result": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/format_list_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01/repair_01",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/format_list_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01/repair_01/source_output.cpp",
+      "/home/tijl/code/llmO/SUT/count_matches.cpp",
+      "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+      "-o",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/format_list_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01/repair_01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 2.117097962880507,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/format_list_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01/repair_01/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/format_list_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01/repair_01/compile_stdout.txt"
+  },
+  "iteration": 1,
+  "metadata": {
+    "abi_error": null,
+    "accepted_as_best": false,
+    "benchmark_comparison": {
+      "baseline_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__format_list__baseline",
+      "baseline_statistics": {
+        "maximum_calls_per_second": 79683.5,
+        "mean_calls_per_second": 79473.86666666667,
+        "median_absolute_deviation": 33.69999999999709,
+        "median_calls_per_second": 79385.9,
+        "minimum_calls_per_second": 79352.2,
+        "requested_repetitions": 3,
+        "successful_repetitions": 3
+      },
+      "candidate_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01",
+      "candidate_statistics": {
+        "maximum_calls_per_second": null,
+        "mean_calls_per_second": null,
+        "median_absolute_deviation": null,
+        "median_calls_per_second": null,
+        "minimum_calls_per_second": null,
+        "requested_repetitions": 3,
+        "successful_repetitions": 0
+      },
+      "classification": "benchmark_failed",
+      "noise_threshold_percent": 2.0,
+      "relative_change_percent": null,
+      "sequence": [
+        "guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01",
+        "guided-cpp__ministral-3-14b-instruct-q4km__format_list__baseline",
+        "guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01",
+        "guided-cpp__ministral-3-14b-instruct-q4km__format_list__baseline",
+        "guided-cpp__ministral-3-14b-instruct-q4km__format_list__baseline",
+        "guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01"
+      ]
+    },
+    "duration_seconds": 139.230891876854,
+    "llm_result": {
+      "completion_tokens": 400,
+      "content": "```cpp\n#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <cstring>\n#include <string>\n#include <string_view>\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    // Pre-calculate approximate buffer size to minimize reallocations\n    size_t buffer_size = 2 + input_length * 12; // \"[\", \"]\", \", \" and 10 chars per number on average\n    char* buffer = static_cast<char*>(malloc(buffer_size));\n    if (!buffer) return nullptr;\n\n    char* pos = buffer;\n    *pos++ = '[';\n\n    for (size_t i = 0; i < input_length; ++i) {\n        if (i > 0) {\n            *pos++ = ',';\n            *pos++ = ' ';\n        }\n\n        // Convert number directly to string in buffer\n        int value = input[i];\n        char* num_start = pos;\n        char* num_end = pos;\n\n        // Handle negative numbers\n        if (value < 0) {\n            *pos++ = '-';\n            value = -value;\n        }\n\n        // Convert digits\n        char digits[12];\n        char* digit_pos = digits + sizeof(digits);\n        *--digit_pos = '\\0';\n\n        do {\n            *--digit_pos = '0' + (value % 10);\n            value /= 10;\n        } while (value > 0 && digit_pos > digits);\n\n        // Copy digits to buffer\n        size_t digit_count = digits + sizeof(digits) - digit_pos;\n        std::memcpy(pos, digit_pos, digit_count);\n        pos += digit_count;\n    }\n\n    *pos++ = ']';\n    *pos = '\\0';\n\n    return buffer;\n}\n\n}\n```",
+      "finish_reason": "stop",
+      "prompt_tokens": 1009,
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "```cpp\n#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <cstring>\n#include <string>\n#include <string_view>\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    // Pre-calculate approximate buffer size to minimize reallocations\n    size_t buffer_size = 2 + input_length * 12; // \"[\", \"]\", \", \" and 10 chars per number on average\n    char* buffer = static_cast<char*>(malloc(buffer_size));\n    if (!buffer) return nullptr;\n\n    char* pos = buffer;\n    *pos++ = '[';\n\n    for (size_t i = 0; i < input_length; ++i) {\n        if (i > 0) {\n            *pos++ = ',';\n            *pos++ = ' ';\n        }\n\n        // Convert number directly to string in buffer\n        int value = input[i];\n        char* num_start = pos;\n        char* num_end = pos;\n\n        // Handle negative numbers\n        if (value < 0) {\n            *pos++ = '-';\n            value = -value;\n        }\n\n        // Convert digits\n        char digits[12];\n        char* digit_pos = digits + sizeof(digits);\n        *--digit_pos = '\\0';\n\n        do {\n            *--digit_pos = '0' + (value % 10);\n            value /= 10;\n        } while (value > 0 && digit_pos > digits);\n\n        // Copy digits to buffer\n        size_t digit_count = digits + sizeof(digits) - digit_pos;\n        std::memcpy(pos, digit_pos, digit_count);\n        pos += digit_count;\n    }\n\n    *pos++ = ']';\n    *pos = '\\0';\n\n    return buffer;\n}\n\n}\n```",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786227619,
+        "id": "chatcmpl-OUfpqX64YLHxbkYIweoQtqNkpkLWRwGk",
+        "model": "ministral-3-14b-instruct-q4km",
+        "object": "chat.completion",
+        "system_fingerprint": "b9840-8c146a836",
+        "timings": {
+          "cache_n": 29,
+          "predicted_ms": 95561.963,
+          "predicted_n": 400,
+          "predicted_per_second": 4.185765836559887,
+          "predicted_per_token_ms": 238.9049075,
+          "prompt_ms": 42327.845,
+          "prompt_n": 980,
+          "prompt_per_second": 23.152607934564113,
+          "prompt_per_token_ms": 43.191678571428575
+        },
+        "usage": {
+          "completion_tokens": 400,
+          "prompt_tokens": 1009,
+          "prompt_tokens_details": {
+            "cached_tokens": 29
+          },
+          "total_tokens": 1409
+        }
+      },
+      "total_tokens": 1409
+    }
+  },
+  "remarks_file": null,
+  "shown_remarks": null,
+  "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/format_list_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01/repair_01/source_output.cpp",
+  "success": true,
+  "type": "repair_01"
+}

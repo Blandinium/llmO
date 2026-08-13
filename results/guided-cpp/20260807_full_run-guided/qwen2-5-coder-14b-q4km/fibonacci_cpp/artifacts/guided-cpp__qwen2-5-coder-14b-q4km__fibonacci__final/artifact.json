@@ -1,0 +1,58 @@
+{
+  "artifact_id": "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__final",
+  "benchmark_name": "fibonacci",
+  "confirmation_seed": 43,
+  "confirmation_status": "improved",
+  "confirmed_improvement": true,
+  "experiment_type": "guided-cpp",
+  "final_comparison_vs_original": {
+    "baseline_artifact_id": "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 54.3234,
+      "mean_calls_per_second": 54.22496666666667,
+      "median_absolute_deviation": 0.07529999999999859,
+      "median_calls_per_second": 54.2134,
+      "minimum_calls_per_second": 54.1381,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__final",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 247139000.0,
+      "mean_calls_per_second": 246390666.66666666,
+      "median_absolute_deviation": 309000.0,
+      "median_calls_per_second": 246171000.0,
+      "minimum_calls_per_second": 245862000.0,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "improved",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": 454077674.1296432,
+    "sequence": [
+      "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__final",
+      "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__baseline",
+      "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__baseline",
+      "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__final",
+      "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__final",
+      "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__baseline"
+    ]
+  },
+  "model_id": "qwen2-5-coder-14b-q4km",
+  "parent_artifact_id": "guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__baseline",
+  "paths": {
+    "libsut": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__final/libSUT.so",
+    "source": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen2-5-coder-14b-q4km/fibonacci_cpp/artifacts/guided-cpp__qwen2-5-coder-14b-q4km__fibonacci__final/optimized_fibonacci.cpp"
+  },
+  "pipeline_id": "cpp-llm-guided-remarks__clang-o3",
+  "run_id": "20260807_full_run-guided",
+  "schema_version": 2,
+  "selection_status": "improved",
+  "source_provenance": "iteration-01",
+  "timing": {
+    "llm_inference_seconds": 431.1957448851317,
+    "optimization_pipeline_seconds": 836.7677231649868,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 431.1957448851317
+  }
+}

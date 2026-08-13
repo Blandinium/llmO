@@ -1,0 +1,55 @@
+{
+  "artifact_id": "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__baseline",
+  "artifact_role": "baseline",
+  "benchmark_name": "fibonacci",
+  "comparison": {
+    "baseline_artifact_id": "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 40.6696,
+      "mean_calls_per_second": 40.592,
+      "median_absolute_deviation": 0.06580000000000297,
+      "median_calls_per_second": 40.6038,
+      "minimum_calls_per_second": 40.5026,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__candidate",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 30.9582,
+      "mean_calls_per_second": 30.861433333333334,
+      "median_absolute_deviation": 0.029299999999999216,
+      "median_calls_per_second": 30.8277,
+      "minimum_calls_per_second": 30.7984,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "regressed",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": -24.076810544825854,
+    "sequence": [
+      "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__baseline",
+      "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__candidate",
+      "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__candidate",
+      "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__baseline",
+      "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__candidate",
+      "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__baseline"
+    ]
+  },
+  "experiment_type": "llm-ir",
+  "is_final_artifact": true,
+  "model_id": "qwen3-14b-q4km",
+  "paths": {
+    "canonical_libsut": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/artifacts/llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__baseline/libSUT.so",
+    "ir": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/artifacts/llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__baseline/input.ll",
+    "libsut": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/artifacts/llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__baseline/libSUT.so"
+  },
+  "pipeline_id": "ir-o1__backend-O0",
+  "run_id": "20260807_full_run-ir",
+  "schema_version": 2,
+  "timing": {
+    "llm_inference_seconds": 0.0,
+    "optimization_pipeline_seconds": 0.0,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 0.0
+  }
+}

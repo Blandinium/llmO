@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    const bool allowed_null = (allowed == nullptr);\n    const bool queries_null = (queries == nullptr);\n    \n    if (allowed_null || queries_null) {\n        return 0;\n    }\n\n    const size_t allowed_size = allowed_length;\n    const size_t queries_size = queries_length;\n    \n    if (allowed_size == 0 || queries_size == 0) {\n        return 0;\n    }\n\n    const int* allowed_end = allowed + allowed_size;\n    const int* queries_end = queries + queries_size;\n    \n    size_t matches = 0;\n    \n    for (const int* q = queries; q < queries_end; ++q) {\n        const int value = *q;\n        const int* a = allowed;\n        const int* a_end = allowed_end;\n        \n        while (a < a_end) {\n            if (*a == value) {\n                ++matches;\n                break;\n            }\n            ++a;\n        }\n    }\n    \n    return matches;\n}\n\n}",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786125025,
+  "id": "chatcmpl-MeYXNzuR0EIMcH26RSmVuAFZndQIgm3C",
+  "model": "qwen3-14b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 43,
+    "predicted_ms": 73217.875,
+    "predicted_n": 285,
+    "predicted_per_second": 3.8924920997775474,
+    "predicted_per_token_ms": 256.90482456140353,
+    "prompt_ms": 30653.51,
+    "prompt_n": 673,
+    "prompt_per_second": 21.95507137681786,
+    "prompt_per_token_ms": 45.54756315007429
+  },
+  "usage": {
+    "completion_tokens": 285,
+    "prompt_tokens": 716,
+    "prompt_tokens_details": {
+      "cached_tokens": 43
+    },
+    "total_tokens": 1001
+  }
+}

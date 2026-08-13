@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n#include <algorithm>\n#include <array>\n#include <cstdint>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            // Copy input to buffer\n            for (size_t i = 0; i < input_length; ++i) {\n                buffer[i] = input[i];\n            }\n\n            // Use std::sort for better optimization potential\n            std::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    for (int r = 0; r < rounds; ++r) {\n        // Use std::sort instead of std::ranges::sort for better optimization\n        std::sort(values.begin(), values.end());\n\n        const size_t mid = values.size() / 2;\n        const int median = (values.size() % 2 == 0)\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786238513,
+  "id": "chatcmpl-ewgcjvJFI6TaIm0g3cecc8BKxdQLn9CT",
+  "model": "ministral-3-14b-instruct-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 29,
+    "predicted_ms": 249993.753,
+    "predicted_n": 455,
+    "predicted_per_second": 1.8200454792964367,
+    "predicted_per_token_ms": 549.4368197802198,
+    "prompt_ms": 1700251.228,
+    "prompt_n": 27639,
+    "prompt_per_second": 16.25583298799417,
+    "prompt_per_token_ms": 61.51638004269329
+  },
+  "usage": {
+    "completion_tokens": 455,
+    "prompt_tokens": 27668,
+    "prompt_tokens_details": {
+      "cached_tokens": 29
+    },
+    "total_tokens": 28123
+  }
+}

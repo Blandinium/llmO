@@ -1,0 +1,56 @@
+{
+  "artifact_id": "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__baseline",
+  "artifact_role": "baseline",
+  "benchmark_name": "format_list",
+  "comparison": {
+    "baseline_artifact_id": "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 80093.9,
+      "mean_calls_per_second": 79987.03333333333,
+      "median_absolute_deviation": 31.89999999999418,
+      "median_calls_per_second": 80062,
+      "minimum_calls_per_second": 79805.2,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__candidate",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 79755.4,
+      "mean_calls_per_second": 79336.76666666666,
+      "median_absolute_deviation": 233.6999999999971,
+      "median_calls_per_second": 79521.7,
+      "minimum_calls_per_second": 78733.2,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "unchanged_within_noise",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": -0.67485198970798,
+    "sequence": [
+      "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__baseline",
+      "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__candidate",
+      "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__candidate",
+      "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__baseline",
+      "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__candidate",
+      "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__baseline"
+    ]
+  },
+  "experiment_type": "extracted-ir",
+  "is_final_artifact": true,
+  "logical_artifact_id": "extracted-ir/20260807_full_run-extracted-ir/gpt-oss-20b-mxfp4/format_list/extracted-ir-o1_backend-o3/extracted-ir_gpt-oss-20b-mxfp4_format_list_extracted-ir-o1_backend-o3_baseline",
+  "model_id": "gpt-oss-20b-mxfp4",
+  "paths": {
+    "canonical_libsut": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__baseline/libSUT.so",
+    "ir": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__baseline/input.ll",
+    "libsut": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__baseline/libSUT.so"
+  },
+  "pipeline_id": "extracted-ir-o1__backend-O3",
+  "run_id": "20260807_full_run-extracted-ir",
+  "schema_version": 2,
+  "timing": {
+    "llm_inference_seconds": 0.0,
+    "optimization_pipeline_seconds": 0.0,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 0.0
+  }
+}

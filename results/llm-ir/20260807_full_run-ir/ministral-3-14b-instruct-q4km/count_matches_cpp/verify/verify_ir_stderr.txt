@@ -1,0 +1,10 @@
+PHI node entries do not match predecessors!
+  %i.018 = phi i64 [ 0, %for.body.lr.ph ], [ %inc8, %for.body.i ]
+label %for.body.i
+label %found
+Instruction does not dominate all uses!
+  %inc8 = add nuw i64 %i.018, 1
+  %i.018 = phi i64 [ 0, %for.body.lr.ph ], [ %inc8, %for.body.i ]
+PHINode should have one entry for each predecessor of its parent basic block!
+  %retval.0 = phi i64 [ 0, %lor.lhs.false ], [ 0, %entry ], [ 1, %found ], [ 0, %for.body ]
+opt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/ministral-3-14b-instruct-q4km/count_matches_cpp/extracted.ll: error: input module is broken!

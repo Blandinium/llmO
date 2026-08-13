@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n#include <algorithm>\n#include <cstddef>\n#include <cstring>\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    if (queries_length == 0 || allowed_length == 0) {\n        return 0;\n    }\n\n    // Allocate a single buffer for both sorting and searching\n    int* allowed_sorted = new int[allowed_length];\n    std::memcpy(allowed_sorted, allowed, allowed_length * sizeof(int));\n\n    // Sort and remove duplicates in-place\n    std::sort(allowed_sorted, allowed_sorted + allowed_length);\n    size_t unique_count = std::unique(allowed_sorted, allowed_sorted + allowed_length) - allowed_sorted;\n\n    size_t matches = 0;\n    const int* query_end = queries + queries_length;\n\n    // Use binary search for O(log n) lookups\n    for (const int* query = queries; query != query_end; ++query) {\n        if (std::binary_search(allowed_sorted, allowed_sorted + unique_count, *query)) {\n            ++matches;\n        }\n    }\n\n    delete[] allowed_sorted;\n    return matches;\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786242515,
+  "id": "chatcmpl-kRInvzx9Qc1dBdyhz4tzJF8Mja2DZQRU",
+  "model": "ministral-3-14b-instruct-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 29,
+    "predicted_ms": 169502.682,
+    "predicted_n": 310,
+    "predicted_per_second": 1.8288796161939196,
+    "predicted_per_token_ms": 546.7828451612903,
+    "prompt_ms": 1714548.702,
+    "prompt_n": 27708,
+    "prompt_per_second": 16.160520822580867,
+    "prompt_per_token_ms": 61.87919380684279
+  },
+  "usage": {
+    "completion_tokens": 310,
+    "prompt_tokens": 27737,
+    "prompt_tokens_details": {
+      "cached_tokens": 29
+    },
+    "total_tokens": 28047
+  }
+}

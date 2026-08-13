@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    // Create a lookup set for O(1) lookups\n    const size_t allowed_size = allowed_length;\n    const int* allowed_data = allowed;\n    \n    // Use a bitset for small integer ranges\n    // Assuming int is 32-bit, we need 2^32 bits (4GiB) which is not feasible\n    // So we use a hash set instead\n    \n    // Create a hash set for allowed values\n    std::unordered_set<int> allowed_set(allowed_data, allowed_data + allowed_length);\n    \n    // Count matches\n    size_t matches = 0;\n    for (size_t i = 0; i < queries_length; ++i) {\n        if (allowed_set.count(queries[i])) {\n            ++matches;\n        }\n    }\n    \n    return matches;\n}\n\n}",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786165126,
+  "id": "chatcmpl-Z6hrOs45OsAEsvAMOAmxLRELwAvUBsli",
+  "model": "qwen3-14b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 41,
+    "predicted_ms": 96164.798,
+    "predicted_n": 251,
+    "predicted_per_second": 2.610102711389255,
+    "predicted_per_token_ms": 383.12668525896413,
+    "prompt_ms": 525264.091,
+    "prompt_n": 10001,
+    "prompt_per_second": 19.0399461363522,
+    "prompt_per_token_ms": 52.52115698430157
+  },
+  "usage": {
+    "completion_tokens": 251,
+    "prompt_tokens": 10042,
+    "prompt_tokens_details": {
+      "cached_tokens": 41
+    },
+    "total_tokens": 10293
+  }
+}

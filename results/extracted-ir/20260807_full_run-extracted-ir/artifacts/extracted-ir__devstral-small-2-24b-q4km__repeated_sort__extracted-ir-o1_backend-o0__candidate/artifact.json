@@ -1,0 +1,81 @@
+{
+  "actual_completion_tokens": 4,
+  "artifact_id": "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+  "artifact_role": "candidate",
+  "benchmark_name": "repeated_sort",
+  "comparison": {
+    "baseline_artifact_id": "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 6940.29,
+      "mean_calls_per_second": 6894.3,
+      "median_absolute_deviation": 26.199999999999818,
+      "median_calls_per_second": 6914.09,
+      "minimum_calls_per_second": 6828.52,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 6871.78,
+      "mean_calls_per_second": 6863.526666666667,
+      "median_absolute_deviation": 1.699999999999818,
+      "median_calls_per_second": 6870.08,
+      "minimum_calls_per_second": 6848.72,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "unchanged_within_noise",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": -0.6365262818389725,
+    "sequence": [
+      "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline",
+      "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline",
+      "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline"
+    ]
+  },
+  "configured_max_output_tokens": 4631,
+  "estimated_target_function_tokens": 2917,
+  "experiment_type": "extracted-ir",
+  "extracted_estimated_input_tokens": 4371,
+  "extracted_ir_bytes": 10759,
+  "is_final_artifact": true,
+  "logical_artifact_id": "extracted-ir/20260807_full_run-extracted-ir/devstral-small-2-24b-q4km/repeated_sort/extracted-ir-o1_backend-o0/extracted-ir_devstral-small-2-24b-q4km_repeated_sort_extracted-ir-o1_backend-o0_candidate",
+  "model_id": "devstral-small-2-24b-q4km",
+  "original_estimated_input_tokens": 20742,
+  "original_ir_bytes": 47159,
+  "paths": {
+    "canonical_libsut": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate/libSUT.so",
+    "ir": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate/optimized.ll",
+    "libsut": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate/libSUT.so"
+  },
+  "pipeline_id": "extracted-ir-o1__backend-O0",
+  "response_mode": "no_change",
+  "run_id": "20260807_full_run-extracted-ir",
+  "schema_version": 2,
+  "timing": {
+    "llm_inference_seconds": 361.0468621519394,
+    "optimization_pipeline_seconds": 187.22905321000144,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 361.0468621519394
+  },
+  "validation": {
+    "final_verification_passed": null,
+    "initial_verification_passed": null,
+    "module_extracted": false,
+    "preflight_passed": null,
+    "repair_attempted": false,
+    "repair_module_extracted": false,
+    "repair_preflight_passed": null,
+    "repair_response_complete": false,
+    "repair_response_received": false,
+    "repair_verification_passed": null,
+    "response_complete": true,
+    "response_received": true,
+    "validation_skipped": true
+  },
+  "validation_outcome": "no_change",
+  "validation_skipped": true
+}

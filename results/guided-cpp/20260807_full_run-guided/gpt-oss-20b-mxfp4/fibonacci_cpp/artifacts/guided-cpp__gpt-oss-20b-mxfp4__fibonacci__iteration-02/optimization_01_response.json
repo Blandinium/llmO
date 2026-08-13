@@ -1,0 +1,37 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n\nextern \"C\" {\n\nuint64_t fibonacci(uint64_t n) {\n    if (n <= 1) {\n        return n;\n    }\n\n    // Fast doubling algorithm: compute (F(n), F(n+1)) iteratively.\n    uint64_t a = 0; // F(0)\n    uint64_t b = 1; // F(1)\n\n    // Find the position of the most significant bit of n.\n    int msb = 63 - __builtin_clzll(n);\n\n    for (int i = msb; i >= 0; --i) {\n        // Compute:\n        //   c = F(2k)   = F(k) * [2*F(k+1) \u2013 F(k)]\n        //   d = F(2k+1) = F(k)^2 + F(k+1)^2\n        unsigned __int128 t1 = (unsigned __int128)a * ((unsigned __int128)(2 * b - a));\n        unsigned __int128 t2 = (unsigned __int128)a * a + (unsigned __int128)b * b;\n\n        a = (uint64_t)t1; // F(2k)\n        b = (uint64_t)t2; // F(2k+1)\n\n        // If the current bit of n is set, advance one step:\n        //   F(2k+1) becomes F(2k+2) = F(2k) + F(2k+1)\n        if ((n >> i) & 1ULL) {\n            unsigned __int128 t3 = (unsigned __int128)a + b;\n            a = b;\n            b = (uint64_t)t3;\n        }\n    }\n\n    return a; // F(n)\n}\n\n}",
+        "reasoning_content": "We need to produce a new fibonacci.cpp that preserves ABI, same exported names, etc. We can modify implementation to allow better vectorization? But fibonacci is sequential; vectorization not possible. But we can use fast doubling algorithm to compute Fibonacci in O(log n) time, which is better for large n. That would be a meaningful runtime improvement. But must preserve semantics: fibonacci(n) returns nth Fibonacci number (0-indexed). For n up to 64-bit, fast doubling uses 128-bit intermediate to avoid overflow? But we return uint64_t; overflow is defined by modulo 2^64. So we can compute using 128-bit to avoid overflow? But we can just use 128-bit to compute intermediate and cast to uint64_t. That will produce same result as iterative addition modulo 2^64? Let's check: iterative addition uses 64-bit addition with wrap-around. Fast doubling uses formulas that involve multiplication and addition; we need to ensure modulo 2^64 semantics. Using unsigned __int128 for intermediate ensures correct modulo 2^64. So we can implement fast doubling.\n\nAlso we can use recursion or iterative binary exponentiation style. Use iterative bit scanning to avoid recursion overhead.\n\nImplement:\n\nuint64_t fib(uint64_t n) {\n    uint64_t a=0,b=1;\n    // iterate bits from most significant to least\n    for (int i = 63 - __builtin_clzll(n); i>=0; --i) {\n        // apply doubling formulas\n        unsigned __int128 t1 = (unsigned __int128)a * ((unsigned __int128)(2*b - a));\n        unsigned __int128 t2 = (unsigned __int128)a*a + (unsigned __int128)b*b;\n        a = (uint64_t)t1;\n        b = (uint64_t)t2;\n        if ((n >> i) & 1) {\n            unsigned __int128 t3 = (unsigned __int128)a + b;\n            a = b;\n            b = (uint64_t)t3;\n        }\n    }\n    return a;\n}\n\nBut careful: 2*b - a may underflow in unsigned arithmetic; but we can compute as (2*b) - a with unsigned 128-bit. Use unsigned __int128.\n\nEdge cases: n=0 returns 0; n=1 returns 1. The loop will handle.\n\nWe need to compute msb index: if n==0, __builtin_clzll undefined. So handle n==0 separately.\n\nAlso we need to preserve ABI: function signature same.\n\nWe also need to keep extern \"C\" block.\n\nWe should include <cstdint> maybe.\n\nAlso we might want to use constexpr? Not needed.\n\nWe should avoid recursion.\n\nAlso we can use inline functions? Not necessary.\n\nWe should ensure no exceptions.\n\nWe should not use any other headers.\n\nLet's produce final code.\n\nAlso we might want to use static inline helper to compute fib_fast_doubling.\n\nBut we can just implement inside function.\n\nLet's produce final fibonacci.cpp.\n\n",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786254084,
+  "id": "chatcmpl-qpW1kYGI5Jjefz2jAMPNmCcQCcUp3gsm",
+  "model": "gpt-oss-20b-mxfp4",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 84,
+    "predicted_ms": 121995.33,
+    "predicted_n": 1013,
+    "predicted_per_second": 8.303596539310153,
+    "predicted_per_token_ms": 120.42974333662389,
+    "prompt_ms": 110123.948,
+    "prompt_n": 3632,
+    "prompt_per_second": 32.981018806191,
+    "prompt_per_token_ms": 30.32047026431718
+  },
+  "usage": {
+    "completion_tokens": 1013,
+    "prompt_tokens": 3716,
+    "prompt_tokens_details": {
+      "cached_tokens": 84
+    },
+    "total_tokens": 4729
+  }
+}

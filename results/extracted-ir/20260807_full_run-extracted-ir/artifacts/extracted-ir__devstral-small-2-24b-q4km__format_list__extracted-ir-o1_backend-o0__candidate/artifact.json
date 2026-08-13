@@ -1,0 +1,81 @@
+{
+  "actual_completion_tokens": 4,
+  "artifact_id": "extracted-ir__devstral-small-2-24b-q4km__format_list__extracted-ir-o1_backend-o0__candidate",
+  "artifact_role": "candidate",
+  "benchmark_name": "format_list",
+  "comparison": {
+    "baseline_artifact_id": "extracted-ir__devstral-small-2-24b-q4km__format_list__extracted-ir-o1_backend-o0__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 47254.7,
+      "mean_calls_per_second": 47063.03333333333,
+      "median_absolute_deviation": 44.599999999998545,
+      "median_calls_per_second": 46989.5,
+      "minimum_calls_per_second": 46944.9,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "extracted-ir__devstral-small-2-24b-q4km__format_list__extracted-ir-o1_backend-o0__candidate",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 47432.6,
+      "mean_calls_per_second": 47098.566666666666,
+      "median_absolute_deviation": 113.5,
+      "median_calls_per_second": 46988.3,
+      "minimum_calls_per_second": 46874.8,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "unchanged_within_noise",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": -0.002553762010655763,
+    "sequence": [
+      "extracted-ir__devstral-small-2-24b-q4km__format_list__extracted-ir-o1_backend-o0__baseline",
+      "extracted-ir__devstral-small-2-24b-q4km__format_list__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__devstral-small-2-24b-q4km__format_list__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__devstral-small-2-24b-q4km__format_list__extracted-ir-o1_backend-o0__baseline",
+      "extracted-ir__devstral-small-2-24b-q4km__format_list__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__devstral-small-2-24b-q4km__format_list__extracted-ir-o1_backend-o0__baseline"
+    ]
+  },
+  "configured_max_output_tokens": 16384,
+  "estimated_target_function_tokens": 11416,
+  "experiment_type": "extracted-ir",
+  "extracted_estimated_input_tokens": 13713,
+  "extracted_ir_bytes": 31621,
+  "is_final_artifact": true,
+  "logical_artifact_id": "extracted-ir/20260807_full_run-extracted-ir/devstral-small-2-24b-q4km/format_list/extracted-ir-o1_backend-o0/extracted-ir_devstral-small-2-24b-q4km_format_list_extracted-ir-o1_backend-o0_candidate",
+  "model_id": "devstral-small-2-24b-q4km",
+  "original_estimated_input_tokens": 18951,
+  "original_ir_bytes": 43967,
+  "paths": {
+    "canonical_libsut": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__devstral-small-2-24b-q4km__format_list__extracted-ir-o1_backend-o0__candidate/libSUT.so",
+    "ir": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__devstral-small-2-24b-q4km__format_list__extracted-ir-o1_backend-o0__candidate/optimized.ll",
+    "libsut": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__devstral-small-2-24b-q4km__format_list__extracted-ir-o1_backend-o0__candidate/libSUT.so"
+  },
+  "pipeline_id": "extracted-ir-o1__backend-O0",
+  "response_mode": "no_change",
+  "run_id": "20260807_full_run-extracted-ir",
+  "schema_version": 2,
+  "timing": {
+    "llm_inference_seconds": 1220.3933194628917,
+    "optimization_pipeline_seconds": 186.049406548962,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 1220.3933194628917
+  },
+  "validation": {
+    "final_verification_passed": null,
+    "initial_verification_passed": null,
+    "module_extracted": false,
+    "preflight_passed": null,
+    "repair_attempted": false,
+    "repair_module_extracted": false,
+    "repair_preflight_passed": null,
+    "repair_response_complete": false,
+    "repair_response_received": false,
+    "repair_verification_passed": null,
+    "response_complete": true,
+    "response_received": true,
+    "validation_skipped": true
+  },
+  "validation_outcome": "no_change",
+  "validation_skipped": true
+}

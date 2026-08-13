@@ -1,0 +1,56 @@
+{
+  "artifact_id": "guided-cpp__qwen3-14b-q4km__count_matches__iteration-01",
+  "benchmark_name": "count_matches",
+  "comparison_vs_previous_best": {
+    "baseline_artifact_id": "guided-cpp__qwen3-14b-q4km__count_matches__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 59.492,
+      "mean_calls_per_second": 59.4409,
+      "median_absolute_deviation": 0.04819999999999425,
+      "median_calls_per_second": 59.4438,
+      "minimum_calls_per_second": 59.3869,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "guided-cpp__qwen3-14b-q4km__count_matches__iteration-01",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 4730.65,
+      "mean_calls_per_second": 4710.8966666666665,
+      "median_absolute_deviation": 5.339999999999236,
+      "median_calls_per_second": 4703.69,
+      "minimum_calls_per_second": 4698.35,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "improved",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": 7812.83531671932,
+    "sequence": [
+      "guided-cpp__qwen3-14b-q4km__count_matches__iteration-01",
+      "guided-cpp__qwen3-14b-q4km__count_matches__baseline",
+      "guided-cpp__qwen3-14b-q4km__count_matches__iteration-01",
+      "guided-cpp__qwen3-14b-q4km__count_matches__baseline",
+      "guided-cpp__qwen3-14b-q4km__count_matches__baseline",
+      "guided-cpp__qwen3-14b-q4km__count_matches__iteration-01"
+    ]
+  },
+  "confirmation_status": "not-run",
+  "confirmed_improvement": false,
+  "experiment_type": "guided-cpp",
+  "model_id": "qwen3-14b-q4km",
+  "parent_artifact_id": "guided-cpp__qwen3-14b-q4km__count_matches__baseline",
+  "paths": {
+    "libsut": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/libSUT.so",
+    "source": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp"
+  },
+  "pipeline_id": "cpp-llm-iterative-pass-01__clang-o3",
+  "run_id": "20260807_full_run-guided",
+  "schema_version": 2,
+  "selection_status": "improved",
+  "timing": {
+    "llm_inference_seconds": 622.3253873989452,
+    "optimization_pipeline_seconds": 953.7881180699915,
+    "repair_inference_seconds": 107.51520066312514,
+    "total_llm_seconds": 729.8405880620703
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n\n#include <algorithm>\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    if (allowed_length == 0) {\n        return 0;\n    }\n\n    std::sort(const_cast<int*>(allowed), const_cast<int*>(allowed) + allowed_length);\n    size_t matches = 0;\n\n    for (size_t i = 0; i < queries_length; ++i) {\n        const int query = queries[i];\n        const int* first = allowed;\n        const int* last = allowed + allowed_length;\n        if (std::binary_search(first, last, query)) {\n            ++matches;\n        }\n    }\n\n    return matches;\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786145685,
+  "id": "chatcmpl-2WjgqJaFwCe9lC4x2kSBObQsEjQuy7yS",
+  "model": "ministral-3-14b-instruct-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 39,
+    "predicted_ms": 48026.338,
+    "predicted_n": 204,
+    "predicted_per_second": 4.247669268475144,
+    "predicted_per_token_ms": 235.4232254901961,
+    "prompt_ms": 29582.91,
+    "prompt_n": 697,
+    "prompt_per_second": 23.560900533449885,
+    "prompt_per_token_ms": 42.44319942611191
+  },
+  "usage": {
+    "completion_tokens": 204,
+    "prompt_tokens": 736,
+    "prompt_tokens_details": {
+      "cached_tokens": 39
+    },
+    "total_tokens": 940
+  }
+}

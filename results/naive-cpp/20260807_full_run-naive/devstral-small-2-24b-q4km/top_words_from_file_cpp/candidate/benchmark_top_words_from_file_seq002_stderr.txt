@@ -1,0 +1,15 @@
+top_words_from_file counting and tie ordering failed at index 1: expected banana=3, got apple=3
+top_words_from_file counting and tie ordering failed at index 2: expected cherry=2, got banana=3
+top_words_from_file counting and tie ordering failed at index 3: expected fig=2, got cherry=2
+top_words_from_file counting and tie ordering failed at index 4: expected date=1, got cherry=2
+top_words_from_file normalization and ignored words failed at index 1: expected quick=3, got fox=3
+top_words_from_file normalization and ignored words failed at index 2: expected brown=2, got quick=3
+top_words_from_file normalization and ignored words failed at index 3: expected stop=1, got quick=3
+top_words_from_file non-letter separators failed at index 1: expected enter=2, got co=2
+top_words_from_file non-letter separators failed at index 2: expected op=2, got enter=2
+top_words_from_file non-letter separators failed at index 3: expected re=2, got enter=2
+top_words_from_file non-letter separators failed at index 4: expected x=1, got op=2
+top_words_from_file non-letter separators failed at index 5: expected y=1, got op=2
+top_words_from_file non-letter separators failed at index 6: expected z=1, got re=2
+top_words_from_file null result_length failed: unexpected result
+Tests failed for function 4

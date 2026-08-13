@@ -1,0 +1,37 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n\n#include <algorithm>\n#include <cstdint>\n#include <vector>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n    if (input_length == 0) {\n        return 0;\n    }\n\n    try {\n        std::vector<int> values(input, input + input_length);\n        std::sort(values.begin(), values.end());\n\n        const size_t n = values.size();\n        const size_t mid = n / 2;\n        const std::int64_t median = (n % 2 == 0)\n            ? (static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2\n            : static_cast<std::int64_t>(values[mid]);\n\n        std::int64_t total = 0;\n        for (int r = 0; r < rounds; ++r) {\n            total += median;\n            total += values[r % n];\n        }\n        return total;\n    } catch (...) {\n        return 0;\n    }\n}\n\n}",
+        "reasoning_content": "We need to optimize repeated_sort. Let's analyze function.\n\nInput: const int* input, size_t input_length, int rounds.\n\nIf input==nullptr && input_length!=0 return 0. If input_length==0 return 0.\n\nThen total=0.\n\nLoop r from 0 to rounds-1:\n\n- Create vector<int> values(input, input + input_length);\n- std::ranges::sort(values);\n- mid = values.size()/2\n- median: if even, average of two middle values (int division). else values[mid].\n- total += median;\n- total += values[r % values.size()];\n\nReturn total.\n\nObservations: The vector is recreated each round, sorting each time. But values are same each round. So we can sort once outside loop, then reuse. But median depends on values sorted. The second addition uses values[r % values.size()]. That depends on r. But values sorted. So we can compute median once, and then for each round add median + values[r % n]. So we can avoid sorting each round.\n\nAlso we can avoid vector allocation each round. Use static vector or reuse.\n\nAlso we can avoid copying input into vector each round. We can copy once.\n\nAlso we can avoid std::ranges::sort overhead; use std::sort.\n\nAlso we can avoid int64_t cast for median average: use int64_t to avoid overflow? But values are int, sum may overflow int. But we cast to int64_t before adding. But we can compute median as int64_t.\n\nAlso we can avoid modulo each round: r % n. Since r increments, we can maintain index variable that increments and wraps. But modulo is cheap.\n\nAlso we can avoid try-catch overhead: remove try-catch. But we need to preserve behavior: if exception occurs, return 0. But we can rely on no exceptions thrown by standard library? Sorting may throw if memory allocation fails. But we can ignore? But requirement: preserve behavior for all valid inputs. If memory allocation fails, exception would propagate; but we catch and return 0. But we can keep try-catch. But we can also use std::vector with reserve? But still may throw.\n\nBut we can keep try-catch.\n\nBut we can optimize by sorting once.\n\nAlso we can avoid copying input into vector each round: copy once.\n\nAlso we can avoid constructing vector each round: allocate vector once outside loop.\n\nAlso we can avoid copying input into vector each round: use vector<int> values; values.reserve(input_length); then copy.\n\nBut we can also use std::vector<int> values(input, input + input_length); outside loop.\n\nBut we need to sort each round? No, sorted once.\n\nBut median calculation uses sorted values. So we can compute median once.\n\nBut we also need to compute values[r % n] each round. That uses sorted values.\n\nThus algorithm:\n\nif input==nullptr && input_length!=0 return 0; if input_length==0 return 0;\n\ntry {\n    std::vector<int> values(input, input + input_length);\n    std::sort(values.begin(), values.end());\n    const size_t n = values.size();\n    const size_t mid = n / 2;\n    const int median = (n % 2 == 0) ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2) : values[mid];\n    std::int64_t total = 0;\n    for (int r = 0; r < rounds; ++r) {\n        total += median;\n        total += values[r % n];\n    }\n    return total;\n} catch (...) { return 0; }\n\nThis reduces sorting overhead.\n\nAlso we can avoid modulo by using index variable:\n\nsize_t idx = 0;\nfor (int r=0; r<rounds; ++r) {\n    total += median;\n    total += values[idx];\n    ++idx;\n    if (idx == n) idx = 0;\n}\n\nBut modulo is fine.\n\nAlso we can use int64_t for total.\n\nAlso we can use size_t for rounds? rounds is int. But we can cast.\n\nAlso we can avoid copying input into vector by using std::vector<int> values; values.reserve(input_length); then std::copy_n(input, input_length, std::back_inserter(values)); but same.\n\nBetter: use std::vector<int> values(input, input + input_length); outside loop.\n\nAlso we can use std::sort instead of ranges::sort for performance? ranges::sort may be same.\n\nAlso we can use std::int64_t for median? But median is int. But we cast to int for addition.\n\nBut we can compute median as int64_t to avoid cast each round.\n\nBut we can compute median as int64_t median_val = ...; then total += median_val; total += values[r % n]; but values is int, so addition will promote to int64_t.\n\nOk.\n\nAlso we can avoid try-catch by using std::vector::reserve? But we keep.\n\nAlso we can avoid copying input into vector each round: we already did.\n\nThus final function.\n\nEdge cases: input==nullptr && input_length!=0: return 0. If input_length==0: return 0. If input==nullptr && input_length==0: we still proceed? The original code: if input==nullptr && input_length!=0 return 0; then if input_length==0 return 0. So if input==nullptr && input_length==0, we go to input_length==0 return 0. So same.\n\nAlso we need to preserve C ABI: function signature same.\n\nAlso we need to include <algorithm> and <cstdint> and <vector>.\n\nAlso we need to use std::sort.\n\nAlso we need to use std::int64_t.\n\nAlso we need to use std::size_t.\n\nAlso we need to use std::int64_t for total.\n\nAlso we need to use std::int64_t for median.\n\nAlso we need to use std::int64_t for sum of two ints.\n\nOk.\n\nLet's produce final code.\n\nAlso we need to keep extern \"C\" block.\n\nAlso we need to keep includes.\n\nAlso we need to keep try-catch.\n\nOk.\n\nLet's produce final function.\n\n",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786147500,
+  "id": "chatcmpl-1PbV2lWYwCKiFyoar14hY2kXByb13Gbl",
+  "model": "gpt-oss-20b-mxfp4",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 0,
+    "predicted_ms": 128486.653,
+    "predicted_n": 1550,
+    "predicted_per_second": 12.06350981840892,
+    "predicted_per_token_ms": 82.89461483870969,
+    "prompt_ms": 14446.498,
+    "prompt_n": 772,
+    "prompt_per_second": 53.438556527678884,
+    "prompt_per_token_ms": 18.71308031088083
+  },
+  "usage": {
+    "completion_tokens": 1550,
+    "prompt_tokens": 772,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2322
+  }
+}

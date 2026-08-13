@@ -1,0 +1,58 @@
+{
+  "artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__final",
+  "benchmark_name": "repeated_sort",
+  "confirmation_seed": 43,
+  "confirmation_status": "improved",
+  "confirmed_improvement": true,
+  "experiment_type": "guided-cpp",
+  "final_comparison_vs_original": {
+    "baseline_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 10328.3,
+      "mean_calls_per_second": 10302.4,
+      "median_absolute_deviation": 23.5,
+      "median_calls_per_second": 10304.8,
+      "minimum_calls_per_second": 10274.1,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__final",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 18349.2,
+      "mean_calls_per_second": 18317.666666666668,
+      "median_absolute_deviation": 26.100000000002183,
+      "median_calls_per_second": 18323.1,
+      "minimum_calls_per_second": 18280.7,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "improved",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": 77.81131123359988,
+    "sequence": [
+      "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__final",
+      "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__baseline",
+      "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__baseline",
+      "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__final",
+      "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__final",
+      "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__baseline"
+    ]
+  },
+  "model_id": "ministral-3-14b-instruct-q4km",
+  "parent_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__baseline",
+  "paths": {
+    "libsut": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__final/libSUT.so",
+    "source": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__final/optimized_repeated_sort.cpp"
+  },
+  "pipeline_id": "cpp-llm-guided-remarks__clang-o3",
+  "run_id": "20260807_full_run-guided",
+  "schema_version": 2,
+  "selection_status": "improved",
+  "source_provenance": "iteration-01",
+  "timing": {
+    "llm_inference_seconds": 5823.754710095935,
+    "optimization_pipeline_seconds": 7253.179308645893,
+    "repair_inference_seconds": 650.3671963298693,
+    "total_llm_seconds": 6474.121906425804
+  }
+}

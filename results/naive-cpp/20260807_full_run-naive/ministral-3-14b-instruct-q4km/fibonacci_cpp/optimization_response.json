@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n\nextern \"C\" {\n\nuint64_t fibonacci(uint64_t n) {\n    uint64_t a = 0, b = 1;\n    while (n-- > 1) {\n        uint64_t c = a + b;\n        a = b;\n        b = c;\n    }\n    return b;\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786144694,
+  "id": "chatcmpl-k8cRQltYK8BvD8u17jMyWmpm4mv4nC9w",
+  "model": "ministral-3-14b-instruct-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 21,
+    "predicted_ms": 19045.671,
+    "predicted_n": 82,
+    "predicted_per_second": 4.30544032814596,
+    "predicted_per_token_ms": 232.26428048780485,
+    "prompt_ms": 21971.377,
+    "prompt_n": 538,
+    "prompt_per_second": 24.486403378359036,
+    "prompt_per_token_ms": 40.838990706319706
+  },
+  "usage": {
+    "completion_tokens": 82,
+    "prompt_tokens": 559,
+    "prompt_tokens_details": {
+      "cached_tokens": 21
+    },
+    "total_tokens": 641
+  }
+}

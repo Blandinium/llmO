@@ -1,0 +1,41 @@
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/gpt-oss-20b-mxfp4/count_matches_cpp/optimized.cpp:3:1: error: unknown type name 'size_t'
+    3 | size_t count_matches(
+      | ^
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/gpt-oss-20b-mxfp4/count_matches_cpp/optimized.cpp:5:5: error: unknown type name 'size_t'
+    5 |     size_t allowed_length,
+      |     ^
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/gpt-oss-20b-mxfp4/count_matches_cpp/optimized.cpp:7:5: error: unknown type name 'size_t'
+    7 |     size_t queries_length
+      |     ^
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/gpt-oss-20b-mxfp4/count_matches_cpp/optimized.cpp:17:5: error: use of undeclared identifier 'size_t'; did you mean 'sizeof'?
+   17 |     size_t matches = 0;
+      |     ^~~~~~
+      |     sizeof
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/gpt-oss-20b-mxfp4/count_matches_cpp/optimized.cpp:17:12: error: use of undeclared identifier 'matches'
+   17 |     size_t matches = 0;
+      |            ^
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/gpt-oss-20b-mxfp4/count_matches_cpp/optimized.cpp:25:19: error: use of undeclared identifier 'matches'; did you mean 'catch'?
+   25 |                 ++matches;
+      |                   ^~~~~~~
+      |                   catch
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/gpt-oss-20b-mxfp4/count_matches_cpp/optimized.cpp:25:17: error: expected expression
+   25 |                 ++matches;
+      |                 ^
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/gpt-oss-20b-mxfp4/count_matches_cpp/optimized.cpp:28:16: error: use of undeclared identifier 'matches'; did you mean 'catch'?
+   28 |         return matches;
+      |                ^~~~~~~
+      |                catch
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/gpt-oss-20b-mxfp4/count_matches_cpp/optimized.cpp:28:16: error: expected expression
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/gpt-oss-20b-mxfp4/count_matches_cpp/optimized.cpp:36:19: error: use of undeclared identifier 'matches'; did you mean 'catch'?
+   36 |                 ++matches;
+      |                   ^~~~~~~
+      |                   catch
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/gpt-oss-20b-mxfp4/count_matches_cpp/optimized.cpp:36:17: error: expected expression
+   36 |                 ++matches;
+      |                 ^
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/gpt-oss-20b-mxfp4/count_matches_cpp/optimized.cpp:43:12: error: use of undeclared identifier 'matches'; did you mean 'catch'?
+   43 |     return matches;
+      |            ^~~~~~~
+      |            catch
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/gpt-oss-20b-mxfp4/count_matches_cpp/optimized.cpp:43:12: error: expected expression
+13 errors generated.

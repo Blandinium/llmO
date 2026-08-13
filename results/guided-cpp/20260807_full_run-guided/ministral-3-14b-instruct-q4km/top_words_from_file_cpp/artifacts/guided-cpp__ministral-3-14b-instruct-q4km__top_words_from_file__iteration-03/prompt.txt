@@ -1,0 +1,1964 @@
+You are an expert C++23 performance engineer.
+
+You are iteratively optimizing top_words_from_file.cpp.
+Optimization iteration 3 of 3
+
+The current implementation compiles successfully and preserves the required ABI.
+
+Clang was run at -O3 and emitted the optimization remarks below. These remarks describe optimizations Clang performed, missed, or analyzed.
+
+Use them as diagnostic evidence to identify C++-level changes that could enable better generated code or improve the algorithm beyond what the compiler can do automatically.
+
+Do not blindly follow every remark. Some remarks only explain a compiler decision and changing the source may not be beneficial.
+
+Prefer meaningful runtime improvements such as:
+- better algorithms or data structures;
+- reducing allocations and copies;
+- improving memory locality;
+- simplifying dependencies that prevent vectorization;
+- eliminating unnecessary work;
+- making aliasing/lifetime/control-flow properties clearer when they are actually guaranteed by the API;
+- exposing profitable transformations to the compiler.
+
+Do not make unsafe assumptions merely to satisfy an optimization remark. A vectorizer remark might suggest aliasing is blocking vectorization, for example. That does NOT mean you are allowed to add restrict semantics unless those semantics are actually guaranteed by the API/program behavior.
+
+Hard requirements:
+- Return one complete replacement for top_words_from_file.cpp.
+- Preserve the public C ABI exactly as declared in library.h.
+- Do not change exported names, parameter types, return types, struct layouts, ownership rules, or allocation/free conventions.
+- Do not implement unrelated exported functions.
+- Preserve externally observable behavior for all valid inputs.
+- Do not specialize for benchmark constants or hard-code benchmark results.
+- Exceptions must not escape through extern "C" APIs.
+- Do not modify library.h or sut_common.h.
+- Return raw C++ only.
+- No Markdown, explanation, notes, or code fences.
+
+Headers:
+// library.h
+#ifndef SUT_LIBRARY_H
+#define SUT_LIBRARY_H
+
+#include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct WordCount {
+    char* word;
+    uint64_t count;
+} WordCount;
+
+uint64_t fibonacci(uint64_t n);
+char* format_list(const int* input, size_t input_length);
+int64_t repeated_sort(const int* input, size_t input_length, int rounds);
+size_t count_matches(
+    const int* allowed,
+    size_t allowed_length,
+    const int* queries,
+    size_t queries_length
+);
+WordCount* top_words_from_file(
+    const char* path,
+    const char* const* ignore_words,
+    size_t ignore_words_length,
+    size_t max_results,
+    size_t* result_length
+);
+void free_string(char* value);
+void free_word_counts(WordCount* values, size_t length);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // SUT_LIBRARY_H
+
+
+// sut_common.h
+#ifndef SUT_COMMON_H
+#define SUT_COMMON_H
+
+#include <string>
+
+char* copy_to_c_string(const std::string& value);
+bool is_word_char(char c);
+char normalize_char(char c);
+
+#endif // SUT_COMMON_H
+
+
+Current top_words_from_file.cpp:
+#include "library.h"
+#include "sut_common.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <fstream>
+#include <memory>
+#include <new>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+namespace {
+    struct WordCountPair {
+        std::string word;
+        uint64_t count;
+    };
+
+    bool should_ignore(
+        const std::vector<std::string>& ignore,
+        const std::string& word
+    ) {
+        return std::ranges::any_of(ignore, [&word](const std::string& ignored_word) {
+            return ignored_word == word;
+        });
+    }
+
+    void add_word(
+        std::unordered_map<std::string, uint64_t>& frequencies,
+        const std::vector<std::string>& ignore,
+        const std::string& word
+    ) {
+        if (!word.empty() && !should_ignore(ignore, word)) {
+            frequencies[word]++;
+        }
+    }
+
+    void scan_text(
+        const std::string& text,
+        std::unordered_map<std::string, uint64_t>& frequencies,
+        const std::vector<std::string>& ignore
+    ) {
+        std::string current_word;
+        for (size_t i = 0; i < text.size(); ++i) {
+            const char c = text[i];
+            if (is_word_char(c)) {
+                current_word.push_back(normalize_char(c));
+            } else {
+                add_word(frequencies, ignore, current_word);
+                current_word.clear();
+            }
+        }
+        add_word(frequencies, ignore, current_word);
+    }
+
+    bool is_better_candidate(const WordCount& a, const WordCount& b) {
+        if (a.count != b.count) {
+            return a.count > b.count;
+        }
+        return std::strcmp(a.word, b.word) < 0;
+    }
+
+    void consider_candidate(
+        WordCount* top,
+        size_t top_length,
+        const std::string& word,
+        uint64_t count
+    ) {
+        char* candidate_word = copy_to_c_string(word);
+        if (candidate_word == nullptr) {
+            throw std::bad_alloc();
+        }
+
+        WordCount candidate{candidate_word, count};
+        auto insert_pos = std::ranges::lower_bound(
+            top,
+            top + top_length,
+            candidate,
+            [](const WordCount& existing, const WordCount& value) {
+                return is_better_candidate(existing, value);
+            }
+        );
+
+        if (insert_pos == top + top_length) {
+            std::free(candidate_word);
+            return;
+        }
+
+        std::free((top + top_length - 1)->word);
+        std::move_backward(insert_pos, top + top_length - 1, top + top_length);
+        *insert_pos = candidate;
+    }
+
+    void find_top(
+        const std::vector<WordCountPair>& frequency_items,
+        WordCount* top,
+        size_t top_length
+    ) {
+        for (const auto& [word, count] : frequency_items) {
+            consider_candidate(top, top_length, word, count);
+        }
+    }
+
+    std::string read_whole_file(const std::string& path) {
+        std::ifstream file(path, std::ios::binary);
+        if (!file) {
+            throw std::runtime_error("Could not open input file: " + path);
+        }
+
+        file.seekg(0, std::ios::end);
+        const std::streamsize size = file.tellg();
+        if (size < 0) {
+            throw std::runtime_error("Could not determine input file size: " + path);
+        }
+        file.seekg(0, std::ios::beg);
+
+        std::string contents;
+        contents.resize(static_cast<std::size_t>(size));
+        if (size > 0) {
+            file.read(contents.data(), size);
+            if (!file) {
+                throw std::runtime_error("Could not read input file: " + path);
+            }
+        }
+        return contents;
+    }
+}
+
+extern "C" {
+
+WordCount* top_words_from_file(
+    const char* path,
+    const char* const* ignore_words,
+    size_t ignore_words_length,
+    size_t max_results,
+    size_t* result_length
+) {
+    if (result_length != nullptr) {
+        *result_length = 0;
+    }
+
+    if (path == nullptr || (ignore_words == nullptr && ignore_words_length != 0)) {
+        return nullptr;
+    }
+
+    try {
+        std::vector<std::string> ignore;
+        ignore.reserve(ignore_words_length);
+
+        for (size_t i = 0; i < ignore_words_length; ++i) {
+            if (ignore_words[i] != nullptr) {
+                ignore.emplace_back(ignore_words[i]);
+            }
+        }
+
+        const std::string text = read_whole_file(path);
+
+        std::vector<std::string> normalized_ignore;
+        normalized_ignore.reserve(ignore.size());
+
+        for (const std::string& word : ignore) {
+            std::string normalized;
+            normalized.reserve(word.size());
+
+            for (char c : word) {
+                if (is_word_char(c)) {
+                    normalized.push_back(normalize_char(c));
+                }
+            }
+
+            if (!normalized.empty()) {
+                normalized_ignore.push_back(std::move(normalized));
+            }
+        }
+
+        std::unordered_map<std::string, uint64_t> frequencies;
+        scan_text(text, frequencies, normalized_ignore);
+
+        std::vector<WordCountPair> frequency_items;
+        frequency_items.reserve(frequencies.size());
+        for (auto&& [word, count] : frequencies) {
+            frequency_items.emplace_back(std::move(word), count);
+        }
+
+        const size_t result_size = std::min(frequency_items.size(), max_results);
+        if (result_size == 0) {
+            return nullptr;
+        }
+
+        WordCount* result = static_cast<WordCount*>(
+            std::calloc(result_size, sizeof(WordCount))
+        );
+        if (result == nullptr) {
+            return nullptr;
+        }
+
+        const auto cleanup = [result_size](WordCount* values) {
+            free_word_counts(values, result_size);
+        };
+        std::unique_ptr<WordCount, decltype(cleanup)> result_guard(result, cleanup);
+
+        find_top(frequency_items, result, result_size);
+
+        if (result_length != nullptr) {
+            *result_length = result_size;
+        }
+
+        return result_guard.release();
+    } catch (...) {
+        return nullptr;
+    }
+}
+}
+
+
+Clang optimization remarks:
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                   Line: 139, Column: 8 }
+Function:        _ZNSt15__new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE8allocateEmPKv
+Args:
+  - Callee:          _ZSt28__throw_bad_array_new_lengthv
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt15__new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE8allocateEmPKv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 127, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                   Line: 140, Column: 6 }
+Function:        _ZNSt15__new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE8allocateEmPKv
+Args:
+  - Callee:          _ZSt17__throw_bad_allocv
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt15__new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE8allocateEmPKv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 127, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                   Line: 151, Column: 27 }
+Function:        _ZNSt15__new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE8allocateEmPKv
+Args:
+  - Callee:          _Znwm
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt15__new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE8allocateEmPKv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 127, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+Function:        __clang_call_terminate
+Args:
+  - Callee:          __cxa_begin_catch
+  - String:          ' will not be inlined into '
+  - Caller:          __clang_call_terminate
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+Function:        __clang_call_terminate
+Args:
+  - Callee:          _ZSt9terminatev
+  - String:          ' will not be inlined into '
+  - Caller:          __clang_call_terminate
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 683, Column: 21 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2EOS4_
+Args:
+  - String:          ''''
+  - Callee:          __clang_call_terminate
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2EOS4_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 684, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          noinline function attribute
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2EOS4_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 694, Column: 24 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2EOS4_
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 218, Column: 26 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1084, Column: 16 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2EOS4_
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 427, Column: 33 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1084, Column: 16 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2EOS4_
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 255, Column: 31 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZSt12construct_atINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEJS5_EEDTgsnwcvPvLi0E_T_pispclsr3stdE7declvalIT0_EEEEPS7_DpOS8_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 694, Column: 24 }
+Function:        _ZSt12construct_atINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEJS5_EEDTgsnwcvPvLi0E_T_pispclsr3stdE7declvalIT0_EEEEPS7_DpOS8_
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 218, Column: 26 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1084, Column: 16 }
+Function:        _ZSt12construct_atINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEJS5_EEDTgsnwcvPvLi0E_T_pispclsr3stdE7declvalIT0_EEEEPS7_DpOS8_
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 427, Column: 33 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1084, Column: 16 }
+Function:        _ZSt12construct_atINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEJS5_EEDTgsnwcvPvLi0E_T_pispclsr3stdE7declvalIT0_EEEEPS7_DpOS8_
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 255, Column: 31 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                   Line: 172, Column: 2 }
+Function:        _ZNSt15__new_allocatorIcE10deallocateEPcm
+Args:
+  - Callee:          _ZdlPvm
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt15__new_allocatorIcE10deallocateEPcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 157, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 294, Column: 9 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_destroyEm
+Args:
+  - String:          ''''
+  - Callee:          __clang_call_terminate
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_destroyEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 294, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          noinline function attribute
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 809, Column: 9 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEED2Ev
+Args:
+  - String:          ''''
+  - Callee:          __clang_call_terminate
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 809, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          noinline function attribute
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZSt14__relocate_a_1IPNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES6_SaIS5_EET0_T_S9_S8_RT1_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 218, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 427, Column: 33 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZSt14__relocate_a_1IPNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES6_SaIS5_EET0_T_S9_S8_RT1_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 218, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 427, Column: 33 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZSt12__relocate_aIPNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES6_SaIS5_EET0_T_S9_S8_RT1_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 218, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 427, Column: 33 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZSt12__relocate_aIPNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES6_SaIS5_EET0_T_S9_S8_RT1_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 218, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 427, Column: 33 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE11_S_relocateEPS5_S8_S8_RS6_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 218, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 427, Column: 33 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE11_S_relocateEPS5_S8_S8_RS6_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 218, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 427, Column: 33 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                   Line: 172, Column: 2 }
+Function:        _ZNSt15__new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE10deallocateEPS5_m
+Args:
+  - Callee:          _ZdlPvm
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt15__new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE10deallocateEPS5_m
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 157, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                   Line: 71, Column: 2 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE7reserveEm
+Args:
+  - Callee:          _ZSt20__throw_length_errorPKc
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE7reserveEm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                       Line: 69, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                   Line: 93, Column: 32 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE7reserveEm
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_vector.h', 
+                       Line: 1094, Column: 23 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                   Line: 94, Column: 18 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE7reserveEm
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_vector.h', 
+                       Line: 1093, Column: 33 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                   Line: 93, Column: 32 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE7reserveEm
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_vector.h', 
+                       Line: 1094, Column: 23 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                   Line: 94, Column: 18 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE7reserveEm
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_vector.h', 
+                       Line: 1093, Column: 33 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                   Line: 391, Column: 9 }
+Function:        _ZNSt11char_traitsIcE6lengthEPKc
+Args:
+  - Callee:          strlen
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt11char_traitsIcE6lengthEPKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 386, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                   Line: 140, Column: 6 }
+Function:        _ZNSt15__new_allocatorIcE8allocateEmPKv
+Args:
+  - Callee:          _ZSt17__throw_bad_allocv
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt15__new_allocatorIcE8allocateEmPKv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 127, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                   Line: 151, Column: 27 }
+Function:        _ZNSt15__new_allocatorIcE8allocateEmPKv
+Args:
+  - Callee:          _Znwm
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt15__new_allocatorIcE8allocateEmPKv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 127, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 144, Column: 2 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+Args:
+  - Callee:          _ZSt20__throw_length_errorPKc
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERmm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 140, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 242, Column: 44 }
+Function:        _ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tagEN6_GuardD2Ev
+Args:
+  - String:          ''''
+  - Callee:          __clang_call_terminate
+  - String:          ''' not inlined into '''
+  - Caller:          _ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tagEN6_GuardD2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 242, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          noinline function attribute
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                   Line: 350, Column: 9 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag
+Args:
+  - String:          'load of type '
+  - Type:            i8
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 255, Column: 31 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 427, Column: 33 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                   Line: 350, Column: 9 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag
+Args:
+  - String:          'load of type '
+  - Type:            i8
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 255, Column: 31 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 427, Column: 33 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 651, Column: 4 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2IS3_EEPKcRKS3_
+Args:
+  - Callee:          _ZSt19__throw_logic_errorPKc
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2IS3_EEPKcRKS3_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 648, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                   Line: 350, Column: 9 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2IS3_EEPKcRKS3_
+Args:
+  - String:          'load of type '
+  - Type:            i8
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 255, Column: 31 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                   Line: 350, Column: 9 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2IS3_EEPKcRKS3_
+Args:
+  - String:          'load of type '
+  - Type:            i8
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 194, Column: 25 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                   Line: 350, Column: 9 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2IS3_EEPKcRKS3_
+Args:
+  - String:          'load of type '
+  - Type:            i8
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 194, Column: 25 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                   Line: 350, Column: 9 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2IS3_EEPKcRKS3_
+Args:
+  - String:          'load of type '
+  - Type:            i8
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 255, Column: 31 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                   Line: 350, Column: 9 }
+Function:        _ZSt12construct_atINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEJRKPKcEEDTgsnwcvPvLi0E_T_pispclsr3stdE7declvalIT0_EEEEPSB_DpOSC_
+Args:
+  - String:          'load of type '
+  - Type:            i8
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 194, Column: 25 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                   Line: 350, Column: 9 }
+Function:        _ZSt12construct_atINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEJRKPKcEEDTgsnwcvPvLi0E_T_pispclsr3stdE7declvalIT0_EEEEPSB_DpOSC_
+Args:
+  - String:          'load of type '
+  - Type:            i8
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 255, Column: 31 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_vector.h', 
+                   Line: 1930, Column: 4 }
+Function:        _ZNKSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE12_M_check_lenEmPKc
+Args:
+  - Callee:          _ZSt20__throw_length_errorPKc
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNKSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE12_M_check_lenEmPKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_vector.h', 
+                       Line: 1928, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                   Line: 615, Column: 6 }
+Function:        _ZZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE17_M_realloc_appendIJRKPKcEEEvDpOT_EN6_GuardD2Ev
+Args:
+  - String:          ''''
+  - Callee:          __clang_call_terminate
+  - String:          ''' not inlined into '''
+  - Caller:          _ZZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE17_M_realloc_appendIJRKPKcEEEvDpOT_EN6_GuardD2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                       Line: 613, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          noinline function attribute
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                   Line: 687, Column: 33 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE17_M_realloc_appendIJRKPKcEEEvDpOT_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                   Line: 687, Column: 33 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE17_M_realloc_appendIJRKPKcEEEvDpOT_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                   Line: 123, Column: 4 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE12emplace_backIJRKPKcEEERS5_DpOT_
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE17_M_realloc_appendIJRKPKcEEEvDpOT_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                       Line: 589, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE12emplace_backIJRKPKcEEERS5_DpOT_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                       Line: 113, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '600'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                   Line: 350, Column: 9 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE12emplace_backIJRKPKcEEERS5_DpOT_
+Args:
+  - String:          'load of type '
+  - Type:            i8
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 194, Column: 25 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                   Line: 350, Column: 9 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE12emplace_backIJRKPKcEEERS5_DpOT_
+Args:
+  - String:          'load of type '
+  - Type:            i8
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 255, Column: 31 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                   Line: 119, Column: 6 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE12emplace_backIJRKPKcEEERS5_DpOT_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                       Line: 114, Column: 20 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1068, Column: 20 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE12emplace_backIJRKPKcEEERS5_DpOT_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                       Line: 114, Column: 20 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                       Line: 123, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                   Line: 350, Column: 9 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE12emplace_backIJRKPKcEEERS5_DpOT_
+Args:
+  - String:          'load of type '
+  - Type:            i8
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 255, Column: 31 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                   Line: 350, Column: 9 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE12emplace_backIJRKPKcEEERS5_DpOT_
+Args:
+  - String:          'load of type '
+  - Type:            i8
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 194, Column: 25 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                   Line: 119, Column: 6 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE12emplace_backIJRKPKcEEERS5_DpOT_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                       Line: 114, Column: 20 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1068, Column: 20 }
+Function:        _ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE12emplace_backIJRKPKcEEERS5_DpOT_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                       Line: 114, Column: 20 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/vector.tcc', 
+                       Line: 123, Column: 4 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_ios.h', 
+                   Line: 465, Column: 9 }
+Function:        _ZNSt9basic_iosIcSt11char_traitsIcEEC2Ev
+Args:
+  - Callee:          _ZNSt8ios_baseC2Ev
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt9basic_iosIcSt11char_traitsIcEEC2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_ios.h', 
+                       Line: 467, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                   Line: 701, Column: 15 }
+Function:        _ZNSiC2Ev
+Args:
+  - Callee:          _ZNSt9basic_iosIcSt11char_traitsIcEE4initEPSt15basic_streambufIcS1_E
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSiC2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 701, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                   Line: 701, Column: 7 }
+Function:        _ZNSiC2Ev
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 701, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                   Line: 701, Column: 7 }
+Function:        _ZNSiC2Ev
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 701, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                   Line: 701, Column: 15 }
+Function:        _ZNSiC2Ev
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 701, Column: 7 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 701, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                   Line: 701, Column: 15 }
+Function:        _ZNSiC2Ev
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 700, Column: 9 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 342, Column: 16 }
+Function:        _ZNSt13basic_filebufIcSt11char_traitsIcEE4openERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - Callee:          _ZNSt13basic_filebufIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt13basic_filebufIcSt11char_traitsIcEE4openERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 342, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_ios.h', 
+                   Line: 162, Column: 15 }
+Function:        _ZNSt9basic_iosIcSt11char_traitsIcEE8setstateESt12_Ios_Iostate
+Args:
+  - Callee:          _ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt9basic_iosIcSt11char_traitsIcEE8setstateESt12_Ios_Iostate
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_ios.h', 
+                       Line: 162, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 744, Column: 10 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEE4openERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - Callee:          _ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt14basic_ifstreamIcSt11char_traitsIcEE4openERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 738, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 744, Column: 10 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEE4openERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 342, Column: 16 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 740, Column: 10 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEE4openERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 342, Column: 16 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/streambuf', 
+                   Line: 205, Column: 9 }
+Function:        _ZNSt15basic_streambufIcSt11char_traitsIcEED2Ev
+Args:
+  - Callee:          _ZNSt6localeD1Ev
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt15basic_streambufIcSt11char_traitsIcEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/streambuf', 
+                       Line: 205, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 259, Column: 12 }
+Function:        _ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev
+Args:
+  - Callee:          _ZNSt13basic_filebufIcSt11char_traitsIcEE5closeEv
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 257, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 259, Column: 21 }
+Function:        _ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev
+Args:
+  - Callee:          __cxa_begin_catch
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 257, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 261, Column: 6 }
+Function:        _ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev
+Args:
+  - Callee:          __cxa_end_catch
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 257, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 262, Column: 7 }
+Function:        _ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev
+Args:
+  - Callee:          _ZNSt12__basic_fileIcED1Ev
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 257, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 261, Column: 6 }
+Function:        _ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev
+Args:
+  - String:          ''''
+  - Callee:          __clang_call_terminate
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 257, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          noinline function attribute
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                   Line: 106, Column: 7 }
+Function:        _ZNSiD2Ev
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 106, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                   Line: 106, Column: 7 }
+Function:        _ZNSiD2Ev
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 106, Column: 7 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 604, Column: 27 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - Callee:          _ZNSt13basic_filebufIcSt11char_traitsIcEEC1Ev
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 605, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 606, Column: 8 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - Callee:          _ZNSt9basic_iosIcSt11char_traitsIcEE4initEPSt15basic_streambufIcS1_E
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 605, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 608, Column: 7 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - Callee:          _ZNSt8ios_baseD2Ev
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 605, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 608, Column: 7 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt13basic_filebufIcSt11char_traitsIcEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 257, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 605, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '45'
+  - String:          ', threshold='
+  - Threshold:       '45'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                   Line: 701, Column: 7 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 701, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                   Line: 701, Column: 15 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 701, Column: 7 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 701, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                   Line: 701, Column: 15 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 700, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 606, Column: 8 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 605, Column: 7 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 604, Column: 27 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 606, Column: 8 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                   Line: 0, Column: 0 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 606, Column: 8 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/fstream', 
+                       Line: 342, Column: 16 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                   Line: 106, Column: 7 }
+Function:        _ZNSt14basic_ifstreamIcSt11char_traitsIcEEC1ERKNSt7__cxx1112basic_stringIcS1_SaIcEEESt13_Ios_Openmode
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 701, Column: 7 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/istream', 
+                       Line: 106, Column: 7 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1182, Column: 9 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE8capacityEv
+Args:
+  - String:          ''''
+  - Callee:          __clang_call_terminate
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE8capacityEv
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1181, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          noinline function attribute
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 405, Column: 4 }
+Function:        _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE15_M_check_lengthEmmPKc
+Args:
+  - Callee:          _ZSt20__throw_length_errorPKc
+  - String:          ' will not be inlined into '
+  - Caller:          _ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE15_M_check_lengthEmmPKc
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 403, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 424, Column: 8 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_appendEPKcm
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 328, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_appendEPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 415, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '320'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_appendEPKcm
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 228, Column: 28 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 424, Column: 8 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_appendEPKcm
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 228, Column: 28 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_appendEPKcm
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 228, Column: 28 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 427, Column: 33 }
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                   Line: 424, Column: 8 }
+Function:        _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE6appendEPKcm
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 328, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE6appendEPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 1467, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '320'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+...

@@ -1,0 +1,4 @@
+/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/format_list_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-01/source_output.cpp:52:14: error: no member named 'memcpy' in namespace 'std'
+   52 |         std::memcpy(pos, digit_pos, digit_count);
+      |         ~~~~~^
+1 error generated.

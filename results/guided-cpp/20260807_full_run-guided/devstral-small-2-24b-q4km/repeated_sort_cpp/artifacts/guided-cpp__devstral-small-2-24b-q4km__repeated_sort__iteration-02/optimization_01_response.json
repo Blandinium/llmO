@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n\n#include <algorithm>\n#include <cstdint>\n#include <vector>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::vector<int> values;\n    values.reserve(input_length);\n    values.assign(input, input + input_length);\n\n    for (int r = 0; r < rounds; ++r) {\n        std::sort(values.begin(), values.end());\n\n        const size_t mid = values.size() / 2;\n        const int median = (values.size() % 2 == 0)\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786278367,
+  "id": "chatcmpl-oGBl7cQGmsKwf6qpz7VNiTsIHAckGlsj",
+  "model": "devstral-small-2-24b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 45,
+    "predicted_ms": 178105.549,
+    "predicted_n": 237,
+    "predicted_per_second": 1.3306716232631246,
+    "predicted_per_token_ms": 751.5002067510549,
+    "prompt_ms": 2697747.732,
+    "prompt_n": 27658,
+    "prompt_per_second": 10.25225586215042,
+    "prompt_per_token_ms": 97.53950871357291
+  },
+  "usage": {
+    "completion_tokens": 237,
+    "prompt_tokens": 27703,
+    "prompt_tokens_details": {
+      "cached_tokens": 45
+    },
+    "total_tokens": 27940
+  }
+}

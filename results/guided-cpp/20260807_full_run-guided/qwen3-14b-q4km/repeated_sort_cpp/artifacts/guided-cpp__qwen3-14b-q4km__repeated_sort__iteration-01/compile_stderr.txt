@@ -1,0 +1,4 @@
+/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/repeated_sort_cpp/artifacts/guided-cpp__qwen3-14b-q4km__repeated_sort__iteration-01/source_output.cpp:26:26: error: no type named 'sort' in namespace 'std::ranges'
+   26 |             std::ranges::sort(values);
+      |             ~~~~~~~~~~~~~^
+1 error generated.

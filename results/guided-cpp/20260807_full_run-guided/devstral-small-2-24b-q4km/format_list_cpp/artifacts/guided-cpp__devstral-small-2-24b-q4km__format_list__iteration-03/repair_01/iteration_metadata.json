@@ -1,0 +1,133 @@
+{
+  "abi_result": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03/repair_01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03/repair_01",
+    "duration_seconds": 0.008652844000607729,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03/repair_01/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03/repair_01/abi_symbols_stdout.txt"
+  },
+  "accepted_remarks": null,
+  "compile_result": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03/repair_01",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03/repair_01/source_output.cpp",
+      "/home/tijl/code/llmO/SUT/count_matches.cpp",
+      "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+      "-o",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03/repair_01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 2.2184484540484846,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03/repair_01/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03/repair_01/compile_stdout.txt"
+  },
+  "iteration": 3,
+  "metadata": {
+    "abi_error": null,
+    "accepted_as_best": true,
+    "benchmark_comparison": {
+      "baseline_artifact_id": "guided-cpp__devstral-small-2-24b-q4km__format_list__baseline",
+      "baseline_statistics": {
+        "maximum_calls_per_second": 79768,
+        "mean_calls_per_second": 79551.26666666666,
+        "median_absolute_deviation": 24.40000000000873,
+        "median_calls_per_second": 79455.1,
+        "minimum_calls_per_second": 79430.7,
+        "requested_repetitions": 3,
+        "successful_repetitions": 3
+      },
+      "candidate_artifact_id": "guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03",
+      "candidate_statistics": {
+        "maximum_calls_per_second": 93046.4,
+        "mean_calls_per_second": 92429.83333333333,
+        "median_absolute_deviation": 275.6999999999971,
+        "median_calls_per_second": 92259.4,
+        "minimum_calls_per_second": 91983.7,
+        "requested_repetitions": 3,
+        "successful_repetitions": 3
+      },
+      "classification": "improved",
+      "noise_threshold_percent": 2.0,
+      "relative_change_percent": 16.115139242163167,
+      "sequence": [
+        "guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03",
+        "guided-cpp__devstral-small-2-24b-q4km__format_list__baseline",
+        "guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03",
+        "guided-cpp__devstral-small-2-24b-q4km__format_list__baseline",
+        "guided-cpp__devstral-small-2-24b-q4km__format_list__baseline",
+        "guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03"
+      ]
+    },
+    "duration_seconds": 271.1491843520198,
+    "llm_result": {
+      "completion_tokens": 533,
+      "content": "#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <string>\n#include <vector>\n#include <algorithm>\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    try {\n        // Pre-calculate the total size needed for the output string\n        size_t total_size = 2; // for \"[]\"\n        for (size_t i = 0; i < input_length; ++i) {\n            // Estimate size for each number (up to 20 digits for 64-bit int)\n            // Plus 2 for \", \" (except for the first element)\n            total_size += i > 0 ? 3 : 0;\n            int num = input[i];\n            if (num == 0) {\n                total_size += 1;\n            } else {\n                // Count digits\n                int temp = num;\n                if (temp < 0) temp = -temp;\n                while (temp > 0) {\n                    total_size++;\n                    temp /= 10;\n                }\n            }\n        }\n\n        // Allocate the string buffer directly\n        std::vector<char> buffer(total_size);\n        char* ptr = buffer.data();\n\n        // Write the opening bracket\n        *ptr++ = '[';\n\n        // Write each number\n        for (size_t i = 0; i < input_length; ++i) {\n            if (i > 0) {\n                *ptr++ = ',';\n                *ptr++ = ' ';\n            }\n\n            int num = input[i];\n            if (num == 0) {\n                *ptr++ = '0';\n            } else {\n                // Handle negative numbers\n                if (num < 0) {\n                    *ptr++ = '-';\n                    num = -num;\n                }\n\n                // Convert digits\n                char* start = ptr;\n                while (num > 0) {\n                    *ptr++ = '0' + (num % 10);\n                    num /= 10;\n                }\n\n                // Reverse the digits\n                std::reverse(start, ptr);\n            }\n        }\n\n        // Write the closing bracket\n        *ptr++ = ']';\n\n        // Null-terminate the string\n        *ptr = '\\0';\n\n        // Copy to C string (copy_to_c_string will handle allocation)\n        return copy_to_c_string(std::string(buffer.data(), ptr - buffer.data()));\n    } catch (...) {\n        return nullptr;\n    }\n}\n\n}",
+      "finish_reason": "stop",
+      "prompt_tokens": 1133,
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <string>\n#include <vector>\n#include <algorithm>\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    try {\n        // Pre-calculate the total size needed for the output string\n        size_t total_size = 2; // for \"[]\"\n        for (size_t i = 0; i < input_length; ++i) {\n            // Estimate size for each number (up to 20 digits for 64-bit int)\n            // Plus 2 for \", \" (except for the first element)\n            total_size += i > 0 ? 3 : 0;\n            int num = input[i];\n            if (num == 0) {\n                total_size += 1;\n            } else {\n                // Count digits\n                int temp = num;\n                if (temp < 0) temp = -temp;\n                while (temp > 0) {\n                    total_size++;\n                    temp /= 10;\n                }\n            }\n        }\n\n        // Allocate the string buffer directly\n        std::vector<char> buffer(total_size);\n        char* ptr = buffer.data();\n\n        // Write the opening bracket\n        *ptr++ = '[';\n\n        // Write each number\n        for (size_t i = 0; i < input_length; ++i) {\n            if (i > 0) {\n                *ptr++ = ',';\n                *ptr++ = ' ';\n            }\n\n            int num = input[i];\n            if (num == 0) {\n                *ptr++ = '0';\n            } else {\n                // Handle negative numbers\n                if (num < 0) {\n                    *ptr++ = '-';\n                    num = -num;\n                }\n\n                // Convert digits\n                char* start = ptr;\n                while (num > 0) {\n                    *ptr++ = '0' + (num % 10);\n                    num /= 10;\n                }\n\n                // Reverse the digits\n                std::reverse(start, ptr);\n            }\n        }\n\n        // Write the closing bracket\n        *ptr++ = ']';\n\n        // Null-terminate the string\n        *ptr = '\\0';\n\n        // Copy to C string (copy_to_c_string will handle allocation)\n        return copy_to_c_string(std::string(buffer.data(), ptr - buffer.data()));\n    } catch (...) {\n        return nullptr;\n    }\n}\n\n}",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786272051,
+        "id": "chatcmpl-PJGK8n5ihmfqUeCojIPN081ZGcwq3tIU",
+        "model": "devstral-small-2-24b-q4km",
+        "object": "chat.completion",
+        "system_fingerprint": "b9840-8c146a836",
+        "timings": {
+          "cache_n": 558,
+          "predicted_ms": 220798.951,
+          "predicted_n": 533,
+          "predicted_per_second": 2.413960743862411,
+          "predicted_per_token_ms": 414.2569437148218,
+          "prompt_ms": 49463.546,
+          "prompt_n": 575,
+          "prompt_per_second": 11.624722578522777,
+          "prompt_per_token_ms": 86.02355826086956
+        },
+        "usage": {
+          "completion_tokens": 533,
+          "prompt_tokens": 1133,
+          "prompt_tokens_details": {
+            "cached_tokens": 558
+          },
+          "total_tokens": 1666
+        }
+      },
+      "total_tokens": 1666
+    }
+  },
+  "remarks_file": null,
+  "shown_remarks": null,
+  "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03/repair_01/source_output.cpp",
+  "success": true,
+  "type": "repair_01"
+}

@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```llvm\n; ModuleID = '/home/tijl/code/llmO/SUT/fibonacci.cpp'\nsource_filename = \"/home/tijl/code/llmO/SUT/fibonacci.cpp\"\ntarget datalayout = \"e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128\"\ntarget triple = \"x86_64-redhat-linux-gnu\"\n\n; Function Attrs: mustprogress nofree nosync nounwind willreturn memory(none) uwtable\ndefine i64 @fibonacci(i64 noundef %n) local_unnamed_addr #0 {\nentry:\n  %cmp = icmp ult i64 %n, 2\n  br i1 %cmp, label %return, label %tailrecurse\n\ntailrecurse:                                      ; preds = %tailrecurse, %entry\n  %accumulator.tr = phi i64 [ 0, %entry ], [ %add, %tailrecurse ]\n  %n.tr = phi i64 [ %n, %entry ], [ %sub1, %tailrecurse ]\n  %sub = add i64 %n.tr, -1\n  %call = tail call i64 @fibonacci(i64 noundef %sub)\n  %sub1 = add i64 %n.tr, -2\n  %add = add i64 %accumulator.tr, %call\n  %cmp2 = icmp ult i64 %n.tr, 2\n  br i1 %cmp2, label %return, label %tailrecurse\n\nreturn:                                           ; preds = %tailrecurse, %entry\n  %accumulator.ret.tr = add i64 %accumulator.tr, %n.tr\n  ret i64 %accumulator.ret.tr\n}\n\nattributes #0 = { mustprogress nofree nosync nounwind willreturn memory(none) uwtable \"min-legal-vector-width\"=\"0\" \"no-trapping-math\"=\"true\" \"stack-protector-buffer-size\"=\"8\" \"target-cpu\"=\"x86-64\" \"target-features\"=\"+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87\" \"tune-cpu\"=\"generic\" }\n\n!llvm.linker.options = !{}\n!llvm.module.flags = !{!0, !1, !2}\n!llvm.ident = !{!3}\n\n!0 = !{i32 1, !\"wchar_size\", i32 4}\n!1 = !{i32 8, !\"PIC Level\", i32 2}\n!2 = !{i32 7, !\"uwtable\", i32 2}\n!3 = !{!\"clang version 20.1.8 (CentOS 20.1.8-9.el10_2)\"}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786297073,
+  "id": "chatcmpl-AtIsx5zGUJzynPK0lMDmE2vJck6Xm3lf",
+  "model": "qwen2.5-coder-14b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 34,
+    "predicted_ms": 173855.53,
+    "predicted_n": 660,
+    "predicted_per_second": 3.796255431161724,
+    "predicted_per_token_ms": 263.4174696969697,
+    "prompt_ms": 40653.08,
+    "prompt_n": 890,
+    "prompt_per_second": 21.892560170102733,
+    "prompt_per_token_ms": 45.677617977528094
+  },
+  "usage": {
+    "completion_tokens": 660,
+    "prompt_tokens": 924,
+    "prompt_tokens_details": {
+      "cached_tokens": 34
+    },
+    "total_tokens": 1584
+  }
+}

@@ -1,0 +1,844 @@
+{
+  "accepted_remarks": [
+    "Missed|gvn|LoadClobbered|_ZNSt6vectorIiSaIiEEC2IPKivEET_S5_RKS0_|load of type i32 not eliminated because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZNSt6vectorIiSaIiEEC2IPKivEET_S5_RKS0_|load of type ptr not eliminated because it is clobbered by invoke",
+    "Missed|gvn|LoadClobbered|_ZSt11__sort_heapIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SH_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated in favor of load because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated in favor of load because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated in favor of store because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated in favor of store because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt14__partial_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZSt14__partial_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt21__unguarded_partitionIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEESE_SE_SE_SE_SG_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt21__unguarded_partitionIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEESE_SE_SE_SE_SG_|load of type i32 not eliminated in favor of store because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt27__unguarded_partition_pivotIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEESE_SE_SE_SG_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|inline|NeverInline|_ZNSt12_Vector_baseIiSaIiEED2Ev|__clang_call_terminate not inlined into _ZNSt12_Vector_baseIiSaIiEED2Ev because it should never be inlined (cost=never): noinline function attribute",
+    "Missed|inline|NeverInline|repeated_sort|_ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SG_T1_ not inlined into repeated_sort because it should never be inlined (cost=never): recursive",
+    "Missed|inline|NoDefinition|_ZNSt15__new_allocatorIiE10deallocateEPim|_ZdlPvm will not be inlined into _ZNSt15__new_allocatorIiE10deallocateEPim because its definition is unavailable",
+    "Missed|inline|NoDefinition|_ZNSt15__new_allocatorIiE8allocateEmPKv|_ZSt17__throw_bad_allocv will not be inlined into _ZNSt15__new_allocatorIiE8allocateEmPKv because its definition is unavailable",
+    "Missed|inline|NoDefinition|_ZNSt15__new_allocatorIiE8allocateEmPKv|_ZSt28__throw_bad_array_new_lengthv will not be inlined into _ZNSt15__new_allocatorIiE8allocateEmPKv because its definition is unavailable",
+    "Missed|inline|NoDefinition|_ZNSt15__new_allocatorIiE8allocateEmPKv|_Znwm will not be inlined into _ZNSt15__new_allocatorIiE8allocateEmPKv because its definition is unavailable",
+    "Missed|inline|NoDefinition|_ZNSt6vectorIiSaIiEE17_S_check_init_lenEmRKS0_|_ZSt20__throw_length_errorPKc will not be inlined into _ZNSt6vectorIiSaIiEE17_S_check_init_lenEmRKS0_ because its definition is unavailable",
+    "Missed|inline|NoDefinition|__clang_call_terminate|_ZSt9terminatev will not be inlined into __clang_call_terminate because its definition is unavailable",
+    "Missed|inline|NoDefinition|__clang_call_terminate|__cxa_begin_catch will not be inlined into __clang_call_terminate because its definition is unavailable",
+    "Missed|inline|NoDefinition|repeated_sort|__cxa_begin_catch will not be inlined into repeated_sort because its definition is unavailable",
+    "Missed|inline|NoDefinition|repeated_sort|__cxa_end_catch will not be inlined into repeated_sort because its definition is unavailable",
+    "Missed|inline|TooCostly|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|_ZSt11__make_heapIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SH_ not inlined into _ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_ because too costly to inline (cost=320, threshold=250)",
+    "Missed|inline|TooCostly|_ZSt14__partial_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_ not inlined into _ZSt14__partial_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_ because too costly to inline (cost=395, threshold=250)",
+    "Missed|inline|TooCostly|repeated_sort|_ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SG_ not inlined into repeated_sort because too costly to inline (cost=45, threshold=45)",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt11__make_heapIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SH_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt11__sort_heapIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SH_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt14__partial_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt21__unguarded_partitionIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEESE_SE_SE_SE_SG_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt27__unguarded_partition_pivotIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEESE_SE_SE_SG_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|loop-vectorize|MissedDetails|repeated_sort|loop not vectorized",
+    "Missed|regalloc|LoopSpillReloadCopies|repeated_sort|1 spills 1.599858e+01 total spills cost 11 reloads 1.119898e+02 total reloads cost 3 folded reloads 4.799564e+01 total folded reloads cost 19 virtual registers copies 2.799747e+02 total copies cost generated in loop",
+    "Missed|regalloc|SpillReloadCopies|repeated_sort|7 spills 1.949858e+01 total spills cost 12 reloads 1.119899e+02 total reloads cost 3 folded reloads 4.799564e+01 total folded reloads cost 25 virtual registers copies 2.814748e+02 total copies cost generated in function",
+    "Missed|slp-vectorizer|NotBeneficial|repeated_sort|List vectorization was possible but not beneficial with cost 0 >= 0"
+  ],
+  "best_is_baseline": false,
+  "best_iteration": 1,
+  "completed_optimization_passes": 3,
+  "confirmation_seed": 43,
+  "confirmation_status": "improved",
+  "confirmed_improvement": true,
+  "experiment_type": "guided-cpp",
+  "final_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+  "final_confirmation_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__final",
+  "iterations": [
+    {
+      "abi_result": {
+        "command": [
+          "nm",
+          "-D",
+          "--defined-only",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/libSUT.so"
+        ],
+        "cwd": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01",
+        "duration_seconds": 0.008055922109633684,
+        "returncode": 0,
+        "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/abi_symbols_stderr.txt",
+        "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/abi_symbols_stdout.txt"
+      },
+      "accepted_remarks": null,
+      "compile_result": {
+        "command": [
+          "clang++",
+          "-std=c++23",
+          "-O3",
+          "-DNDEBUG",
+          "-shared",
+          "-fPIC",
+          "-I",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01",
+          "-I",
+          "/home/tijl/code/llmO/SUT",
+          "-I",
+          "/home/tijl/code/llmO",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/source_output.cpp",
+          "/home/tijl/code/llmO/SUT/count_matches.cpp",
+          "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+          "/home/tijl/code/llmO/SUT/format_list.cpp",
+          "/home/tijl/code/llmO/SUT/free_functions.cpp",
+          "/home/tijl/code/llmO/SUT/sut_common.cpp",
+          "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+          "-o",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/libSUT.so"
+        ],
+        "cwd": "/home/tijl/code/llmO",
+        "duration_seconds": 2.217405599076301,
+        "returncode": 0,
+        "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/compile_stderr.txt",
+        "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/compile_stdout.txt"
+      },
+      "iteration": 1,
+      "metadata": {
+        "abi_error": null,
+        "duration_seconds": 206.15452935593203,
+        "llm_result": {
+          "completion_tokens": 410,
+          "content": "#include \"library.h\"\n#include <algorithm>\n#include <vector>\n#include <cstdint>\n#include <array>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            std::copy(input, input + input_length, buffer.begin());\n            std::ranges::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    for (int r = 0; r < rounds; ++r) {\n        std::ranges::sort(values.begin(), values.end());\n\n        const size_t mid = values.size() / 2;\n        const int median = (values.size() % 2 == 0)\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+          "finish_reason": "stop",
+          "prompt_tokens": 2275,
+          "raw_response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "content": "#include \"library.h\"\n#include <algorithm>\n#include <vector>\n#include <cstdint>\n#include <array>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            std::copy(input, input + input_length, buffer.begin());\n            std::ranges::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    for (int r = 0; r < rounds; ++r) {\n        std::ranges::sort(values.begin(), values.end());\n\n        const size_t mid = values.size() / 2;\n        const int median = (values.size() % 2 == 0)\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+                  "role": "assistant"
+                }
+              }
+            ],
+            "created": 1786234019,
+            "id": "chatcmpl-jgu3RzoyKRCZS0k3gQDBCHsVxWf5aW4f",
+            "model": "ministral-3-14b-instruct-q4km",
+            "object": "chat.completion",
+            "system_fingerprint": "b9840-8c146a836",
+            "timings": {
+              "cache_n": 29,
+              "predicted_ms": 105533.076,
+              "predicted_n": 410,
+              "predicted_per_second": 3.885037900345101,
+              "predicted_per_token_ms": 257.3977463414634,
+              "prompt_ms": 99753.514,
+              "prompt_n": 2246,
+              "prompt_per_second": 22.515497549289343,
+              "prompt_per_token_ms": 44.41385307212823
+            },
+            "usage": {
+              "completion_tokens": 410,
+              "prompt_tokens": 2275,
+              "prompt_tokens_details": {
+                "cached_tokens": 29
+              },
+              "total_tokens": 2685
+            }
+          },
+          "total_tokens": 2685
+        }
+      },
+      "remarks_file": null,
+      "shown_remarks": null,
+      "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/source_output.cpp",
+      "success": true,
+      "type": "repair_01"
+    },
+    {
+      "abi_result": {
+        "command": [
+          "nm",
+          "-D",
+          "--defined-only",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/libSUT.so"
+        ],
+        "cwd": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01",
+        "duration_seconds": 0.008055922109633684,
+        "returncode": 0,
+        "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/abi_symbols_stderr.txt",
+        "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/abi_symbols_stdout.txt"
+      },
+      "accepted_remarks": null,
+      "compile_result": {
+        "command": [
+          "clang++",
+          "-std=c++23",
+          "-O3",
+          "-DNDEBUG",
+          "-shared",
+          "-fPIC",
+          "-I",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01",
+          "-I",
+          "/home/tijl/code/llmO/SUT",
+          "-I",
+          "/home/tijl/code/llmO",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/source_output.cpp",
+          "/home/tijl/code/llmO/SUT/count_matches.cpp",
+          "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+          "/home/tijl/code/llmO/SUT/format_list.cpp",
+          "/home/tijl/code/llmO/SUT/free_functions.cpp",
+          "/home/tijl/code/llmO/SUT/sut_common.cpp",
+          "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+          "-o",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/libSUT.so"
+        ],
+        "cwd": "/home/tijl/code/llmO",
+        "duration_seconds": 2.217405599076301,
+        "returncode": 0,
+        "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/compile_stderr.txt",
+        "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/compile_stdout.txt"
+      },
+      "iteration": 1,
+      "metadata": {
+        "abi_error": null,
+        "accepted_as_best": true,
+        "benchmark_comparison": {
+          "baseline_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__baseline",
+          "baseline_statistics": {
+            "maximum_calls_per_second": 10300.1,
+            "mean_calls_per_second": 10280.6,
+            "median_absolute_deviation": 1.7000000000007276,
+            "median_calls_per_second": 10271.7,
+            "minimum_calls_per_second": 10270,
+            "requested_repetitions": 3,
+            "successful_repetitions": 3
+          },
+          "candidate_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+          "candidate_statistics": {
+            "maximum_calls_per_second": 18282.9,
+            "mean_calls_per_second": 18226.86666666667,
+            "median_absolute_deviation": 17.200000000000728,
+            "median_calls_per_second": 18265.7,
+            "minimum_calls_per_second": 18132,
+            "requested_repetitions": 3,
+            "successful_repetitions": 3
+          },
+          "classification": "improved",
+          "noise_threshold_percent": 2.0,
+          "relative_change_percent": 77.82548166321057,
+          "sequence": [
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__baseline",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__baseline",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__baseline",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01"
+          ]
+        },
+        "duration_seconds": 206.15452935593203,
+        "llm_result": {
+          "completion_tokens": 410,
+          "content": "#include \"library.h\"\n#include <algorithm>\n#include <vector>\n#include <cstdint>\n#include <array>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            std::copy(input, input + input_length, buffer.begin());\n            std::ranges::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    for (int r = 0; r < rounds; ++r) {\n        std::ranges::sort(values.begin(), values.end());\n\n        const size_t mid = values.size() / 2;\n        const int median = (values.size() % 2 == 0)\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+          "finish_reason": "stop",
+          "prompt_tokens": 2275,
+          "raw_response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "content": "#include \"library.h\"\n#include <algorithm>\n#include <vector>\n#include <cstdint>\n#include <array>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            std::copy(input, input + input_length, buffer.begin());\n            std::ranges::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    for (int r = 0; r < rounds; ++r) {\n        std::ranges::sort(values.begin(), values.end());\n\n        const size_t mid = values.size() / 2;\n        const int median = (values.size() % 2 == 0)\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+                  "role": "assistant"
+                }
+              }
+            ],
+            "created": 1786234019,
+            "id": "chatcmpl-jgu3RzoyKRCZS0k3gQDBCHsVxWf5aW4f",
+            "model": "ministral-3-14b-instruct-q4km",
+            "object": "chat.completion",
+            "system_fingerprint": "b9840-8c146a836",
+            "timings": {
+              "cache_n": 29,
+              "predicted_ms": 105533.076,
+              "predicted_n": 410,
+              "predicted_per_second": 3.885037900345101,
+              "predicted_per_token_ms": 257.3977463414634,
+              "prompt_ms": 99753.514,
+              "prompt_n": 2246,
+              "prompt_per_second": 22.515497549289343,
+              "prompt_per_token_ms": 44.41385307212823
+            },
+            "usage": {
+              "completion_tokens": 410,
+              "prompt_tokens": 2275,
+              "prompt_tokens_details": {
+                "cached_tokens": 29
+              },
+              "total_tokens": 2685
+            }
+          },
+          "total_tokens": 2685
+        }
+      },
+      "remarks_file": null,
+      "shown_remarks": null,
+      "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01/repair_01/source_output.cpp",
+      "success": true,
+      "type": "repair_01"
+    },
+    {
+      "abi_result": {
+        "command": [
+          "nm",
+          "-D",
+          "--defined-only",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/libSUT.so"
+        ],
+        "cwd": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01",
+        "duration_seconds": 0.008643195964396,
+        "returncode": 0,
+        "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/abi_symbols_stderr.txt",
+        "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/abi_symbols_stdout.txt"
+      },
+      "accepted_remarks": null,
+      "compile_result": {
+        "command": [
+          "clang++",
+          "-std=c++23",
+          "-O3",
+          "-DNDEBUG",
+          "-shared",
+          "-fPIC",
+          "-I",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01",
+          "-I",
+          "/home/tijl/code/llmO/SUT",
+          "-I",
+          "/home/tijl/code/llmO",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/source_output.cpp",
+          "/home/tijl/code/llmO/SUT/count_matches.cpp",
+          "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+          "/home/tijl/code/llmO/SUT/format_list.cpp",
+          "/home/tijl/code/llmO/SUT/free_functions.cpp",
+          "/home/tijl/code/llmO/SUT/sut_common.cpp",
+          "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+          "-o",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/libSUT.so"
+        ],
+        "cwd": "/home/tijl/code/llmO",
+        "duration_seconds": 2.1672467798925936,
+        "returncode": 0,
+        "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/compile_stderr.txt",
+        "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/compile_stdout.txt"
+      },
+      "iteration": 2,
+      "metadata": {
+        "abi_error": null,
+        "duration_seconds": 218.46728944499046,
+        "llm_result": {
+          "completion_tokens": 431,
+          "content": "#include \"library.h\"\n#include <algorithm>\n#include <array>\n#include <vector>\n#include <cstdint>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            std::copy_n(input, input_length, buffer.begin());\n            std::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    // Precompute median index to avoid repeated division\n    const size_t mid = values.size() / 2;\n    const bool even = (values.size() % 2 == 0);\n\n    for (int r = 0; r < rounds; ++r) {\n        std::sort(values.begin(), values.end());\n\n        // Compute median using precomputed index\n        const int median = even\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+          "finish_reason": "stop",
+          "prompt_tokens": 2421,
+          "raw_response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "content": "#include \"library.h\"\n#include <algorithm>\n#include <array>\n#include <vector>\n#include <cstdint>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            std::copy_n(input, input_length, buffer.begin());\n            std::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    // Precompute median index to avoid repeated division\n    const size_t mid = values.size() / 2;\n    const bool even = (values.size() % 2 == 0);\n\n    for (int r = 0; r < rounds; ++r) {\n        std::sort(values.begin(), values.end());\n\n        // Compute median using precomputed index\n        const int median = even\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+                  "role": "assistant"
+                }
+              }
+            ],
+            "created": 1786236376,
+            "id": "chatcmpl-C6DGDAYjyErY8grRCJOrh1XIgRJTg9H3",
+            "model": "ministral-3-14b-instruct-q4km",
+            "object": "chat.completion",
+            "system_fingerprint": "b9840-8c146a836",
+            "timings": {
+              "cache_n": 29,
+              "predicted_ms": 111750.51,
+              "predicted_n": 431,
+              "predicted_per_second": 3.856805664690032,
+              "predicted_per_token_ms": 259.2819257540603,
+              "prompt_ms": 105603.439,
+              "prompt_n": 2392,
+              "prompt_per_second": 22.650777499774417,
+              "prompt_per_token_ms": 44.148594899665554
+            },
+            "usage": {
+              "completion_tokens": 431,
+              "prompt_tokens": 2421,
+              "prompt_tokens_details": {
+                "cached_tokens": 29
+              },
+              "total_tokens": 2852
+            }
+          },
+          "total_tokens": 2852
+        }
+      },
+      "remarks_file": null,
+      "shown_remarks": null,
+      "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/source_output.cpp",
+      "success": true,
+      "type": "repair_01"
+    },
+    {
+      "abi_result": {
+        "command": [
+          "nm",
+          "-D",
+          "--defined-only",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/libSUT.so"
+        ],
+        "cwd": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01",
+        "duration_seconds": 0.008643195964396,
+        "returncode": 0,
+        "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/abi_symbols_stderr.txt",
+        "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/abi_symbols_stdout.txt"
+      },
+      "accepted_remarks": null,
+      "compile_result": {
+        "command": [
+          "clang++",
+          "-std=c++23",
+          "-O3",
+          "-DNDEBUG",
+          "-shared",
+          "-fPIC",
+          "-I",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01",
+          "-I",
+          "/home/tijl/code/llmO/SUT",
+          "-I",
+          "/home/tijl/code/llmO",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/source_output.cpp",
+          "/home/tijl/code/llmO/SUT/count_matches.cpp",
+          "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+          "/home/tijl/code/llmO/SUT/format_list.cpp",
+          "/home/tijl/code/llmO/SUT/free_functions.cpp",
+          "/home/tijl/code/llmO/SUT/sut_common.cpp",
+          "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+          "-o",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/libSUT.so"
+        ],
+        "cwd": "/home/tijl/code/llmO",
+        "duration_seconds": 2.1672467798925936,
+        "returncode": 0,
+        "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/compile_stderr.txt",
+        "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/compile_stdout.txt"
+      },
+      "iteration": 2,
+      "metadata": {
+        "abi_error": null,
+        "accepted_as_best": false,
+        "benchmark_comparison": {
+          "baseline_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+          "baseline_statistics": {
+            "maximum_calls_per_second": 18289.2,
+            "mean_calls_per_second": 18272.066666666666,
+            "median_absolute_deviation": 2.600000000002183,
+            "median_calls_per_second": 18286.6,
+            "minimum_calls_per_second": 18240.4,
+            "requested_repetitions": 3,
+            "successful_repetitions": 3
+          },
+          "candidate_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02",
+          "candidate_statistics": {
+            "maximum_calls_per_second": 18372.7,
+            "mean_calls_per_second": 18261.233333333334,
+            "median_absolute_deviation": 5.900000000001455,
+            "median_calls_per_second": 18366.8,
+            "minimum_calls_per_second": 18044.2,
+            "requested_repetitions": 3,
+            "successful_repetitions": 3
+          },
+          "classification": "unchanged_within_noise",
+          "noise_threshold_percent": 2.0,
+          "relative_change_percent": 0.4385725066442134,
+          "sequence": [
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02"
+          ]
+        },
+        "duration_seconds": 218.46728944499046,
+        "llm_result": {
+          "completion_tokens": 431,
+          "content": "#include \"library.h\"\n#include <algorithm>\n#include <array>\n#include <vector>\n#include <cstdint>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            std::copy_n(input, input_length, buffer.begin());\n            std::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    // Precompute median index to avoid repeated division\n    const size_t mid = values.size() / 2;\n    const bool even = (values.size() % 2 == 0);\n\n    for (int r = 0; r < rounds; ++r) {\n        std::sort(values.begin(), values.end());\n\n        // Compute median using precomputed index\n        const int median = even\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+          "finish_reason": "stop",
+          "prompt_tokens": 2421,
+          "raw_response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "content": "#include \"library.h\"\n#include <algorithm>\n#include <array>\n#include <vector>\n#include <cstdint>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            std::copy_n(input, input_length, buffer.begin());\n            std::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    // Precompute median index to avoid repeated division\n    const size_t mid = values.size() / 2;\n    const bool even = (values.size() % 2 == 0);\n\n    for (int r = 0; r < rounds; ++r) {\n        std::sort(values.begin(), values.end());\n\n        // Compute median using precomputed index\n        const int median = even\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+                  "role": "assistant"
+                }
+              }
+            ],
+            "created": 1786236376,
+            "id": "chatcmpl-C6DGDAYjyErY8grRCJOrh1XIgRJTg9H3",
+            "model": "ministral-3-14b-instruct-q4km",
+            "object": "chat.completion",
+            "system_fingerprint": "b9840-8c146a836",
+            "timings": {
+              "cache_n": 29,
+              "predicted_ms": 111750.51,
+              "predicted_n": 431,
+              "predicted_per_second": 3.856805664690032,
+              "predicted_per_token_ms": 259.2819257540603,
+              "prompt_ms": 105603.439,
+              "prompt_n": 2392,
+              "prompt_per_second": 22.650777499774417,
+              "prompt_per_token_ms": 44.148594899665554
+            },
+            "usage": {
+              "completion_tokens": 431,
+              "prompt_tokens": 2421,
+              "prompt_tokens_details": {
+                "cached_tokens": 29
+              },
+              "total_tokens": 2852
+            }
+          },
+          "total_tokens": 2852
+        }
+      },
+      "remarks_file": null,
+      "shown_remarks": null,
+      "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/source_output.cpp",
+      "success": true,
+      "type": "repair_01"
+    },
+    {
+      "abi_result": {
+        "command": [
+          "nm",
+          "-D",
+          "--defined-only",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/libSUT.so"
+        ],
+        "cwd": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01",
+        "duration_seconds": 0.008422686951234937,
+        "returncode": 0,
+        "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/abi_symbols_stderr.txt",
+        "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/abi_symbols_stdout.txt"
+      },
+      "accepted_remarks": null,
+      "compile_result": {
+        "command": [
+          "clang++",
+          "-std=c++23",
+          "-O3",
+          "-DNDEBUG",
+          "-shared",
+          "-fPIC",
+          "-I",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01",
+          "-I",
+          "/home/tijl/code/llmO/SUT",
+          "-I",
+          "/home/tijl/code/llmO",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/source_output.cpp",
+          "/home/tijl/code/llmO/SUT/count_matches.cpp",
+          "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+          "/home/tijl/code/llmO/SUT/format_list.cpp",
+          "/home/tijl/code/llmO/SUT/free_functions.cpp",
+          "/home/tijl/code/llmO/SUT/sut_common.cpp",
+          "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+          "-o",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/libSUT.so"
+        ],
+        "cwd": "/home/tijl/code/llmO",
+        "duration_seconds": 2.2172134900465608,
+        "returncode": 0,
+        "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/compile_stderr.txt",
+        "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/compile_stdout.txt"
+      },
+      "iteration": 3,
+      "metadata": {
+        "abi_error": null,
+        "duration_seconds": 225.74537752894685,
+        "llm_result": {
+          "completion_tokens": 455,
+          "content": "#include \"library.h\"\n#include <algorithm>\n#include <array>\n#include <vector>\n#include <cstdint>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            // Copy input to buffer\n            for (size_t i = 0; i < input_length; ++i) {\n                buffer[i] = input[i];\n            }\n\n            // Use std::sort for better optimization potential\n            std::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    for (int r = 0; r < rounds; ++r) {\n        // Use std::sort instead of std::ranges::sort for better optimization\n        std::sort(values.begin(), values.end());\n\n        const size_t mid = values.size() / 2;\n        const int median = (values.size() % 2 == 0)\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+          "finish_reason": "stop",
+          "prompt_tokens": 2445,
+          "raw_response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "content": "#include \"library.h\"\n#include <algorithm>\n#include <array>\n#include <vector>\n#include <cstdint>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            // Copy input to buffer\n            for (size_t i = 0; i < input_length; ++i) {\n                buffer[i] = input[i];\n            }\n\n            // Use std::sort for better optimization potential\n            std::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    for (int r = 0; r < rounds; ++r) {\n        // Use std::sort instead of std::ranges::sort for better optimization\n        std::sort(values.begin(), values.end());\n\n        const size_t mid = values.size() / 2;\n        const int median = (values.size() % 2 == 0)\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+                  "role": "assistant"
+                }
+              }
+            ],
+            "created": 1786238741,
+            "id": "chatcmpl-7rGigIGqWHjg9Rm9wvHUUuQ5hcWONvz8",
+            "model": "ministral-3-14b-instruct-q4km",
+            "object": "chat.completion",
+            "system_fingerprint": "b9840-8c146a836",
+            "timings": {
+              "cache_n": 29,
+              "predicted_ms": 118260.564,
+              "predicted_n": 455,
+              "predicted_per_second": 3.847436411684964,
+              "predicted_per_token_ms": 259.91332747252744,
+              "prompt_ms": 106629.541,
+              "prompt_n": 2416,
+              "prompt_per_second": 22.657886148079733,
+              "prompt_per_token_ms": 44.134743791390726
+            },
+            "usage": {
+              "completion_tokens": 455,
+              "prompt_tokens": 2445,
+              "prompt_tokens_details": {
+                "cached_tokens": 29
+              },
+              "total_tokens": 2900
+            }
+          },
+          "total_tokens": 2900
+        }
+      },
+      "remarks_file": null,
+      "shown_remarks": null,
+      "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/source_output.cpp",
+      "success": true,
+      "type": "repair_01"
+    },
+    {
+      "abi_result": {
+        "command": [
+          "nm",
+          "-D",
+          "--defined-only",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/libSUT.so"
+        ],
+        "cwd": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01",
+        "duration_seconds": 0.008422686951234937,
+        "returncode": 0,
+        "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/abi_symbols_stderr.txt",
+        "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/abi_symbols_stdout.txt"
+      },
+      "accepted_remarks": null,
+      "compile_result": {
+        "command": [
+          "clang++",
+          "-std=c++23",
+          "-O3",
+          "-DNDEBUG",
+          "-shared",
+          "-fPIC",
+          "-I",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01",
+          "-I",
+          "/home/tijl/code/llmO/SUT",
+          "-I",
+          "/home/tijl/code/llmO",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/source_output.cpp",
+          "/home/tijl/code/llmO/SUT/count_matches.cpp",
+          "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+          "/home/tijl/code/llmO/SUT/format_list.cpp",
+          "/home/tijl/code/llmO/SUT/free_functions.cpp",
+          "/home/tijl/code/llmO/SUT/sut_common.cpp",
+          "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+          "-o",
+          "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/libSUT.so"
+        ],
+        "cwd": "/home/tijl/code/llmO",
+        "duration_seconds": 2.2172134900465608,
+        "returncode": 0,
+        "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/compile_stderr.txt",
+        "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/compile_stdout.txt"
+      },
+      "iteration": 3,
+      "metadata": {
+        "abi_error": null,
+        "accepted_as_best": false,
+        "benchmark_comparison": {
+          "baseline_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+          "baseline_statistics": {
+            "maximum_calls_per_second": 18285.3,
+            "mean_calls_per_second": 18257.1,
+            "median_absolute_deviation": 6.5,
+            "median_calls_per_second": 18278.8,
+            "minimum_calls_per_second": 18207.2,
+            "requested_repetitions": 3,
+            "successful_repetitions": 3
+          },
+          "candidate_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03",
+          "candidate_statistics": {
+            "maximum_calls_per_second": 18335.2,
+            "mean_calls_per_second": 18262.366666666665,
+            "median_absolute_deviation": 20.600000000002183,
+            "median_calls_per_second": 18314.6,
+            "minimum_calls_per_second": 18137.3,
+            "requested_repetitions": 3,
+            "successful_repetitions": 3
+          },
+          "classification": "unchanged_within_noise",
+          "noise_threshold_percent": 2.0,
+          "relative_change_percent": 0.19585530778825347,
+          "sequence": [
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+            "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03"
+          ]
+        },
+        "duration_seconds": 225.74537752894685,
+        "llm_result": {
+          "completion_tokens": 455,
+          "content": "#include \"library.h\"\n#include <algorithm>\n#include <array>\n#include <vector>\n#include <cstdint>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            // Copy input to buffer\n            for (size_t i = 0; i < input_length; ++i) {\n                buffer[i] = input[i];\n            }\n\n            // Use std::sort for better optimization potential\n            std::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    for (int r = 0; r < rounds; ++r) {\n        // Use std::sort instead of std::ranges::sort for better optimization\n        std::sort(values.begin(), values.end());\n\n        const size_t mid = values.size() / 2;\n        const int median = (values.size() % 2 == 0)\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+          "finish_reason": "stop",
+          "prompt_tokens": 2445,
+          "raw_response": {
+            "choices": [
+              {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                  "content": "#include \"library.h\"\n#include <algorithm>\n#include <array>\n#include <vector>\n#include <cstdint>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            // Copy input to buffer\n            for (size_t i = 0; i < input_length; ++i) {\n                buffer[i] = input[i];\n            }\n\n            // Use std::sort for better optimization potential\n            std::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    for (int r = 0; r < rounds; ++r) {\n        // Use std::sort instead of std::ranges::sort for better optimization\n        std::sort(values.begin(), values.end());\n\n        const size_t mid = values.size() / 2;\n        const int median = (values.size() % 2 == 0)\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+                  "role": "assistant"
+                }
+              }
+            ],
+            "created": 1786238741,
+            "id": "chatcmpl-7rGigIGqWHjg9Rm9wvHUUuQ5hcWONvz8",
+            "model": "ministral-3-14b-instruct-q4km",
+            "object": "chat.completion",
+            "system_fingerprint": "b9840-8c146a836",
+            "timings": {
+              "cache_n": 29,
+              "predicted_ms": 118260.564,
+              "predicted_n": 455,
+              "predicted_per_second": 3.847436411684964,
+              "predicted_per_token_ms": 259.91332747252744,
+              "prompt_ms": 106629.541,
+              "prompt_n": 2416,
+              "prompt_per_second": 22.657886148079733,
+              "prompt_per_token_ms": 44.134743791390726
+            },
+            "usage": {
+              "completion_tokens": 455,
+              "prompt_tokens": 2445,
+              "prompt_tokens_details": {
+                "cached_tokens": 29
+              },
+              "total_tokens": 2900
+            }
+          },
+          "total_tokens": 2900
+        }
+      },
+      "remarks_file": null,
+      "shown_remarks": null,
+      "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-03/repair_01/source_output.cpp",
+      "success": true,
+      "type": "repair_01"
+    }
+  ],
+  "llm_duration_seconds": 6474.121906425804,
+  "model": "ministral-3-14b-instruct-q4km",
+  "repair_attempts": 3,
+  "requested_optimization_passes": 3,
+  "run_id": "20260807_full_run-guided",
+  "selection_status": "improved",
+  "shown_remarks": [
+    "Missed|gvn|LoadClobbered|_ZNSt6vectorIiSaIiEEC2IPKivEET_S5_RKS0_|load of type i32 not eliminated because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZNSt6vectorIiSaIiEEC2IPKivEET_S5_RKS0_|load of type ptr not eliminated because it is clobbered by invoke",
+    "Missed|gvn|LoadClobbered|_ZSt11__sort_heapIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SH_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt11__sort_heapIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SC_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated in favor of load because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated in favor of load because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated in favor of store because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated in favor of store because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_|load of type i32 not eliminated because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_|load of type i32 not eliminated in favor of load because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_|load of type i32 not eliminated in favor of load because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_|load of type i32 not eliminated in favor of store because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_|load of type i32 not eliminated in favor of store because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt14__partial_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZSt14__partial_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_|load of type i32 not eliminated because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt16__insertion_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt16__insertion_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_|load of type i32 not eliminated in favor of store because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_|load of type i32 not eliminated because it is clobbered by call",
+    "Missed|gvn|LoadClobbered|_ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_|load of type i32 not eliminated in favor of store because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt21__unguarded_partitionIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEESE_SE_SE_SE_SG_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt21__unguarded_partitionIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEESE_SE_SE_SE_SG_|load of type i32 not eliminated in favor of store because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt21__unguarded_partitionIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_S9_SB_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt21__unguarded_partitionIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_S9_SB_|load of type i32 not eliminated in favor of store because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt22__final_insertion_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt25__unguarded_linear_insertIPiN9__gnu_cxx5__ops14_Val_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_SB_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt26__unguarded_insertion_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt27__unguarded_partition_pivotIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEESE_SE_SE_SG_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_|load of type i32 not eliminated because it is clobbered by store",
+    "Missed|gvn|LoadClobbered|_ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_|load of type i32 not eliminated in favor of store because it is clobbered by store",
+    "Missed|inline|NeverInline|_ZNKSt6ranges9__sort_fnclITkSt22random_access_iteratorPiTkSt12sentinel_forIT_ES2_NS_4lessESt8identityQ8sortableIS4_T1_T2_EEES4_S4_T0_S7_S8_|_ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_ not inlined into _ZNKSt6ranges9__sort_fnclITkSt22random_access_iteratorPiTkSt12sentinel_forIT_ES2_NS_4lessESt8identityQ8sortableIS4_T1_T2_EEES4_S4_T0_S7_S8_ because it should never be inlined (cost=never): recursive",
+    "Missed|inline|NeverInline|_ZNSt12_Vector_baseIiSaIiEED2Ev|__clang_call_terminate not inlined into _ZNSt12_Vector_baseIiSaIiEED2Ev because it should never be inlined (cost=never): noinline function attribute",
+    "Missed|inline|NeverInline|_ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_|_ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_ not inlined into _ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_ because it should never be inlined (cost=never): recursive",
+    "Missed|inline|NeverInline|_ZSt4sortIPiZNSt6ranges8__detail16__make_comp_projINS1_4lessESt8identityEEDaRT_RT0_EUlOS6_OS8_E_EvS6_S6_S8_|_ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_ not inlined into _ZSt4sortIPiZNSt6ranges8__detail16__make_comp_projINS1_4lessESt8identityEEDaRT_RT0_EUlOS6_OS8_E_EvS6_S6_S8_ because it should never be inlined (cost=never): recursive",
+    "Missed|inline|NeverInline|_ZSt6__sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_|_ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_ not inlined into _ZSt6__sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_ because it should never be inlined (cost=never): recursive",
+    "Missed|inline|NeverInline|repeated_sort|_ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SG_T1_ not inlined into repeated_sort because it should never be inlined (cost=never): recursive",
+    "Missed|inline|NoDefinition|_ZNSt15__new_allocatorIiE10deallocateEPim|_ZdlPvm will not be inlined into _ZNSt15__new_allocatorIiE10deallocateEPim because its definition is unavailable",
+    "Missed|inline|NoDefinition|_ZNSt15__new_allocatorIiE8allocateEmPKv|_ZSt17__throw_bad_allocv will not be inlined into _ZNSt15__new_allocatorIiE8allocateEmPKv because its definition is unavailable",
+    "Missed|inline|NoDefinition|_ZNSt15__new_allocatorIiE8allocateEmPKv|_ZSt28__throw_bad_array_new_lengthv will not be inlined into _ZNSt15__new_allocatorIiE8allocateEmPKv because its definition is unavailable",
+    "Missed|inline|NoDefinition|_ZNSt15__new_allocatorIiE8allocateEmPKv|_Znwm will not be inlined into _ZNSt15__new_allocatorIiE8allocateEmPKv because its definition is unavailable",
+    "Missed|inline|NoDefinition|_ZNSt6vectorIiSaIiEE17_S_check_init_lenEmRKS0_|_ZSt20__throw_length_errorPKc will not be inlined into _ZNSt6vectorIiSaIiEE17_S_check_init_lenEmRKS0_ because its definition is unavailable",
+    "Missed|inline|NoDefinition|__clang_call_terminate|_ZSt9terminatev will not be inlined into __clang_call_terminate because its definition is unavailable",
+    "Missed|inline|NoDefinition|__clang_call_terminate|__cxa_begin_catch will not be inlined into __clang_call_terminate because its definition is unavailable",
+    "Missed|inline|NoDefinition|repeated_sort|__cxa_begin_catch will not be inlined into repeated_sort because its definition is unavailable",
+    "Missed|inline|NoDefinition|repeated_sort|__cxa_end_catch will not be inlined into repeated_sort because its definition is unavailable",
+    "Missed|inline|TooCostly|_ZNKSt6ranges9__sort_fnclITkSt22random_access_iteratorPiTkSt12sentinel_forIT_ES2_NS_4lessESt8identityQ8sortableIS4_T1_T2_EEES4_S4_T0_S7_S8_|_ZSt22__final_insertion_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_ not inlined into _ZNKSt6ranges9__sort_fnclITkSt22random_access_iteratorPiTkSt12sentinel_forIT_ES2_NS_4lessESt8identityQ8sortableIS4_T1_T2_EEES4_S4_T0_S7_S8_ because too costly to inline (cost=260, threshold=250)",
+    "Missed|inline|TooCostly|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|_ZSt11__make_heapIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SH_ not inlined into _ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_ because too costly to inline (cost=320, threshold=250)",
+    "Missed|inline|TooCostly|_ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_|_ZSt11__make_heapIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SC_ not inlined into _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_ because too costly to inline (cost=320, threshold=250)",
+    "Missed|inline|TooCostly|_ZSt14__partial_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_ not inlined into _ZSt14__partial_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_ because too costly to inline (cost=395, threshold=250)",
+    "Missed|inline|TooCostly|_ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_|_ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_ not inlined into _ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_ because too costly to inline (cost=395, threshold=250)",
+    "Missed|inline|TooCostly|_ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_|_ZSt11__make_heapIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SC_ not inlined into _ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_ because too costly to inline (cost=320, threshold=250)",
+    "Missed|inline|TooCostly|_ZSt4sortIPiZNSt6ranges8__detail16__make_comp_projINS1_4lessESt8identityEEDaRT_RT0_EUlOS6_OS8_E_EvS6_S6_S8_|_ZSt22__final_insertion_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_ not inlined into _ZSt4sortIPiZNSt6ranges8__detail16__make_comp_projINS1_4lessESt8identityEEDaRT_RT0_EUlOS6_OS8_E_EvS6_S6_S8_ because too costly to inline (cost=260, threshold=250)",
+    "Missed|inline|TooCostly|_ZSt6__sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_|_ZSt22__final_insertion_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_ not inlined into _ZSt6__sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_ because too costly to inline (cost=260, threshold=250)",
+    "Missed|inline|TooCostly|repeated_sort|_ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SG_ not inlined into repeated_sort because too costly to inline (cost=45, threshold=45)",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt11__make_heapIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SH_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt11__make_heapIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SC_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt11__sort_heapIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SH_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt11__sort_heapIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SC_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt13__heap_selectIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt14__partial_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEEvSE_SE_SE_SG_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt16__insertion_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt21__unguarded_partitionIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEESE_SE_SE_SE_SG_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt21__unguarded_partitionIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_S9_SB_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt22__final_insertion_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt27__unguarded_partition_pivotIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS9_4lessESt8identityEEDaRT_RT0_EUlOSE_OSG_E_EEESE_SE_SE_SG_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|licm|LoadWithLoopInvariantAddressInvalidated|_ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_|failed to move load with loop-invariant address because the loop may invalidate its value",
+    "Missed|loop-vectorize|MissedDetails|repeated_sort|loop not vectorized",
+    "Missed|regalloc|LoopSpillReloadCopies|repeated_sort|1 spills 1.599858e+01 total spills cost 11 reloads 1.119898e+02 total reloads cost 3 folded reloads 4.799564e+01 total folded reloads cost 19 virtual registers copies 2.799747e+02 total copies cost generated in loop",
+    "Missed|regalloc|SpillReloadCopies|repeated_sort|7 spills 1.949858e+01 total spills cost 12 reloads 1.119899e+02 total reloads cost 3 folded reloads 4.799564e+01 total folded reloads cost 25 virtual registers copies 2.814748e+02 total copies cost generated in function",
+    "Missed|slp-vectorizer|NotBeneficial|repeated_sort|List vectorization was possible but not beneficial with cost 0 >= 0"
+  ],
+  "stopped_reason": "completed",
+  "target": "repeated_sort.cpp",
+  "timing": {
+    "llm_inference_seconds": 5823.754710095935,
+    "optimization_pipeline_seconds": 7253.179308645893,
+    "repair_inference_seconds": 650.3671963298693,
+    "total_llm_seconds": 6474.121906425804
+  },
+  "total_duration_seconds": 7253.179308645893
+}

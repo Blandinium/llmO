@@ -1,2 +1,0 @@
-fibonacci known value failed for n=0: expected 0, got 139805396878768
-fibonacci known value failed for n=1: expected 1, got 139805396878769

@@ -1,0 +1,43 @@
+{
+  "benchmark_name": "top_words_from_file",
+  "configured_max_output_tokens": 16384,
+  "estimated_available_output_tokens": 0,
+  "estimated_prompt_tokens": 41773,
+  "estimated_target_function_tokens": 32600,
+  "experiment_type": "extracted-ir",
+  "extracted_estimated_input_tokens": 41340,
+  "extracted_ir_bytes": 98130,
+  "extracted_ir_sha256": "41d63b7b35b7f35a4c91c7a66dc4e960afb9c5e43eabe0f1aea2eb77b9b32209",
+  "input_file": "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+  "input_ir_sha256": "41d63b7b35b7f35a4c91c7a66dc4e960afb9c5e43eabe0f1aea2eb77b9b32209",
+  "input_sha256": "06237774d082fbd14278e9cda5ef61b4f862e5e9876ea92decb0620c7467f18d",
+  "ir_extract_recursive": false,
+  "min_output_tokens": 512,
+  "model_context_size": 32768,
+  "model_id": "ministral-3-14b-instruct-q4km",
+  "optimization_mode": "extracted-ir",
+  "original_estimated_input_tokens": 111433,
+  "original_ir_bytes": 258441,
+  "original_ir_path": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/ministral-3-14b-instruct-q4km/top_words_from_file_cpp/top_words_from_file_O1.ll",
+  "original_ir_sha256": "cc127ca8c44e12b45aa07cfa1b862352f1e346b47387a050ca2580d050187a1f",
+  "prompt_ir_path": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/ministral-3-14b-instruct-q4km/top_words_from_file_cpp/input_extraction/extracted_input.ll",
+  "prompt_sha256": "5f9ff0bf57e0ab6b72da72ae70f588931b80cec658e0e9d7fbaebc13df7ee290",
+  "run_id": "20260807_full_run-extracted-ir",
+  "status": "context_insufficient",
+  "target_llvm_symbol": "top_words_from_file",
+  "timing": {
+    "llm_inference_seconds": 0.0,
+    "optimization_pipeline_seconds": 1.3082111331168562,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 0.0
+  },
+  "token_budget": {
+    "available_output_tokens": 0,
+    "can_fit_minimum_expected_output": false,
+    "can_fit_requested_maximum": false,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 512,
+    "prompt_tokens": 41773,
+    "requested_max_tokens": 16384
+  }
+}

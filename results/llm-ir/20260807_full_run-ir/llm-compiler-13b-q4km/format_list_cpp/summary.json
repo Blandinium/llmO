@@ -1,0 +1,28 @@
+{
+  "benchmark_name": "format_list",
+  "configured_max_output_tokens": 16384,
+  "experiment_type": "llm-ir",
+  "input_file": "/home/tijl/code/llmO/SUT/format_list.cpp",
+  "input_ir_sha256": "8f82c368adb22b2d13621aac0c1c724fb3350f3a4a0bf911c79f9a04de2704f5",
+  "input_sha256": "ce626cb2559f18cb6819c827133c547252741c631676d4b036be50cbfd375f30",
+  "min_output_tokens": 18089,
+  "model_id": "llm-compiler-13b-q4km",
+  "prompt_sha256": "0e7e66cb712ca27e6c8f00eb8826bf32f366d08390b0a299c6440324318e8e9e",
+  "run_id": "20260807_full_run-ir",
+  "status": "context_insufficient",
+  "timing": {
+    "llm_inference_seconds": 0.0,
+    "optimization_pipeline_seconds": 0.2920299549587071,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 0.0
+  },
+  "token_budget": {
+    "available_output_tokens": 0,
+    "can_fit_minimum_expected_output": false,
+    "can_fit_requested_maximum": false,
+    "effective_context_size": 16384,
+    "minimum_expected_output_tokens": 18089,
+    "prompt_tokens": 23020,
+    "requested_max_tokens": 16384
+  }
+}

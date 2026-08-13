@@ -1,0 +1,73 @@
+{
+  "args": {
+    "allow_recursive_discovery": false,
+    "artifact_manifest": null,
+    "benchmark_repetitions": 5,
+    "include_intermediate_artifacts": false,
+    "noise_threshold_percent": 2.0,
+    "only": null,
+    "output_root": "/home/tijl/code/llmO/results",
+    "reference_artifact": null,
+    "results_root": "/home/tijl/code/llmO/results",
+    "resume": false,
+    "run_id": "20260807_full_run-matrix",
+    "seed": 42,
+    "source_run": [
+      "results/llvm/20260807_full_run-llvm",
+      "results/naive-cpp/20260807_full_run-naive",
+      "results/guided-cpp/20260807_full_run-guided",
+      "results/llm-ir/20260807_full_run-ir",
+      "results/extracted-ir/20260807_full_run-extracted-ir"
+    ]
+  },
+  "artifact_selection": {
+    "manifest_path": null,
+    "mode": "explicit_source_runs",
+    "source_run_paths": [
+      "/home/tijl/code/llmO/results/llvm/20260807_full_run-llvm",
+      "/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir",
+      "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir"
+    ]
+  },
+  "benchmark_protocol": {
+    "noise_threshold_percent": 2.0,
+    "ordering": "randomized",
+    "repetitions": 5,
+    "require_all_repetitions": true,
+    "seed": 42
+  },
+  "clang_version": "clang version 20.1.8 (CentOS 20.1.8-9.el10_2)",
+  "cpu_architecture": "x86_64",
+  "experiment_type": "final-matrix",
+  "extracted_ir_outcomes": {
+    "context_insufficient": 10,
+    "invalid_code": 6,
+    "invalid_response": 2,
+    "no_change": 7,
+    "response_truncated": 15
+  },
+  "git_commit": "78855f168ad3698029a1c77f3fcf90bf1b92a68f",
+  "git_dirty": true,
+  "host_cpu": "AMD Ryzen 9 5950X 16-Core Processor",
+  "hostname": "griffin.vercaemer.net",
+  "kernel": "6.12.0-211.34.1.el10_2.x86_64",
+  "llama_server_version": "version: 9840 (8c146a836)",
+  "llama_server_version_details": {
+    "command_attempted": "/home/tijl/code/llama.cpp/build/bin/llama-server --version",
+    "returncode": 0,
+    "stderr": "version: 9840 (8c146a836)\nbuilt with GNU 14.3.1 for Linux x86_64\n",
+    "stdout": "",
+    "version": "version: 9840 (8c146a836)"
+  },
+  "llvm_as_version": "LLVM (http://llvm.org/):",
+  "llvm_extract_version": "LLVM (http://llvm.org/):",
+  "llvm_link_version": "LLVM (http://llvm.org/):",
+  "logical_cpu_count": 32,
+  "opt_version": "LLVM (http://llvm.org/):",
+  "physical_core_count": 16,
+  "python_version": "3.12.13 (main, Jul 10 2026, 00:00:00) [GCC 14.3.1 20251022 (Red Hat 14.3.1-4)]",
+  "run_id": "20260807_full_run-matrix",
+  "start_time": "2026-08-12T20:38:07.841555"
+}

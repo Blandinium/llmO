@@ -1,0 +1,16 @@
+0.00.396.849 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.00.396.998 I srv          init: The UI is disabled
+0.00.397.000 I srv          init: Use --ui/--no-ui (or deprecated --webui/--no-webui) to enable/disable
+0.00.398.475 I srv    load_model: loading model 'Qwen/Qwen2.5-Coder-14B-Instruct-GGUF:Q4_K_M'
+0.00.648.993 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.06.362.756 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 32768, kv_unified = 'false'
+0.06.365.768 I srv  llama_server: model loaded
+0.06.365.774 I srv  llama_server: listening on http://127.0.0.1:8001
+0.07.011.466 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1
+0.07.011.499 I slot launch_slot_: id  0 | task 1 | processing task, is_child = 0
+0.13.341.451 I slot print_timing: id  0 | task 1 | prompt eval time =    2816.58 ms /    54 tokens (   52.16 ms per token,    19.17 tokens per second)
+0.13.341.456 I slot print_timing: id  0 | task 1 |        eval time =    3513.34 ms /    15 tokens (  234.22 ms per token,     4.27 tokens per second)
+0.13.341.457 I slot print_timing: id  0 | task 1 |       total time =    6329.92 ms /    69 tokens
+0.13.341.460 I slot print_timing: id  0 | task 1 |    graphs reused =         14
+0.13.341.492 I slot      release: id  0 | task 1 | stop processing: n_tokens = 68, truncated = 0
+25.19.232.707 I srv    operator(): operator(): cleaning up before exit...

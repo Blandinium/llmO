@@ -1,0 +1,37 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <string>\n#include <charconv>\n#include <cstddef>\n#include <stdexcept>\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    try {\n        std::string result;\n        // Rough estimate: '[' + ']' + each number up to 11 chars + \", \" (2 chars) per element\n        result.reserve(2 + input_length * 13);\n        result.push_back('[');\n\n        char buf[12]; // enough for 32-bit int including sign\n        for (size_t i = 0; i < input_length; ++i) {\n            if (i > 0) {\n                result.push_back(',');\n                result.push_back(' ');\n            }\n            auto [ptr, ec] = std::to_chars(buf, buf + sizeof(buf), input[i]);\n            if (ec != std::errc()) {\n                return nullptr;\n            }\n            result.append(buf, ptr);\n        }\n\n        result.push_back(']');\n        return copy_to_c_string(result);\n    } catch (...) {\n        return nullptr;\n    }\n}\n\n}",
+        "reasoning_content": "We need to optimize format_list for maximum runtime performance. The function currently builds a std::string with concatenation, using operator+= which may reallocate. We can preallocate capacity: estimate size. Each int to string conversion: we can use std::to_chars for speed. But we need to convert to string. We can use std::string::reserve. Also we can avoid exception handling overhead by not using try/catch. But we must preserve behavior: if input is nullptr and length !=0, return nullptr. If exception occurs, return nullptr. But we can avoid exceptions by using no-throw operations. But to_string may throw? It may throw std::bad_alloc. We can catch that. But we can use std::to_chars which doesn't throw. But we need to convert int to string. We can use std::to_chars on a buffer. We can build a std::string with reserve and push_back. Use char buffer of size maybe 12 for int. Use std::to_chars to write into buffer. Then append to string. That avoids dynamic allocation per number. Also we can avoid std::string result = \"[\"; we can start with reserve and push_back '['. Then for each number, if i>0 push_back ',' push_back ' '. Then convert number to string and append. After loop push_back ']'. Then copy_to_c_string. copy_to_c_string likely uses strdup or new char[]. We can't change that.\n\nWe need to preserve C ABI. So function signature remains same.\n\nWe need to include <charconv> for to_chars. Also <limits> maybe.\n\nWe need to handle negative ints. to_chars handles signed? std::to_chars for signed? It supports signed for charconv? Actually std::to_chars for signed types is available in C++17? It supports signed types. We'll use std::to_chars.\n\nWe need to handle potential failure of to_chars? It returns result with ec. But for int conversion, it should succeed. But we can check.\n\nWe need to handle memory allocation failure: copy_to_c_string may throw? It likely uses new char[] and may throw std::bad_alloc. But we can catch that. But we can avoid try/catch by using std::nothrow? But we can't change copy_to_c_string. So we can wrap entire function in try/catch to catch any exception. But we can also use no-throw operations inside. But we still need to catch bad_alloc from copy_to_c_string. So we can keep try/catch but minimal.\n\nWe can also avoid dynamic allocation for result string by using a preallocated buffer and then copy to C string. But we need to allocate string anyway. But we can use std::string with reserve.\n\nWe can also use std::string::reserve with estimated size: each int up to 11 chars including sign and maybe 10 digits. plus \", \" 2 chars. plus brackets 2. So estimate: 2 + input_length * (11 + 2) maybe. But we can compute more precisely: For each int, we can compute digits. But we can approximate.\n\nWe can also use std::ostringstream? That is slower.\n\nThus implement:\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) return nullptr;\n    try {\n        std::string result;\n        result.reserve(2 + input_length * 13); // rough\n        result.push_back('[');\n        char buf[12]; // enough for int32\n        for (size_t i=0; i<input_length; ++i) {\n            if (i>0) { result.push_back(','); result.push_back(' '); }\n            auto [ptr, ec] = std::to_chars(buf, buf+sizeof(buf), input[i]);\n            if (ec != std::errc()) throw std::runtime_error(\"to_chars failed\");\n            result.append(buf, ptr);\n        }\n        result.push_back(']');\n        return copy_to_c_string(result);\n    } catch (...) {\n        return nullptr;\n    }\n}\n\nBut we need to include <charconv> and <stdexcept> maybe. But we can throw runtime_error. But we can also just return nullptr if ec != 0. But we need to preserve behavior: if exception occurs, return nullptr. So we can just check ec and if not success, return nullptr. But we can't return nullptr inside try? We can return nullptr directly. But we need to exit function. But we can just return nullptr. But we are inside try, so we can just return nullptr. But we need to exit try block. But we can just return nullptr; that will exit function. But we need to catch exceptions from copy_to_c_string. So we can wrap copy_to_c_string in try/catch. But we can just keep outer try/catch.\n\nSimplify: Use try/catch around entire function. Inside, we build string. If to_chars fails, we return nullptr. But we can't return from inside try? We can return nullptr; that will exit function. But we need to catch exceptions from copy_to_c_string. So we can do:\n\ntry {\n    std::string result;\n    ...\n    return copy_to_c_string(result);\n} catch (...) {\n    return nullptr;\n}\n\nBut if we return nullptr inside try, we skip catch. That's fine. But we need to ensure we don't throw. So we can just return nullptr if to_chars fails. That will exit function. So we don't need to throw.\n\nThus final code.\n\nAlso we need to include <charconv> and <string>.\n\nAlso we need to include <cstddef> maybe.\n\nWe need to preserve extern \"C\" block.\n\nLet's produce final code.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786147168,
+  "id": "chatcmpl-okZMSWjc1pIJtQHV3J6lg3XynAwQCbZD",
+  "model": "gpt-oss-20b-mxfp4",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 84,
+    "predicted_ms": 119401.589,
+    "predicted_n": 1444,
+    "predicted_per_second": 12.093641400366959,
+    "predicted_per_token_ms": 82.68808102493075,
+    "prompt_ms": 10828.637,
+    "prompt_n": 594,
+    "prompt_per_second": 54.854549099762046,
+    "prompt_per_token_ms": 18.23002861952862
+  },
+  "usage": {
+    "completion_tokens": 1444,
+    "prompt_tokens": 678,
+    "prompt_tokens_details": {
+      "cached_tokens": 84
+    },
+    "total_tokens": 2122
+  }
+}

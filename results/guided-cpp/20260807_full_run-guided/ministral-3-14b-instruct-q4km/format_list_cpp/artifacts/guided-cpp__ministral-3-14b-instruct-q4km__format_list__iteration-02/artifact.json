@@ -1,0 +1,56 @@
+{
+  "artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-02",
+  "benchmark_name": "format_list",
+  "comparison_vs_previous_best": {
+    "baseline_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__format_list__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 79570.9,
+      "mean_calls_per_second": 78915.83333333333,
+      "median_absolute_deviation": 455.0,
+      "median_calls_per_second": 78815.8,
+      "minimum_calls_per_second": 78360.8,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-02",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 69556.3,
+      "mean_calls_per_second": 69138.8,
+      "median_absolute_deviation": 173.3000000000029,
+      "median_calls_per_second": 69383,
+      "minimum_calls_per_second": 68477.1,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "regressed",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": -11.968158668693336,
+    "sequence": [
+      "guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-02",
+      "guided-cpp__ministral-3-14b-instruct-q4km__format_list__baseline",
+      "guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-02",
+      "guided-cpp__ministral-3-14b-instruct-q4km__format_list__baseline",
+      "guided-cpp__ministral-3-14b-instruct-q4km__format_list__baseline",
+      "guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-02"
+    ]
+  },
+  "confirmation_status": "not-run",
+  "confirmed_improvement": false,
+  "experiment_type": "guided-cpp",
+  "model_id": "ministral-3-14b-instruct-q4km",
+  "parent_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__format_list__baseline",
+  "paths": {
+    "libsut": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/format_list_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-02/libSUT.so",
+    "source": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/format_list_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__format_list__iteration-02/source_output.cpp"
+  },
+  "pipeline_id": "cpp-llm-iterative-pass-02__clang-o3",
+  "run_id": "20260807_full_run-guided",
+  "schema_version": 2,
+  "selection_status": "regressed",
+  "timing": {
+    "llm_inference_seconds": 3802.1576630927157,
+    "optimization_pipeline_seconds": 4257.032260304084,
+    "repair_inference_seconds": 139.230891876854,
+    "total_llm_seconds": 3941.3885549695697
+  }
+}

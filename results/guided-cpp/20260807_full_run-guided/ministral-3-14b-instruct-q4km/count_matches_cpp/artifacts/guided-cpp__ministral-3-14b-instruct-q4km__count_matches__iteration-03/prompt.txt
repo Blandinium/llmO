@@ -1,0 +1,1884 @@
+You are an expert C++23 performance engineer.
+
+You are iteratively optimizing count_matches.cpp.
+Optimization iteration 3 of 3
+
+The current implementation compiles successfully and preserves the required ABI.
+
+Clang was run at -O3 and emitted the optimization remarks below. These remarks describe optimizations Clang performed, missed, or analyzed.
+
+Use them as diagnostic evidence to identify C++-level changes that could enable better generated code or improve the algorithm beyond what the compiler can do automatically.
+
+Do not blindly follow every remark. Some remarks only explain a compiler decision and changing the source may not be beneficial.
+
+Prefer meaningful runtime improvements such as:
+- better algorithms or data structures;
+- reducing allocations and copies;
+- improving memory locality;
+- simplifying dependencies that prevent vectorization;
+- eliminating unnecessary work;
+- making aliasing/lifetime/control-flow properties clearer when they are actually guaranteed by the API;
+- exposing profitable transformations to the compiler.
+
+Do not make unsafe assumptions merely to satisfy an optimization remark. A vectorizer remark might suggest aliasing is blocking vectorization, for example. That does NOT mean you are allowed to add restrict semantics unless those semantics are actually guaranteed by the API/program behavior.
+
+Hard requirements:
+- Return one complete replacement for count_matches.cpp.
+- Preserve the public C ABI exactly as declared in library.h.
+- Do not change exported names, parameter types, return types, struct layouts, ownership rules, or allocation/free conventions.
+- Do not implement unrelated exported functions.
+- Preserve externally observable behavior for all valid inputs.
+- Do not specialize for benchmark constants or hard-code benchmark results.
+- Exceptions must not escape through extern "C" APIs.
+- Do not modify library.h or sut_common.h.
+- Return raw C++ only.
+- No Markdown, explanation, notes, or code fences.
+
+Headers:
+// library.h
+#ifndef SUT_LIBRARY_H
+#define SUT_LIBRARY_H
+
+#include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct WordCount {
+    char* word;
+    uint64_t count;
+} WordCount;
+
+uint64_t fibonacci(uint64_t n);
+char* format_list(const int* input, size_t input_length);
+int64_t repeated_sort(const int* input, size_t input_length, int rounds);
+size_t count_matches(
+    const int* allowed,
+    size_t allowed_length,
+    const int* queries,
+    size_t queries_length
+);
+WordCount* top_words_from_file(
+    const char* path,
+    const char* const* ignore_words,
+    size_t ignore_words_length,
+    size_t max_results,
+    size_t* result_length
+);
+void free_string(char* value);
+void free_word_counts(WordCount* values, size_t length);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // SUT_LIBRARY_H
+
+
+// sut_common.h
+#ifndef SUT_COMMON_H
+#define SUT_COMMON_H
+
+#include <string>
+
+char* copy_to_c_string(const std::string& value);
+bool is_word_char(char c);
+char normalize_char(char c);
+
+#endif // SUT_COMMON_H
+
+
+Current count_matches.cpp:
+#include "library.h"
+#include <algorithm>
+#include <cstddef>
+#include <vector>
+
+extern "C" {
+
+size_t count_matches(
+    const int* allowed,
+    size_t allowed_length,
+    const int* queries,
+    size_t queries_length
+) {
+    if ((allowed == nullptr && allowed_length != 0) ||
+        (queries == nullptr && queries_length != 0)) {
+        return 0;
+    }
+
+    // Early exit if no queries or no allowed values
+    if (queries_length == 0 || allowed_length == 0) {
+        return 0;
+    }
+
+    // Create a copy of allowed values to sort and unique
+    std::vector<int> allowed_copy(allowed, allowed + allowed_length);
+    std::sort(allowed_copy.begin(), allowed_copy.end());
+    auto last = std::unique(allowed_copy.begin(), allowed_copy.end());
+    allowed_copy.erase(last, allowed_copy.end());
+
+    size_t matches = 0;
+    const int* query_end = queries + queries_length;
+
+    // Use binary search for O(log n) lookups in sorted allowed values
+    for (const int* query = queries; query != query_end; ++query) {
+        if (std::binary_search(allowed_copy.begin(), allowed_copy.end(), *query)) {
+            ++matches;
+        }
+    }
+
+    return matches;
+}
+
+}
+
+
+Clang optimization remarks:
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1890, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                   Line: 234, Column: 19 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1890, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                   Line: 234, Column: 19 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1890, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                   Line: 234, Column: 19 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1890, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                   Line: 234, Column: 19 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1890, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1890, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                   Line: 234, Column: 19 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1890, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                   Line: 234, Column: 19 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1890, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                   Line: 234, Column: 19 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1890, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                   Line: 234, Column: 19 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1890, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 235, Column: 11 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 235, Column: 11 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 235, Column: 11 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 235, Column: 11 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 235, Column: 11 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt25__unguarded_linear_insertIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops14_Val_less_iterEEvT_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1759, Column: 12 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt25__unguarded_linear_insertIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops14_Val_less_iterEEvT_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1759, Column: 12 }
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1782, Column: 17 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1763, Column: 15 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1782, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1763, Column: 15 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1763, Column: 15 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1782, Column: 17 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1759, Column: 12 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1782, Column: 17 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1763, Column: 15 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1782, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1763, Column: 15 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1763, Column: 15 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1782, Column: 17 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1759, Column: 12 }
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt16__insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1754, Column: 10 }
+Function:        _ZSt26__unguarded_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1763, Column: 15 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt26__unguarded_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1759, Column: 12 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1754, Column: 10 }
+Function:        _ZSt26__unguarded_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1763, Column: 15 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt26__unguarded_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1759, Column: 12 }
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 0, Column: 0 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 0, Column: 0 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 0, Column: 0 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1759, Column: 12 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 0, Column: 0 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 0, Column: 0 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1759, Column: 12 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1754, Column: 10 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 0, Column: 0 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1754, Column: 10 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1763, Column: 15 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1759, Column: 12 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 16 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 0, Column: 0 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 0, Column: 0 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 0, Column: 0 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1759, Column: 12 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 0, Column: 0 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 0, Column: 0 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1759, Column: 12 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1754, Column: 10 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 0, Column: 0 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1754, Column: 10 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1763, Column: 15 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 98, Column: 24 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1759, Column: 12 }
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 45, Column: 25 }
+Function:        _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1905, Column: 4 }
+Function:        _ZSt6__sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          ''''
+  - Callee:          _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1879, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZSt6__sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1902, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          recursive
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1908, Column: 4 }
+Function:        _ZSt6__sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+Args:
+  - String:          ''''
+  - Callee:          _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1814, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZSt6__sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1902, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '270'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1908, Column: 4 }
+Function:        _ZSt4sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEEEvT_S7_
+Args:
+  - String:          ''''
+  - Callee:          _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1814, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZSt4sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEEEvT_S7_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 4763, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '270'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1905, Column: 4 }
+Function:        _ZSt4sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEEEvT_S7_
+Args:
+  - String:          ''''
+  - Callee:          _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1879, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZSt4sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEEEvT_S7_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 4763, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          recursive
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 117, Column: 26 }
+Function:        _ZSt8__uniqueIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops19_Iter_equal_to_iterEET_S9_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 870, Column: 14 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 117, Column: 26 }
+Function:        _ZSt8__uniqueIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops19_Iter_equal_to_iterEET_S9_S9_T0_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 870, Column: 14 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 117, Column: 26 }
+Function:        _ZSt6uniqueIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEEET_S7_S7_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 870, Column: 14 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 117, Column: 26 }
+Function:        _ZSt6uniqueIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEEET_S7_S7_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 870, Column: 14 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_vector.h', 
+                   Line: 1968, Column: 6 }
+Function:        _ZNSt6vectorIiSaIiEE15_M_erase_at_endEPi
+Args:
+  - String:          ''''
+  - Callee:          __clang_call_terminate
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNSt6vectorIiSaIiEE15_M_erase_at_endEPi
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_vector.h', 
+                       Line: 1965, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          noinline function attribute
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1068, Column: 20 }
+Function:        _ZNSt6vectorIiSaIiEE8_M_eraseEN9__gnu_cxx17__normal_iteratorIPiS1_EES5_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1068, Column: 20 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 452, Column: 6 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1068, Column: 20 }
+Function:        _ZNSt6vectorIiSaIiEE8_M_eraseEN9__gnu_cxx17__normal_iteratorIPiS1_EES5_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1068, Column: 20 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 452, Column: 6 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1068, Column: 20 }
+Function:        _ZNSt6vectorIiSaIiEE8_M_eraseEN9__gnu_cxx17__normal_iteratorIPiS1_EES5_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1068, Column: 20 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 452, Column: 6 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1068, Column: 20 }
+Function:        _ZNSt6vectorIiSaIiEE5eraseEN9__gnu_cxx17__normal_iteratorIPKiS1_EES6_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1068, Column: 20 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 452, Column: 6 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                   Line: 1068, Column: 20 }
+Function:        _ZNSt6vectorIiSaIiEE5eraseEN9__gnu_cxx17__normal_iteratorIPKiS1_EES6_
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_iterator.h', 
+                       Line: 1068, Column: 20 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algobase.h', 
+                       Line: 452, Column: 6 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_vector.h', 
+                   Line: 748, Column: 2 }
+Function:        _ZNSt6vectorIiSaIiEED2Ev
+Args:
+  - String:          ''''
+  - Callee:          __clang_call_terminate
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNSt6vectorIiSaIiEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_vector.h', 
+                       Line: 747, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          noinline function attribute
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 69, Column: 24 }
+Function:        _ZSt13__lower_boundIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEEiNS0_5__ops14_Iter_less_valEET_S9_S9_RKT0_T1_
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1908, Column: 4 }
+Function:        count_matches
+Args:
+  - String:          ''''
+  - Callee:          _ZSt22__final_insertion_sortIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEENS0_5__ops15_Iter_less_iterEEvT_S9_T0_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1814, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          count_matches
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/count_matches_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                       Line: 13, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '45'
+  - String:          ', threshold='
+  - Threshold:       '45'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1905, Column: 4 }
+Function:        count_matches
+Args:
+  - String:          ''''
+  - Callee:          _ZSt16__introsort_loopIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEElNS0_5__ops15_Iter_less_iterEEvT_S9_T0_T1_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1879, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          count_matches
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/count_matches_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                       Line: 13, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          recursive
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 117, Column: 16 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1908, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 117, Column: 26 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 870, Column: 14 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 2207, Column: 33 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1908, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 2207, Column: 33 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 870, Column: 14 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 2207, Column: 33 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1908, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 2207, Column: 33 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 870, Column: 14 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 2207, Column: 41 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1908, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 2207, Column: 41 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 870, Column: 14 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/predefined_ops.h', 
+                   Line: 117, Column: 16 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1908, Column: 4 }
+...

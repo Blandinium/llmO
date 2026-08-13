@@ -1,0 +1,81 @@
+{
+  "actual_completion_tokens": 3,
+  "artifact_id": "extracted-ir__qwen2-5-coder-14b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+  "artifact_role": "candidate",
+  "benchmark_name": "repeated_sort",
+  "comparison": {
+    "baseline_artifact_id": "extracted-ir__qwen2-5-coder-14b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 6995.15,
+      "mean_calls_per_second": 6989.38,
+      "median_absolute_deviation": 1.4699999999993452,
+      "median_calls_per_second": 6987.23,
+      "minimum_calls_per_second": 6985.76,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "extracted-ir__qwen2-5-coder-14b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 7034.03,
+      "mean_calls_per_second": 7012.95,
+      "median_absolute_deviation": 10.109999999999673,
+      "median_calls_per_second": 7023.92,
+      "minimum_calls_per_second": 6980.9,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "unchanged_within_noise",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": 0.5251007910144723,
+    "sequence": [
+      "extracted-ir__qwen2-5-coder-14b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline",
+      "extracted-ir__qwen2-5-coder-14b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__qwen2-5-coder-14b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__qwen2-5-coder-14b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline",
+      "extracted-ir__qwen2-5-coder-14b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__qwen2-5-coder-14b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline"
+    ]
+  },
+  "configured_max_output_tokens": 4409,
+  "estimated_target_function_tokens": 2769,
+  "experiment_type": "extracted-ir",
+  "extracted_estimated_input_tokens": 4139,
+  "extracted_ir_bytes": 10756,
+  "is_final_artifact": true,
+  "logical_artifact_id": "extracted-ir/20260807_full_run-extracted-ir/qwen2-5-coder-14b-q4km/repeated_sort/extracted-ir-o1_backend-o0/extracted-ir_qwen2-5-coder-14b-q4km_repeated_sort_extracted-ir-o1_backend-o0_candidate",
+  "model_id": "qwen2-5-coder-14b-q4km",
+  "original_estimated_input_tokens": 19828,
+  "original_ir_bytes": 47159,
+  "paths": {
+    "canonical_libsut": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__qwen2-5-coder-14b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate/libSUT.so",
+    "ir": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__qwen2-5-coder-14b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate/optimized.ll",
+    "libsut": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__qwen2-5-coder-14b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate/libSUT.so"
+  },
+  "pipeline_id": "extracted-ir-o1__backend-O0",
+  "response_mode": "no_change",
+  "run_id": "20260807_full_run-extracted-ir",
+  "schema_version": 2,
+  "timing": {
+    "llm_inference_seconds": 202.89006328606047,
+    "optimization_pipeline_seconds": 185.37378002610058,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 202.89006328606047
+  },
+  "validation": {
+    "final_verification_passed": null,
+    "initial_verification_passed": null,
+    "module_extracted": false,
+    "preflight_passed": null,
+    "repair_attempted": false,
+    "repair_module_extracted": false,
+    "repair_preflight_passed": null,
+    "repair_response_complete": false,
+    "repair_response_received": false,
+    "repair_verification_passed": null,
+    "response_complete": true,
+    "response_received": true,
+    "validation_skipped": true
+  },
+  "validation_outcome": "no_change",
+  "validation_skipped": true
+}

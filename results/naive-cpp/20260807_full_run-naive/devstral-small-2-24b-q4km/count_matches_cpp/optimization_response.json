@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```\n#include \"library.h\"\n\n#include <span>\n\nstatic bool contains(const std::span<const int> input, const int needle) {\n    for (std::size_t i = 0; i < input.size(); ++i) {\n        if (input[i] == needle) {\n            return true;\n        }\n    }\n    return false;\n}\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    try {\n        const std::span<const int> allowed_span{allowed, allowed_length};\n        std::size_t matches = 0;\n\n        for (std::size_t i = 0; i < queries_length; ++i) {\n            if (contains(allowed_span, queries[i])) {\n                ++matches;\n            }\n        }\n\n        return matches;\n    } catch (...) {\n        return 0;\n    }\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786150894,
+  "id": "chatcmpl-WqOJxVncElQtBVmmrDBAn5YXnHh7Se7o",
+  "model": "devstral-small-2-24b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 39,
+    "predicted_ms": 95845.806,
+    "predicted_n": 234,
+    "predicted_per_second": 2.441421380503598,
+    "predicted_per_token_ms": 409.5974615384615,
+    "prompt_ms": 55996.143,
+    "prompt_n": 697,
+    "prompt_per_second": 12.447285878243436,
+    "prompt_per_token_ms": 80.33879913916786
+  },
+  "usage": {
+    "completion_tokens": 234,
+    "prompt_tokens": 736,
+    "prompt_tokens_details": {
+      "cached_tokens": 39
+    },
+    "total_tokens": 970
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <string>\n#include <string_view>\n#include <charconv>\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    try {\n        // Precompute total length to minimize reallocations\n        size_t total_length = 2; // For '[]'\n        for (size_t i = 0; i < input_length; ++i) {\n            int value = input[i];\n            size_t num_digits = (value < 0) ? 1 : 0;\n            int temp = value;\n            while (temp) {\n                temp /= 10;\n                num_digits++;\n            }\n            total_length += num_digits + (i > 0 ? 2 : 0); // +2 for \", \"\n        }\n\n        std::string result;\n        result.reserve(total_length);\n        result.push_back('[');\n\n        for (size_t i = 0; i < input_length; ++i) {\n            if (i > 0) {\n                result.push_back(',');\n                result.push_back(' ');\n            }\n\n            int value = input[i];\n            char buffer[32];\n            auto [ptr, ec] = std::to_chars(buffer, buffer + sizeof(buffer), value);\n            result.append(buffer, ptr);\n        }\n\n        result.push_back(']');\n        return copy_to_c_string(result);\n    } catch (...) {\n        return nullptr;\n    }\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786231671,
+  "id": "chatcmpl-dK5ve6oDPZAeDyEjLMB4HstdlmZ9Z5PG",
+  "model": "ministral-3-14b-instruct-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 45,
+    "predicted_ms": 183023.961,
+    "predicted_n": 335,
+    "predicted_per_second": 1.8303614355718156,
+    "predicted_per_token_ms": 546.3401820895523,
+    "prompt_ms": 1693413.516,
+    "prompt_n": 27528,
+    "prompt_per_second": 16.25592316342419,
+    "prompt_per_token_ms": 61.51603879686138
+  },
+  "usage": {
+    "completion_tokens": 335,
+    "prompt_tokens": 27573,
+    "prompt_tokens_details": {
+      "cached_tokens": 45
+    },
+    "total_tokens": 27908
+  }
+}

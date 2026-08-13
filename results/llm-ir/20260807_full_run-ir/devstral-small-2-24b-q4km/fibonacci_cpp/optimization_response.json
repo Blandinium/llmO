@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```\n; ModuleID = '/home/tijl/code/llmO/SUT/fibonacci.cpp'\nsource_filename = \"/home/tijl/code/llmO/SUT/fibonacci.cpp\"\ntarget datalayout = \"e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128\"\ntarget triple = \"x86_64-redhat-linux-gnu\"\n\ndefine i64 @fibonacci(i64 noundef %n) local_unnamed_addr #0 {\nentry:\n  %cmp = icmp ult i64 %n, 2\n  br i1 %cmp, label %return, label %loop\n\nloop:\n  %sub = add i64 %n, -1\n  %call = tail call i64 @fibonacci(i64 noundef %sub)\n  %n = add i64 %n, -1\n  %accumulator = add i64 %call, %n\n  %cmp = icmp ult i64 %n, 2\n  br i1 %cmp, label %return, label %loop\n\nreturn:\n  %result = add i64 %n, %accumulator\n  ret i64 %result\n}\n\nattributes #0 = { mustprogress nofree nosync nounwind willreturn memory(none) uwtable \"min-legal-vector-width\"=\"0\" \"no-trapping-math\"=\"true\" \"stack-protector-buffer-size\"=\"8\" \"target-cpu\"=\"x86-64\" \"target-features\"=\"+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87\" \"tune-cpu\"=\"generic\" }\n\n!llvm.linker.options = !{}\n!llvm.module.flags = !{!0, !1, !2}\n!llvm.ident = !{!3}\n\n!0 = !{i32 1, !\"wchar_size\", i32 4}\n!1 = !{i32 8, !\"PIC Level\", i32 2}\n!2 = !{i32 7, !\"uwtable\", i32 2}\n!3 = !{!\"clang version 20.1.8 (CentOS 20.1.8-9.el10_2)\"}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786331017,
+  "id": "chatcmpl-bzXR2bh3q8ZBfX2SKIDvHkWYsqy8ZvLA",
+  "model": "devstral-small-2-24b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 7,
+    "predicted_ms": 231750.891,
+    "predicted_n": 561,
+    "predicted_per_second": 2.4207026673308456,
+    "predicted_per_token_ms": 413.103192513369,
+    "prompt_ms": 80371.223,
+    "prompt_n": 971,
+    "prompt_per_second": 12.081438651244612,
+    "prompt_per_token_ms": 82.77159938208032
+  },
+  "usage": {
+    "completion_tokens": 561,
+    "prompt_tokens": 978,
+    "prompt_tokens_details": {
+      "cached_tokens": 7
+    },
+    "total_tokens": 1539
+  }
+}

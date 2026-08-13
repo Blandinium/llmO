@@ -1,0 +1,133 @@
+{
+  "abi_result": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01",
+    "duration_seconds": 0.008643195964396,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/abi_symbols_stdout.txt"
+  },
+  "accepted_remarks": null,
+  "compile_result": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/source_output.cpp",
+      "/home/tijl/code/llmO/SUT/count_matches.cpp",
+      "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+      "/home/tijl/code/llmO/SUT/format_list.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+      "-o",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 2.1672467798925936,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/compile_stdout.txt"
+  },
+  "iteration": 2,
+  "metadata": {
+    "abi_error": null,
+    "accepted_as_best": false,
+    "benchmark_comparison": {
+      "baseline_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+      "baseline_statistics": {
+        "maximum_calls_per_second": 18289.2,
+        "mean_calls_per_second": 18272.066666666666,
+        "median_absolute_deviation": 2.600000000002183,
+        "median_calls_per_second": 18286.6,
+        "minimum_calls_per_second": 18240.4,
+        "requested_repetitions": 3,
+        "successful_repetitions": 3
+      },
+      "candidate_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02",
+      "candidate_statistics": {
+        "maximum_calls_per_second": 18372.7,
+        "mean_calls_per_second": 18261.233333333334,
+        "median_absolute_deviation": 5.900000000001455,
+        "median_calls_per_second": 18366.8,
+        "minimum_calls_per_second": 18044.2,
+        "requested_repetitions": 3,
+        "successful_repetitions": 3
+      },
+      "classification": "unchanged_within_noise",
+      "noise_threshold_percent": 2.0,
+      "relative_change_percent": 0.4385725066442134,
+      "sequence": [
+        "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02",
+        "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+        "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02",
+        "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+        "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-01",
+        "guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02"
+      ]
+    },
+    "duration_seconds": 218.46728944499046,
+    "llm_result": {
+      "completion_tokens": 431,
+      "content": "#include \"library.h\"\n#include <algorithm>\n#include <array>\n#include <vector>\n#include <cstdint>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            std::copy_n(input, input_length, buffer.begin());\n            std::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    // Precompute median index to avoid repeated division\n    const size_t mid = values.size() / 2;\n    const bool even = (values.size() % 2 == 0);\n\n    for (int r = 0; r < rounds; ++r) {\n        std::sort(values.begin(), values.end());\n\n        // Compute median using precomputed index\n        const int median = even\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+      "finish_reason": "stop",
+      "prompt_tokens": 2421,
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "#include \"library.h\"\n#include <algorithm>\n#include <array>\n#include <vector>\n#include <cstdint>\n\nextern \"C\" {\n\nint64_t repeated_sort(const int* input, size_t input_length, int rounds) {\n    if (input == nullptr && input_length != 0) {\n        return 0;\n    }\n\n    if (input_length == 0) {\n        return 0;\n    }\n\n    std::int64_t total = 0;\n    std::array<int, 16> buffer;\n\n    // Handle small arrays directly in buffer to avoid allocations\n    if (input_length <= buffer.size()) {\n        for (int r = 0; r < rounds; ++r) {\n            std::copy_n(input, input_length, buffer.begin());\n            std::sort(buffer.begin(), buffer.begin() + input_length);\n\n            const size_t mid = input_length / 2;\n            const int median = (input_length % 2 == 0)\n                ? static_cast<int>((static_cast<std::int64_t>(buffer[mid - 1]) + buffer[mid]) / 2)\n                : buffer[mid];\n\n            total += median;\n            total += buffer[r % input_length];\n        }\n        return total;\n    }\n\n    // For larger arrays, use a single allocation that persists across rounds\n    std::vector<int> values(input, input + input_length);\n\n    // Precompute median index to avoid repeated division\n    const size_t mid = values.size() / 2;\n    const bool even = (values.size() % 2 == 0);\n\n    for (int r = 0; r < rounds; ++r) {\n        std::sort(values.begin(), values.end());\n\n        // Compute median using precomputed index\n        const int median = even\n            ? static_cast<int>((static_cast<std::int64_t>(values[mid - 1]) + values[mid]) / 2)\n            : values[mid];\n\n        total += median;\n        total += values[r % values.size()];\n    }\n\n    return total;\n}\n\n}",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786236376,
+        "id": "chatcmpl-C6DGDAYjyErY8grRCJOrh1XIgRJTg9H3",
+        "model": "ministral-3-14b-instruct-q4km",
+        "object": "chat.completion",
+        "system_fingerprint": "b9840-8c146a836",
+        "timings": {
+          "cache_n": 29,
+          "predicted_ms": 111750.51,
+          "predicted_n": 431,
+          "predicted_per_second": 3.856805664690032,
+          "predicted_per_token_ms": 259.2819257540603,
+          "prompt_ms": 105603.439,
+          "prompt_n": 2392,
+          "prompt_per_second": 22.650777499774417,
+          "prompt_per_token_ms": 44.148594899665554
+        },
+        "usage": {
+          "completion_tokens": 431,
+          "prompt_tokens": 2421,
+          "prompt_tokens_details": {
+            "cached_tokens": 29
+          },
+          "total_tokens": 2852
+        }
+      },
+      "total_tokens": 2852
+    }
+  },
+  "remarks_file": null,
+  "shown_remarks": null,
+  "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/repeated_sort_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__repeated_sort__iteration-02/repair_01/source_output.cpp",
+  "success": true,
+  "type": "repair_01"
+}

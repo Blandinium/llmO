@@ -1,0 +1,153 @@
+{
+  "backend_results": {
+    "-O0": {
+      "artifact_id": "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__candidate",
+      "baseline_artifact_id": "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__baseline",
+      "comparison": {
+        "baseline_artifact_id": "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__baseline",
+        "baseline_statistics": {
+          "maximum_calls_per_second": 40.6696,
+          "mean_calls_per_second": 40.592,
+          "median_absolute_deviation": 0.06580000000000297,
+          "median_calls_per_second": 40.6038,
+          "minimum_calls_per_second": 40.5026,
+          "requested_repetitions": 3,
+          "successful_repetitions": 3
+        },
+        "candidate_artifact_id": "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__candidate",
+        "candidate_statistics": {
+          "maximum_calls_per_second": 30.9582,
+          "mean_calls_per_second": 30.861433333333334,
+          "median_absolute_deviation": 0.029299999999999216,
+          "median_calls_per_second": 30.8277,
+          "minimum_calls_per_second": 30.7984,
+          "requested_repetitions": 3,
+          "successful_repetitions": 3
+        },
+        "classification": "regressed",
+        "noise_threshold_percent": 2.0,
+        "relative_change_percent": -24.076810544825854,
+        "sequence": [
+          "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__baseline",
+          "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__candidate",
+          "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__candidate",
+          "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__baseline",
+          "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__candidate",
+          "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o0__baseline"
+        ]
+      },
+      "pipeline_id": "ir-o1__backend-O0"
+    },
+    "-O3": {
+      "artifact_id": "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o3__candidate",
+      "baseline_artifact_id": "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o3__baseline",
+      "comparison": {
+        "baseline_artifact_id": "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o3__baseline",
+        "baseline_statistics": {
+          "maximum_calls_per_second": 53.9336,
+          "mean_calls_per_second": 53.910133333333334,
+          "median_absolute_deviation": 0.004100000000001103,
+          "median_calls_per_second": 53.9295,
+          "minimum_calls_per_second": 53.8673,
+          "requested_repetitions": 3,
+          "successful_repetitions": 3
+        },
+        "candidate_artifact_id": "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o3__candidate",
+        "candidate_statistics": {
+          "maximum_calls_per_second": 54.0802,
+          "mean_calls_per_second": 53.96196666666666,
+          "median_absolute_deviation": 0.01729999999999876,
+          "median_calls_per_second": 53.9115,
+          "minimum_calls_per_second": 53.8942,
+          "requested_repetitions": 3,
+          "successful_repetitions": 3
+        },
+        "classification": "unchanged_within_noise",
+        "noise_threshold_percent": 2.0,
+        "relative_change_percent": -0.03337690874196995,
+        "sequence": [
+          "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o3__baseline",
+          "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o3__candidate",
+          "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o3__candidate",
+          "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o3__baseline",
+          "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o3__candidate",
+          "llm-ir__qwen3-14b-q4km__fibonacci__ir-o1_backend-o3__baseline"
+        ]
+      },
+      "pipeline_id": "ir-o1__backend-O3"
+    }
+  },
+  "benchmark_name": "fibonacci",
+  "configured_max_output_tokens": 16384,
+  "experiment_type": "llm-ir",
+  "extracted_module_sha256": "32a3b9cac69945432eb2419555859f4288f9445acc3cfa2d5d5a80e5d59786e3",
+  "initial_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen3-14b-q4km/fibonacci_cpp/verify/verify_ir_stderr.txt",
+  "input_file": "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+  "input_ir_sha256": "6b897c6e2e85e019e3fab701e1b3caa278c26f9052a9764073f5c60d746caff9",
+  "input_sha256": "0795375344b3458e2fdc3f3d076875d4e80e56d82f1825893476aa2037984ce1",
+  "llm_result": {
+    "completion_tokens": 629,
+    "duration_seconds": 207.3816961569246,
+    "finish_reason": "stop",
+    "prompt_tokens": 949,
+    "request_finished_at": "2026-08-09T17:07:45.405987",
+    "request_started_at": "2026-08-09T17:04:18.024279",
+    "requested_max_tokens": 16384,
+    "total_tokens": 1578
+  },
+  "min_output_tokens": 4096,
+  "model_id": "qwen3-14b-q4km",
+  "optimization_inference_seconds": 207.3816961569246,
+  "preflight_validation": {
+    "errors": [],
+    "preflight_passed": true
+  },
+  "prompt_sha256": "f38c0a3c861ec1d8fd50a487597d2b2f85d8438292c4bc4e55818e1cc60cd91d",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "0dfb4fefab843fdc023b6500b1d14c090b00feb1e0da740a5b78902d8a0f6552",
+  "run_id": "20260807_full_run-ir",
+  "status": "completed",
+  "timing": {
+    "llm_inference_seconds": 207.3816961569246,
+    "optimization_pipeline_seconds": 589.1218174009118,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 207.3816961569246
+  },
+  "token_budget": {
+    "available_output_tokens": 30758,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": true,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 986,
+    "requested_max_tokens": 16384
+  },
+  "total_inference_seconds": 207.3816961569246,
+  "total_task_seconds": 589.1213958710432,
+  "validation": {
+    "initial_verification_passed": true,
+    "module_extracted": true,
+    "preflight_passed": true,
+    "repair_attempted": false,
+    "repair_module_extracted": false,
+    "repair_preflight_passed": false,
+    "repair_response_complete": false,
+    "repair_response_received": false,
+    "repair_verification_passed": false,
+    "response_complete": true,
+    "response_received": true
+  },
+  "verify_first_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen3-14b-q4km/fibonacci_cpp/extracted.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.015809884993359447,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen3-14b-q4km/fibonacci_cpp/verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen3-14b-q4km/fibonacci_cpp/verify/verify_ir_stdout.txt"
+  }
+}

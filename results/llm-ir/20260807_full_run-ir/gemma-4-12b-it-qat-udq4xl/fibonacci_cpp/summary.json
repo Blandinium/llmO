@@ -1,0 +1,54 @@
+{
+  "benchmark_name": "fibonacci",
+  "configured_max_output_tokens": 16384,
+  "experiment_type": "llm-ir",
+  "input_file": "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+  "input_ir_sha256": "6b897c6e2e85e019e3fab701e1b3caa278c26f9052a9764073f5c60d746caff9",
+  "input_sha256": "0795375344b3458e2fdc3f3d076875d4e80e56d82f1825893476aa2037984ce1",
+  "llm_result": {
+    "completion_tokens": 16384,
+    "duration_seconds": 3905.126103257062,
+    "finish_reason": "length",
+    "prompt_tokens": 1047,
+    "request_finished_at": "2026-08-09T19:01:13.248667",
+    "request_started_at": "2026-08-09T17:56:08.122554",
+    "requested_max_tokens": 16384,
+    "total_tokens": 17431
+  },
+  "min_output_tokens": 4096,
+  "model_id": "gemma-4-12b-it-qat-udq4xl",
+  "optimization_inference_seconds": 3905.126103257062,
+  "prompt_sha256": "f38c0a3c861ec1d8fd50a487597d2b2f85d8438292c4bc4e55818e1cc60cd91d",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "run_id": "20260807_full_run-ir",
+  "status": "response_truncated",
+  "timing": {
+    "llm_inference_seconds": 3905.126103257062,
+    "optimization_pipeline_seconds": 3905.152930574026,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 3905.126103257062
+  },
+  "token_budget": {
+    "available_output_tokens": 30662,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": true,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 1082,
+    "requested_max_tokens": 16384
+  },
+  "validation": {
+    "initial_verification_passed": false,
+    "module_extracted": false,
+    "preflight_passed": false,
+    "repair_attempted": false,
+    "repair_module_extracted": false,
+    "repair_preflight_passed": false,
+    "repair_response_complete": false,
+    "repair_response_received": false,
+    "repair_verification_passed": false,
+    "response_complete": false,
+    "response_received": true
+  }
+}

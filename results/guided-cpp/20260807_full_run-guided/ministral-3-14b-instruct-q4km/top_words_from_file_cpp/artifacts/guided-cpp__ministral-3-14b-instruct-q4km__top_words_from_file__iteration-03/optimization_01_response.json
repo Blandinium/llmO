@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <algorithm>\n#include <cstdint>\n#include <cstdlib>\n#include <cstring>\n#include <fstream>\n#include <memory>\n#include <new>\n#include <stdexcept>\n#include <string>\n#include <string_view>\n#include <unordered_map>\n#include <vector>\n\nnamespace {\n    struct WordCountPair {\n        std::string word;\n        uint64_t count;\n    };\n\n    bool should_ignore(\n        const std::vector<std::string_view>& ignore,\n        std::string_view word\n    ) {\n        return std::ranges::any_of(ignore, [&word](const std::string_view& ignored_word) {\n            return ignored_word == word;\n        });\n    }\n\n    void add_word(\n        std::unordered_map<std::string, uint64_t>& frequencies,\n        const std::vector<std::string_view>& ignore,\n        std::string_view word\n    ) {\n        if (!word.empty() && !should_ignore(ignore, word)) {\n            frequencies[std::string(word)]++;\n        }\n    }\n\n    void scan_text(\n        std::string_view text,\n        std::unordered_map<std::string, uint64_t>& frequencies,\n        const std::vector<std::string_view>& ignore\n    ) {\n        std::string current_word;\n        current_word.reserve(32); // Reserve space to reduce reallocations\n\n        for (size_t i = 0; i < text.size(); ++i) {\n            const char c = text[i];\n            if (is_word_char(c)) {\n                current_word.push_back(normalize_char(c));\n            } else {\n                add_word(frequencies, ignore, current_word);\n                current_word.clear();\n            }\n        }\n        add_word(frequencies, ignore, current_word);\n    }\n\n    bool is_better_candidate(const WordCount& a, const WordCount& b) {\n        if (a.count != b.count) {\n            return a.count > b.count;\n        }\n        return std::strcmp(a.word, b.word) < 0;\n    }\n\n    void consider_candidate(\n        WordCount* top,\n        size_t top_length,\n        std::string&& word,\n        uint64_t count\n    ) {\n        char* candidate_word = copy_to_c_string(std::move(word));\n        if (candidate_word == nullptr) {\n            throw std::bad_alloc();\n        }\n\n        WordCount candidate{candidate_word, count};\n        auto insert_pos = std::ranges::lower_bound(\n            top,\n            top + top_length,\n            candidate,\n            [](const WordCount& existing, const WordCount& value) {\n                return is_better_candidate(existing, value);\n            }\n        );\n\n        if (insert_pos == top + top_length) {\n            std::free(candidate_word);\n            return;\n        }\n\n        std::free((top + top_length - 1)->word);\n        std::move_backward(insert_pos, top + top_length - 1, top + top_length);\n        *insert_pos = candidate;\n    }\n\n    void find_top(\n        std::unordered_map<std::string, uint64_t>& frequencies,\n        WordCount* top,\n        size_t top_length\n    ) {\n        std::vector<std::pair<std::string, uint64_t>> frequency_items;\n        frequency_items.reserve(frequencies.size());\n        for (auto&& [word, count] : frequencies) {\n            frequency_items.emplace_back(std::move(word), count);\n        }\n\n        std::sort(frequency_items.begin(), frequency_items.end(),\n            [](const auto& a, const auto& b) {\n                if (a.second != b.second) {\n                    return a.second > b.second;\n                }\n                return a.first < b.first;\n            });\n\n        for (size_t i = 0; i < frequency_items.size() && i < top_length; ++i) {\n            consider_candidate(top, top_length, std::move(frequency_items[i].first), frequency_items[i].second);\n        }\n    }\n\n    std::string read_whole_file(const std::string& path) {\n        std::ifstream file(path, std::ios::binary);\n        if (!file) {\n            throw std::runtime_error(\"Could not open input file: \" + path);\n        }\n\n        file.seekg(0, std::ios::end);\n        const std::streamsize size = file.tellg();\n        if (size < 0) {\n            throw std::runtime_error(\"Could not determine input file size: \" + path);\n        }\n        file.seekg(0, std::ios::beg);\n\n        std::string contents;\n        contents.resize(static_cast<std::size_t>(size));\n        if (size > 0) {\n            file.read(contents.data(), size);\n            if (!file) {\n                throw std::runtime_error(\"Could not read input file: \" + path);\n            }\n        }\n        return contents;\n    }\n}\n\nextern \"C\" {\n\nWordCount* top_words_from_file(\n    const char* path,\n    const char* const* ignore_words,\n    size_t ignore_words_length,\n    size_t max_results,\n    size_t* result_length\n) {\n    if (result_length != nullptr) {\n        *result_length = 0;\n    }\n\n    if (path == nullptr || (ignore_words == nullptr && ignore_words_length != 0)) {\n        return nullptr;\n    }\n\n    try {\n        std::vector<std::string_view> ignore;\n        ignore.reserve(ignore_words_length);\n\n        for (size_t i = 0; i < ignore_words_length; ++i) {\n            if (ignore_words[i] != nullptr) {\n                ignore.emplace_back(ignore_words[i]);\n            }\n        }\n\n        const std::string text = read_whole_file(path);\n\n        std::unordered_map<std::string, uint64_t> frequencies;\n        scan_text(text, frequencies, ignore);\n\n        const size_t result_size = std::min(frequencies.size(), max_results);\n        if (result_size == 0) {\n            return nullptr;\n        }\n\n        WordCount* result = static_cast<WordCount*>(\n            std::calloc(result_size, sizeof(WordCount))\n        );\n        if (result == nullptr) {\n            return nullptr;\n        }\n\n        const auto cleanup = [result_size](WordCount* values) {\n            free_word_counts(values, result_size);\n        };\n        std::unique_ptr<WordCount, decltype(cleanup)> result_guard(result, cleanup);\n\n        find_top(frequencies, result, result_size);\n\n        if (result_length != nullptr) {\n            *result_length = result_size;\n        }\n\n        return result_guard.release();\n    } catch (...) {\n        return nullptr;\n    }\n}\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786253080,
+  "id": "chatcmpl-yQ3R9Y9TtORW3by7zrFOrVIUxfwElc2j",
+  "model": "ministral-3-14b-instruct-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 47,
+    "predicted_ms": 794940.293,
+    "predicted_n": 1430,
+    "predicted_per_second": 1.7988772397023285,
+    "predicted_per_token_ms": 555.9023027972028,
+    "prompt_ms": 1701930.885,
+    "prompt_n": 27651,
+    "prompt_per_second": 16.24684071703652,
+    "prompt_per_token_ms": 61.5504280134534
+  },
+  "usage": {
+    "completion_tokens": 1430,
+    "prompt_tokens": 27698,
+    "prompt_tokens_details": {
+      "cached_tokens": 47
+    },
+    "total_tokens": 29128
+  }
+}

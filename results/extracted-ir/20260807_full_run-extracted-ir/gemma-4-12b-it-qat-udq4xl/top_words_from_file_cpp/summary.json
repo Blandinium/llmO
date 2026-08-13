@@ -1,0 +1,43 @@
+{
+  "benchmark_name": "top_words_from_file",
+  "configured_max_output_tokens": 16384,
+  "estimated_available_output_tokens": 0,
+  "estimated_prompt_tokens": 45385,
+  "estimated_target_function_tokens": 35923,
+  "experiment_type": "extracted-ir",
+  "extracted_estimated_input_tokens": 44951,
+  "extracted_ir_bytes": 98126,
+  "extracted_ir_sha256": "269e40a8332adc84b8a89e08cc98db4feb22fbeea7edb47c5255ae7ef00950b6",
+  "input_file": "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+  "input_ir_sha256": "269e40a8332adc84b8a89e08cc98db4feb22fbeea7edb47c5255ae7ef00950b6",
+  "input_sha256": "06237774d082fbd14278e9cda5ef61b4f862e5e9876ea92decb0620c7467f18d",
+  "ir_extract_recursive": false,
+  "min_output_tokens": 512,
+  "model_context_size": 32768,
+  "model_id": "gemma-4-12b-it-qat-udq4xl",
+  "optimization_mode": "extracted-ir",
+  "original_estimated_input_tokens": 122704,
+  "original_ir_bytes": 258441,
+  "original_ir_path": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/gemma-4-12b-it-qat-udq4xl/top_words_from_file_cpp/top_words_from_file_O1.ll",
+  "original_ir_sha256": "cc127ca8c44e12b45aa07cfa1b862352f1e346b47387a050ca2580d050187a1f",
+  "prompt_ir_path": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/gemma-4-12b-it-qat-udq4xl/top_words_from_file_cpp/input_extraction/extracted_input.ll",
+  "prompt_sha256": "4227c22417fd6540d9a52f67a61798a3b7a2b199f379300a4f0e8a79ffb13bef",
+  "run_id": "20260807_full_run-extracted-ir",
+  "status": "context_insufficient",
+  "target_llvm_symbol": "top_words_from_file",
+  "timing": {
+    "llm_inference_seconds": 0.0,
+    "optimization_pipeline_seconds": 1.241035965969786,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 0.0
+  },
+  "token_budget": {
+    "available_output_tokens": 0,
+    "can_fit_minimum_expected_output": false,
+    "can_fit_requested_maximum": false,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 512,
+    "prompt_tokens": 45385,
+    "requested_max_tokens": 16384
+  }
+}

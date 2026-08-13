@@ -1,0 +1,40 @@
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/qwen3-14b-q4km/top_words_from_file_cpp/optimized.cpp:219:102: error: no matching constructor for initialization of 'std::unique_ptr<WordCount, decltype([](WordCount *values) {
+    free_word_counts(values, 0);
+})>' (aka 'unique_ptr<WordCount, (lambda at /home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/qwen3-14b-q4km/top_words_from_file_cpp/optimized.cpp:219:45)>')
+  219 |         std::unique_ptr<WordCount, decltype([](WordCount* values) { free_word_counts(values, 0); })> result_guard(result, [](WordCount* values) { free_word_counts(values, 0); });
+      |                                                                                                      ^            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unique_ptr.h:324:2: note: candidate constructor template not viable: no known conversion from '(lambda at /home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/qwen3-14b-q4km/top_words_from_file_cpp/optimized.cpp:219:123)' to 'const deleter_type' (aka 'const (lambda at /home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/qwen3-14b-q4km/top_words_from_file_cpp/optimized.cpp:219:45)') for 2nd argument
+  324 |         unique_ptr(pointer __p, const deleter_type& __d) noexcept
+      |         ^                       ~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unique_ptr.h:337:2: note: candidate constructor [with _Del = (lambda at /home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/qwen3-14b-q4km/top_words_from_file_cpp/optimized.cpp:219:45), $1 = void] not viable: no known conversion from '(lambda at /home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/qwen3-14b-q4km/top_words_from_file_cpp/optimized.cpp:219:123)' to '(lambda at /home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/qwen3-14b-q4km/top_words_from_file_cpp/optimized.cpp:219:45)' for 2nd argument
+  337 |         unique_ptr(pointer __p,
+      |         ^
+  338 |                    __enable_if_t<!is_lvalue_reference<_Del>::value,
+      |                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  339 |                                  _Del&&> __d) noexcept
+      |                                  ~~~~~~~~~~~
+/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unique_ptr.h:346:2: note: candidate template ignored: requirement 'is_lvalue_reference<(lambda at /home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/qwen3-14b-q4km/top_words_from_file_cpp/optimized.cpp:219:45)>::value' was not satisfied [with _Del = deleter_type, _DelUnref = typename remove_reference<deleter_type>::type]
+  346 |         unique_ptr(pointer,
+      |         ^
+/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unique_ptr.h:310:2: note: candidate constructor template not viable: requires single argument '__p', but 2 arguments were provided
+  310 |         unique_ptr(pointer __p) noexcept
+      |         ^          ~~~~~~~~~~~
+/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unique_ptr.h:352:12: note: candidate constructor template not viable: requires 1 argument, but 2 were provided
+  352 |         constexpr unique_ptr(nullptr_t) noexcept
+      |                   ^          ~~~~~~~~~
+/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unique_ptr.h:359:7: note: candidate constructor not viable: requires 1 argument, but 2 were provided
+  359 |       unique_ptr(unique_ptr&&) = default;
+      |       ^          ~~~~~~~~~~~~
+/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unique_ptr.h:373:2: note: candidate constructor template not viable: requires single argument '__u', but 2 arguments were provided
+  373 |         unique_ptr(unique_ptr<_Up, _Ep>&& __u) noexcept
+      |         ^          ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unique_ptr.h:384:2: note: candidate constructor template not viable: requires single argument '__u', but 2 arguments were provided
+  384 |         unique_ptr(auto_ptr<_Up>&& __u) noexcept;
+      |         ^          ~~~~~~~~~~~~~~~~~~~
+/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unique_ptr.h:516:7: note: candidate constructor not viable: requires 1 argument, but 2 were provided
+  516 |       unique_ptr(const unique_ptr&) = delete;
+      |       ^          ~~~~~~~~~~~~~~~~~
+/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unique_ptr.h:297:12: note: candidate constructor template not viable: requires 0 arguments, but 2 were provided
+  297 |         constexpr unique_ptr() noexcept
+      |                   ^
+1 error generated.

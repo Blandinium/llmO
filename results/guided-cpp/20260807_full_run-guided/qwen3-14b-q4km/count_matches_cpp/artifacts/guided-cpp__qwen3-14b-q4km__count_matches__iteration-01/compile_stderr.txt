@@ -1,0 +1,13 @@
+/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/source_output.cpp:25:5: error: use of undeclared identifier 'std'
+   25 |     std::unordered_set<int> allowed_set(allowed_data, allowed_data + allowed_length);
+      |     ^
+/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/source_output.cpp:25:27: error: expected '(' for function-style cast or type construction
+   25 |     std::unordered_set<int> allowed_set(allowed_data, allowed_data + allowed_length);
+      |                        ~~~^
+/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/source_output.cpp:25:29: error: use of undeclared identifier 'allowed_set'
+   25 |     std::unordered_set<int> allowed_set(allowed_data, allowed_data + allowed_length);
+      |                             ^
+/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/source_output.cpp:30:13: error: use of undeclared identifier 'allowed_set'
+   30 |         if (allowed_set.count(queries[i])) {
+      |             ^
+4 errors generated.

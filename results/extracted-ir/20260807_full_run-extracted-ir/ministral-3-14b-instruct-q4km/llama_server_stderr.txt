@@ -1,0 +1,17 @@
+0.00.363.862 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.00.364.004 I srv          init: The UI is disabled
+0.00.364.006 I srv          init: Use --ui/--no-ui (or deprecated --webui/--no-webui) to enable/disable
+0.00.365.489 I srv    load_model: loading model 'mistralai/Ministral-3-14B-Instruct-2512-GGUF:Q4_K_M'
+0.04.375.082 W llama_context: setting new yarn_attn_factor = 1.0000 (mscale == 1.0, mscale_all_dim = 1.0)
+0.05.900.268 I srv    load_model: loaded multimodal model, '/home/tijl/.cache/huggingface/hub/models--mistralai--Ministral-3-14B-Instruct-2512-GGUF/snapshots/74fac473c43357d7fb2671713608183cc72496d0/Ministral-3-14B-Instruct-2512-BF16-mmproj.gguf'
+0.06.710.366 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 32768, kv_unified = 'false'
+0.06.712.201 I srv  llama_server: model loaded
+0.06.712.207 I srv  llama_server: listening on http://127.0.0.1:8001
+0.07.001.832 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1
+0.07.001.853 I slot launch_slot_: id  0 | task 1 | processing task, is_child = 0
+0.13.799.045 I slot print_timing: id  0 | task 1 | prompt eval time =    3117.03 ms /    46 tokens (   67.76 ms per token,    14.76 tokens per second)
+0.13.799.049 I slot print_timing: id  0 | task 1 |        eval time =    3680.14 ms /    17 tokens (  216.48 ms per token,     4.62 tokens per second)
+0.13.799.049 I slot print_timing: id  0 | task 1 |       total time =    6797.17 ms /    63 tokens
+0.13.799.053 I slot print_timing: id  0 | task 1 |    graphs reused =          0
+0.13.799.082 I slot      release: id  0 | task 1 | stop processing: n_tokens = 62, truncated = 0
+0.13.801.019 I srv    operator(): operator(): cleaning up before exit...

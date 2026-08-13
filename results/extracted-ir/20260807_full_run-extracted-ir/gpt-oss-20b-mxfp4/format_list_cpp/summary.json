@@ -1,0 +1,156 @@
+{
+  "actual_completion_tokens": 4810,
+  "backend_results": {
+    "-O0": {
+      "artifact_id": "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o0__candidate",
+      "baseline_artifact_id": "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o0__baseline",
+      "comparison": {
+        "baseline_artifact_id": "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o0__baseline",
+        "baseline_statistics": {
+          "maximum_calls_per_second": 47299.4,
+          "mean_calls_per_second": 47128.03333333333,
+          "median_absolute_deviation": 35.900000000001455,
+          "median_calls_per_second": 47263.5,
+          "minimum_calls_per_second": 46821.2,
+          "requested_repetitions": 3,
+          "successful_repetitions": 3
+        },
+        "candidate_artifact_id": "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o0__candidate",
+        "candidate_statistics": {
+          "maximum_calls_per_second": 47222,
+          "mean_calls_per_second": 46906.86666666667,
+          "median_absolute_deviation": 163,
+          "median_calls_per_second": 47059,
+          "minimum_calls_per_second": 46439.6,
+          "requested_repetitions": 3,
+          "successful_repetitions": 3
+        },
+        "classification": "unchanged_within_noise",
+        "noise_threshold_percent": 2.0,
+        "relative_change_percent": -0.43268060977286915,
+        "sequence": [
+          "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o0__baseline",
+          "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o0__candidate",
+          "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o0__candidate",
+          "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o0__baseline",
+          "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o0__candidate",
+          "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o0__baseline"
+        ]
+      },
+      "pipeline_id": "extracted-ir-o1__backend-O0"
+    },
+    "-O3": {
+      "artifact_id": "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__candidate",
+      "baseline_artifact_id": "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__baseline",
+      "comparison": {
+        "baseline_artifact_id": "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__baseline",
+        "baseline_statistics": {
+          "maximum_calls_per_second": 80093.9,
+          "mean_calls_per_second": 79987.03333333333,
+          "median_absolute_deviation": 31.89999999999418,
+          "median_calls_per_second": 80062,
+          "minimum_calls_per_second": 79805.2,
+          "requested_repetitions": 3,
+          "successful_repetitions": 3
+        },
+        "candidate_artifact_id": "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__candidate",
+        "candidate_statistics": {
+          "maximum_calls_per_second": 79755.4,
+          "mean_calls_per_second": 79336.76666666666,
+          "median_absolute_deviation": 233.6999999999971,
+          "median_calls_per_second": 79521.7,
+          "minimum_calls_per_second": 78733.2,
+          "requested_repetitions": 3,
+          "successful_repetitions": 3
+        },
+        "classification": "unchanged_within_noise",
+        "noise_threshold_percent": 2.0,
+        "relative_change_percent": -0.67485198970798,
+        "sequence": [
+          "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__baseline",
+          "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__candidate",
+          "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__candidate",
+          "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__baseline",
+          "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__candidate",
+          "extracted-ir__gpt-oss-20b-mxfp4__format_list__extracted-ir-o1_backend-o3__baseline"
+        ]
+      },
+      "pipeline_id": "extracted-ir-o1__backend-O3"
+    }
+  },
+  "benchmark_name": "format_list",
+  "configured_max_output_tokens": 15197,
+  "estimated_available_output_tokens": 19339,
+  "estimated_prompt_tokens": 12405,
+  "estimated_target_function_tokens": 9961,
+  "experiment_type": "extracted-ir",
+  "extracted_estimated_input_tokens": 11995,
+  "extracted_ir_bytes": 31613,
+  "extracted_ir_sha256": "0e58f092f3a51443e6b987c777c62cde3079a58bb91e8bd83d6349c14a6f722b",
+  "input_file": "/home/tijl/code/llmO/SUT/format_list.cpp",
+  "input_ir_sha256": "0e58f092f3a51443e6b987c777c62cde3079a58bb91e8bd83d6349c14a6f722b",
+  "input_sha256": "ce626cb2559f18cb6819c827133c547252741c631676d4b036be50cbfd375f30",
+  "ir_extract_recursive": false,
+  "llm_result": {
+    "completion_tokens": 4810,
+    "duration_seconds": 831.6146924209315,
+    "finish_reason": "stop",
+    "prompt_tokens": 12429,
+    "request_finished_at": "2026-08-12T08:26:32.058834",
+    "request_started_at": "2026-08-12T08:12:40.444132",
+    "requested_max_tokens": 15197,
+    "total_tokens": 17239
+  },
+  "min_output_tokens": 512,
+  "model_context_size": 32768,
+  "model_id": "gpt-oss-20b-mxfp4",
+  "optimization_inference_seconds": 831.6146924209315,
+  "optimization_mode": "extracted-ir",
+  "optimized_extracted_ir_sha256": "0e58f092f3a51443e6b987c777c62cde3079a58bb91e8bd83d6349c14a6f722b",
+  "original_estimated_input_tokens": 16494,
+  "original_ir_bytes": 43967,
+  "original_ir_path": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/gpt-oss-20b-mxfp4/format_list_cpp/format_list_O1.ll",
+  "original_ir_sha256": "8f82c368adb22b2d13621aac0c1c724fb3350f3a4a0bf911c79f9a04de2704f5",
+  "prompt_ir_path": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/gpt-oss-20b-mxfp4/format_list_cpp/input_extraction/extracted_input.ll",
+  "prompt_sha256": "336e0f851fe9db46d389738c61917518775ed4f25cec9a4e69f7c68b8f6bbc39",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "193ac318496f83f018c8168a63f0d174c9ba8c7356e9297b879a78d49e5a28ca",
+  "reconstructed_ir_path": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/gpt-oss-20b-mxfp4/format_list_cpp/reconstructed_full.ll",
+  "reconstructed_ir_sha256": "8f82c368adb22b2d13621aac0c1c724fb3350f3a4a0bf911c79f9a04de2704f5",
+  "response_mode": "no_change",
+  "resume_reused_candidate": true,
+  "run_id": "20260807_full_run-extracted-ir",
+  "status": "completed",
+  "target_llvm_symbol": "format_list",
+  "timing": {
+    "llm_inference_seconds": 831.6146924209315,
+    "optimization_pipeline_seconds": 375.451636192156,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 831.6146924209315
+  },
+  "token_budget": {
+    "available_output_tokens": 19339,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": true,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 512,
+    "prompt_tokens": 12405,
+    "requested_max_tokens": 15197
+  },
+  "total_inference_seconds": 831.6146924209315,
+  "validation": {
+    "final_verification_passed": null,
+    "initial_verification_passed": null,
+    "module_extracted": false,
+    "preflight_passed": null,
+    "repair_attempted": false,
+    "repair_module_extracted": false,
+    "repair_preflight_passed": null,
+    "repair_response_complete": false,
+    "repair_response_received": false,
+    "repair_verification_passed": null,
+    "response_complete": true,
+    "response_received": true,
+    "validation_skipped": true
+  }
+}

@@ -1,0 +1,4 @@
+format_list single value failed: expected "[42]", got "[42"
+format_list mixed values failed: expected "[-7, 0, 13, 13, 2048]", got "[-7"
+format_list integer extremes failed: expected "[-2147483648, 2147483647]", got "[-2147483648"
+Tests failed for function 1

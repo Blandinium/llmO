@@ -1,0 +1,34 @@
+{
+  "artifact_id": "naive-cpp__qwen3-14b-q4km__format_list__candidate",
+  "artifact_role": "candidate",
+  "benchmark_name": "format_list",
+  "confirmation_status": "not-run",
+  "confirmed_improvement": false,
+  "experiment_type": "naive-cpp",
+  "input_file": "/home/tijl/code/llmO/SUT/format_list.cpp",
+  "input_sha256": "ce626cb2559f18cb6819c827133c547252741c631676d4b036be50cbfd375f30",
+  "is_final_artifact": true,
+  "llm_result": {
+    "completion_tokens": 448,
+    "duration_seconds": 141.67784080514684,
+    "finish_reason": "stop",
+    "prompt_tokens": 623,
+    "request_finished_at": "2026-08-07T17:38:22.324133",
+    "request_started_at": "2026-08-07T17:36:00.646281",
+    "total_tokens": 1071
+  },
+  "model_id": "qwen3-14b-q4km",
+  "optimization_inference_seconds": 141.67784080514684,
+  "prompt_sha256": "dec0d1208e77df45545b41612bfa0d9afad79d6c15b4d6aeae2584590257b1f9",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "9c7a6579353b3b79d938ce9ce9f63d7f783f25419391e38c401dc199cdb76e0a",
+  "run_id": "20260807_full_run-naive",
+  "selection_status": "not-run",
+  "status": "candidate_compile_failed",
+  "timing": {
+    "llm_inference_seconds": 141.67784080514684,
+    "optimization_pipeline_seconds": 145.87202035891823,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 141.67784080514684
+  }
+}

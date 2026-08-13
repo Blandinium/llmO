@@ -1,0 +1,3 @@
+```cpp
+inline constexpr int f(int x) { return x; }
+```

@@ -1,0 +1,56 @@
+{
+  "artifact_id": "guided-cpp__gpt-oss-20b-mxfp4__fibonacci__iteration-01",
+  "benchmark_name": "fibonacci",
+  "comparison_vs_previous_best": {
+    "baseline_artifact_id": "guided-cpp__gpt-oss-20b-mxfp4__fibonacci__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 49.3542,
+      "mean_calls_per_second": 47.747299999999996,
+      "median_absolute_deviation": 1.3183000000000007,
+      "median_calls_per_second": 48.0359,
+      "minimum_calls_per_second": 45.8518,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "guided-cpp__gpt-oss-20b-mxfp4__fibonacci__iteration-01",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 227673000.0,
+      "mean_calls_per_second": 212664333.33333334,
+      "median_absolute_deviation": 11984000.0,
+      "median_calls_per_second": 211152000.0,
+      "minimum_calls_per_second": 199168000.0,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "improved",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": 439571137.3454021,
+    "sequence": [
+      "guided-cpp__gpt-oss-20b-mxfp4__fibonacci__iteration-01",
+      "guided-cpp__gpt-oss-20b-mxfp4__fibonacci__baseline",
+      "guided-cpp__gpt-oss-20b-mxfp4__fibonacci__iteration-01",
+      "guided-cpp__gpt-oss-20b-mxfp4__fibonacci__baseline",
+      "guided-cpp__gpt-oss-20b-mxfp4__fibonacci__baseline",
+      "guided-cpp__gpt-oss-20b-mxfp4__fibonacci__iteration-01"
+    ]
+  },
+  "confirmation_status": "not-run",
+  "confirmed_improvement": false,
+  "experiment_type": "guided-cpp",
+  "model_id": "gpt-oss-20b-mxfp4",
+  "parent_artifact_id": "guided-cpp__gpt-oss-20b-mxfp4__fibonacci__baseline",
+  "paths": {
+    "libsut": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/gpt-oss-20b-mxfp4/fibonacci_cpp/artifacts/guided-cpp__gpt-oss-20b-mxfp4__fibonacci__iteration-01/libSUT.so",
+    "source": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/gpt-oss-20b-mxfp4/fibonacci_cpp/artifacts/guided-cpp__gpt-oss-20b-mxfp4__fibonacci__iteration-01/source_output.cpp"
+  },
+  "pipeline_id": "cpp-llm-iterative-pass-01__clang-o3",
+  "run_id": "20260807_full_run-guided",
+  "schema_version": 2,
+  "selection_status": "improved",
+  "timing": {
+    "llm_inference_seconds": 259.82396385096945,
+    "optimization_pipeline_seconds": 468.3215093240142,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 259.82396385096945
+  }
+}

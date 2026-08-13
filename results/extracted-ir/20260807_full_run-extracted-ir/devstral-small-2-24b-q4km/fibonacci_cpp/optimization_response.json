@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "BEGIN_REPLACEMENT_FUNCTION\ndefine i64 @fibonacci(i64 noundef %n) local_unnamed_addr #0 {\nentry:\n  %cmp = icmp ult i64 %n, 2\n  br i1 %cmp, label %return, label %loop\n\nloop:\n  %sub = add i64 %n, -1\n  %call = tail call i64 @fibonacci(i64 noundef %sub)\n  %add = add i64 %call, %n\n  %sub1 = add i64 %n, -2\n  %n = add i64 %n, -1\n  br label %loop\n\nreturn:\n  ret i64 %n\n}\nEND_REPLACEMENT_FUNCTION",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786524070,
+  "id": "chatcmpl-Uqz4q4hVRZiyxhirrjXuvdvUwVFN5dG1",
+  "model": "devstral-small-2-24b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 7,
+    "predicted_ms": 69753.582,
+    "predicted_n": 170,
+    "predicted_per_second": 2.4371508261754933,
+    "predicted_per_token_ms": 410.3151882352941,
+    "prompt_ms": 90307.606,
+    "prompt_n": 1087,
+    "prompt_per_second": 12.036638420024111,
+    "prompt_per_token_ms": 83.07967433302667
+  },
+  "usage": {
+    "completion_tokens": 170,
+    "prompt_tokens": 1094,
+    "prompt_tokens_details": {
+      "cached_tokens": 7
+    },
+    "total_tokens": 1264
+  }
+}

@@ -1,0 +1,1160 @@
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unordered_map.h', 
+                   Line: 988, Column: 16 }
+Function:        _ZL8add_wordRSt13unordered_mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmSt4hashIS5_ESt8equal_toIS5_ESaISt4pairIKS5_mEEERKSt6vectorIS5_SaIS5_EERSB_
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt8__detail9_Map_baseINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS6_mESaIS9_ENS_10_Select1stESt8equal_toIS6_ESt4hashIS6_ENS_18_Mod_range_hashingENS_20_Default_ranged_hashENS_20_Prime_rehash_policyENS_17_Hashtable_traitsILb1ELb0ELb1EEELb1EEixERS8_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                       Line: 878, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZL8add_wordRSt13unordered_mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmSt4hashIS5_ESt8equal_toIS5_ESaISt4pairIKS5_mEEERKSt6vectorIS5_SaIS5_EERSB_
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 34, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '625'
+  - String:          ', threshold='
+  - Threshold:       '625'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 54, Column: 9 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - Callee:          _Z12is_word_charc
+  - String:          ' will not be inlined into '
+  - Caller:          _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 46, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 55, Column: 32 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - Callee:          _Z14normalize_charc
+  - String:          ' will not be inlined into '
+  - Caller:          _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 46, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 57, Column: 9 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          ''''
+  - Callee:          _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 46, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 46, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          recursive
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 70, Column: 5 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          ''''
+  - Callee:          _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 46, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 46, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          recursive
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unordered_map.h', 
+                   Line: 988, Column: 16 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt8__detail9_Map_baseINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS6_mESaIS9_ENS_10_Select1stESt8equal_toIS6_ESt4hashIS6_ENS_18_Mod_range_hashingENS_20_Default_ranged_hashENS_20_Prime_rehash_policyENS_17_Hashtable_traitsILb1ELb0ELb1EEELb1EEixERS8_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                       Line: 878, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 46, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '625'
+  - String:          ', threshold='
+  - Threshold:       '625'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1576, Column: 10 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_mutateEmmPKcm
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.tcc', 
+                       Line: 328, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 46, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '275'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unordered_map.h', 
+                   Line: 988, Column: 16 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt8__detail9_Map_baseINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS6_mESaIS9_ENS_10_Select1stESt8equal_toIS6_ESt4hashIS6_ENS_18_Mod_range_hashingENS_20_Default_ranged_hashENS_20_Prime_rehash_policyENS_17_Hashtable_traitsILb1ELb0ELb1EEELb1EEixERS8_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                       Line: 878, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 46, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '625'
+  - String:          ', threshold='
+  - Threshold:       '625'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 68, Column: 5 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 54, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1077, Column: 16 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 54, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 68, Column: 5 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 54, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 35, Column: 27 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 54, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 70, Column: 5 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 288, Column: 15 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 70, Column: 5 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 271, Column: 10 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 223, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 70, Column: 5 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 70, Column: 5 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 288, Column: 15 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 70, Column: 5 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 271, Column: 10 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 223, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 70, Column: 5 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1077, Column: 16 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 55, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 55, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1182, Column: 9 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 55, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 57, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 288, Column: 15 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 57, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 271, Column: 10 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 223, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 57, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 57, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 288, Column: 15 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 57, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 271, Column: 10 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 223, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 57, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 68, Column: 5 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 54, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1077, Column: 16 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 54, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 68, Column: 5 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 54, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 35, Column: 27 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 54, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 70, Column: 5 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 288, Column: 15 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 70, Column: 5 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 271, Column: 10 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 223, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 70, Column: 5 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 70, Column: 5 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 288, Column: 15 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/char_traits.h', 
+                       Line: 350, Column: 7 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 70, Column: 5 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 271, Column: 10 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 223, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 70, Column: 5 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1077, Column: 16 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 55, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 55, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 1182, Column: 9 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 55, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 57, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 288, Column: 15 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 57, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 271, Column: 10 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 223, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 57, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 228, Column: 28 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 57, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 288, Column: 15 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 198, Column: 36 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 57, Column: 9 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                   Line: 271, Column: 10 }
+Function:        _ZL24scan_text_tail_recursiveRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmS4_RSt13unordered_mapIS4_mSt4hashIS4_ESt8equal_toIS4_ESaISt4pairIS5_mEEERKSt6vectorIS4_SaIS4_EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/basic_string.h', 
+                       Line: 223, Column: 26 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 57, Column: 9 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 84, Column: 12 }
+Function:        _ZL19is_better_candidateRK9WordCountS1_
+Args:
+  - Callee:          strcmp
+  - String:          ' will not be inlined into '
+  - Caller:          _ZL19is_better_candidateRK9WordCountS1_
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 79, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 93, Column: 28 }
+Function:        _ZL18consider_candidateP9WordCountmRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEm
+Args:
+  - Callee:          _Z16copy_to_c_stringRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+  - String:          ' will not be inlined into '
+  - Caller:          _ZL18consider_candidateP9WordCountmRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEm
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 92, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 95, Column: 9 }
+Function:        _ZL18consider_candidateP9WordCountmRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEm
+Args:
+  - Callee:          __cxa_allocate_exception
+  - String:          ' will not be inlined into '
+  - Caller:          _ZL18consider_candidateP9WordCountmRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEm
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 92, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 95, Column: 9 }
+Function:        _ZL18consider_candidateP9WordCountmRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEm
+Args:
+  - Callee:          __cxa_throw
+  - String:          ' will not be inlined into '
+  - Caller:          _ZL18consider_candidateP9WordCountmRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEm
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 92, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 110, Column: 9 }
+Function:        _ZL18consider_candidateP9WordCountmRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEm
+Args:
+  - Callee:          free
+  - String:          ' will not be inlined into '
+  - Caller:          _ZL18consider_candidateP9WordCountmRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEm
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 92, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 5 }
+Function:        _ZL18consider_candidateP9WordCountmRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEm
+Args:
+  - Callee:          free
+  - String:          ' will not be inlined into '
+  - Caller:          _ZL18consider_candidateP9WordCountmRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEm
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 92, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL18consider_candidateP9WordCountmRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEm
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 93, Column: 28 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL18consider_candidateP9WordCountmRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEm
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 93, Column: 28 }
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 133, Column: 5 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          ''''
+  - Callee:          _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 126, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                       Line: 126, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          recursive
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/top_words_from_file_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline/top_words_from_file.cpp', 
+                   Line: 114, Column: 39 }
+Function:        _ZL23find_top_tail_recursiveN9__gnu_cxx17__normal_iteratorIPKSt4pairINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEmESt6vectorIS8_SaIS8_EEEESE_P9WordCountm
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...

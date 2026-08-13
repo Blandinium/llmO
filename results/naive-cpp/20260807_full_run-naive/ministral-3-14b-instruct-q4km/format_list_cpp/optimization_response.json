@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <string>\n#include <string_view>\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    try {\n        // Pre-allocate buffer with exact capacity\n        std::string result;\n        result.reserve(input_length * 12 + 2); // 12 chars per int (avg) + brackets\n\n        result.push_back('[');\n        for (size_t i = 0; i < input_length; ++i) {\n            if (i > 0) {\n                result.push_back(',');\n                result.push_back(' ');\n            }\n\n            // Fast path for small numbers (most common case)\n            int value = input[i];\n            if (value >= -9 && value <= 9999) {\n                // Use direct digit writing for small numbers\n                char buffer[12];\n                char* ptr = buffer + sizeof(buffer);\n                *--ptr = '\\0';\n\n                if (value < 0) {\n                    *--ptr = '-';\n                    value = -value;\n                }\n\n                do {\n                    *--ptr = '0' + (value % 10);\n                    value /= 10;\n                } while (value > 0);\n\n                result.append(ptr, buffer + sizeof(buffer) - ptr);\n            } else {\n                result += std::to_string(value);\n            }\n        }\n        result.push_back(']');\n\n        return copy_to_c_string(result);\n    } catch (...) {\n        return nullptr;\n    }\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786144900,
+  "id": "chatcmpl-DyEhLMPbS4Q7azhaR7LImDoMl7eamMDn",
+  "model": "ministral-3-14b-instruct-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 39,
+    "predicted_ms": 82186.37,
+    "predicted_n": 349,
+    "predicted_per_second": 4.246446217298562,
+    "predicted_per_token_ms": 235.49103151862462,
+    "prompt_ms": 26197.454,
+    "prompt_n": 599,
+    "prompt_per_second": 22.864817321561095,
+    "prompt_per_token_ms": 43.735315525876466
+  },
+  "usage": {
+    "completion_tokens": 349,
+    "prompt_tokens": 638,
+    "prompt_tokens_details": {
+      "cached_tokens": 39
+    },
+    "total_tokens": 987
+  }
+}

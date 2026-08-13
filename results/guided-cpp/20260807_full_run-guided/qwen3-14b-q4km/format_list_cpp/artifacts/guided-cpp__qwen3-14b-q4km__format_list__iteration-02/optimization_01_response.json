@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <string>\n#include <vector>\n#include <sstream>\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    try {\n        std::ostringstream oss;\n        oss << '[';\n        for (size_t i = 0; i < input_length; ++i) {\n            if (i > 0) oss << \", \";\n            oss << input[i];\n        }\n        oss << ']';\n\n        return copy_to_c_string(oss.str());\n    } catch (...) {\n        return nullptr;\n    }\n}\n\n}",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786157458,
+  "id": "chatcmpl-Ad14LRrZ3aFfgAOXfUJlSw9XX00Wppor",
+  "model": "qwen3-14b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 49,
+    "predicted_ms": 89363.611,
+    "predicted_n": 149,
+    "predicted_per_second": 1.6673453358996426,
+    "predicted_per_token_ms": 599.75577852349,
+    "prompt_ms": 1898638.617,
+    "prompt_n": 27594,
+    "prompt_per_second": 14.533571451106747,
+    "prompt_per_token_ms": 68.80621211132855
+  },
+  "usage": {
+    "completion_tokens": 149,
+    "prompt_tokens": 27643,
+    "prompt_tokens_details": {
+      "cached_tokens": 49
+    },
+    "total_tokens": 27792
+  }
+}

@@ -1,0 +1,4 @@
+/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03/source_output.cpp:67:22: error: no member named 'reverse' in namespace 'std'
+   67 |                 std::reverse(start, ptr);
+      |                 ~~~~~^
+1 error generated.

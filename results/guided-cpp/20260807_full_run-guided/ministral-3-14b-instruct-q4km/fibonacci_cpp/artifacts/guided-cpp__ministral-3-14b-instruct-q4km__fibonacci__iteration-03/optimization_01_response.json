@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n\nextern \"C\" {\n    uint64_t fibonacci(uint64_t n) {\n        if (n <= 1) return n;\n\n        uint64_t a = 0;\n        uint64_t b = 1;\n        uint64_t c = 0;\n\n        // Use unsigned comparison and unrolled loop with trip count\n        // to minimize branch mispredictions and improve instruction level parallelism\n        for (uint64_t i = 2; i <= n; i += 8) {\n            c = a + b; a = b; b = c;\n            c = a + b; a = b; b = c;\n            c = a + b; a = b; b = c;\n            c = a + b; a = b; b = c;\n            c = a + b; a = b; b = c;\n            c = a + b; a = b; b = c;\n            c = a + b; a = b; b = c;\n            c = a + b; a = b; b = c;\n\n            // Handle remaining iterations after unrolling\n            if (i + 7 >= n) {\n                for (uint64_t j = i + 8; j <= n; ++j) {\n                    c = a + b; a = b; b = c;\n                }\n                break;\n            }\n        }\n        return b;\n    }\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786225258,
+  "id": "chatcmpl-6hb3uvTyc12lP6C3VUQQjGHRNnM9bfFT",
+  "model": "ministral-3-14b-instruct-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 45,
+    "predicted_ms": 88184.469,
+    "predicted_n": 313,
+    "predicted_per_second": 3.5493778388573163,
+    "predicted_per_token_ms": 281.73951757188496,
+    "prompt_ms": 181885.472,
+    "prompt_n": 4103,
+    "prompt_per_second": 22.55815131842965,
+    "prompt_per_token_ms": 44.32987375091397
+  },
+  "usage": {
+    "completion_tokens": 313,
+    "prompt_tokens": 4148,
+    "prompt_tokens_details": {
+      "cached_tokens": 45
+    },
+    "total_tokens": 4461
+  }
+}

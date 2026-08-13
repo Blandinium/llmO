@@ -1,0 +1,58 @@
+{
+  "artifact_id": "guided-cpp__devstral-small-2-24b-q4km__format_list__final",
+  "benchmark_name": "format_list",
+  "confirmation_seed": 43,
+  "confirmation_status": "improved",
+  "confirmed_improvement": true,
+  "experiment_type": "guided-cpp",
+  "final_comparison_vs_original": {
+    "baseline_artifact_id": "guided-cpp__devstral-small-2-24b-q4km__format_list__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 79682.7,
+      "mean_calls_per_second": 79599.53333333334,
+      "median_absolute_deviation": 54.59999999999127,
+      "median_calls_per_second": 79628.1,
+      "minimum_calls_per_second": 79487.8,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "guided-cpp__devstral-small-2-24b-q4km__format_list__final",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 93178.1,
+      "mean_calls_per_second": 93033.23333333334,
+      "median_absolute_deviation": 57.80000000000291,
+      "median_calls_per_second": 93120.3,
+      "minimum_calls_per_second": 92801.3,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "improved",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": 16.944018506029902,
+    "sequence": [
+      "guided-cpp__devstral-small-2-24b-q4km__format_list__final",
+      "guided-cpp__devstral-small-2-24b-q4km__format_list__baseline",
+      "guided-cpp__devstral-small-2-24b-q4km__format_list__baseline",
+      "guided-cpp__devstral-small-2-24b-q4km__format_list__final",
+      "guided-cpp__devstral-small-2-24b-q4km__format_list__final",
+      "guided-cpp__devstral-small-2-24b-q4km__format_list__baseline"
+    ]
+  },
+  "model_id": "devstral-small-2-24b-q4km",
+  "parent_artifact_id": "guided-cpp__devstral-small-2-24b-q4km__format_list__baseline",
+  "paths": {
+    "libsut": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__final/libSUT.so",
+    "source": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__final/optimized_format_list.cpp"
+  },
+  "pipeline_id": "cpp-llm-guided-remarks__clang-o3",
+  "run_id": "20260807_full_run-guided",
+  "schema_version": 2,
+  "selection_status": "improved",
+  "source_provenance": "iteration-03",
+  "timing": {
+    "llm_inference_seconds": 9105.598961421056,
+    "optimization_pipeline_seconds": 10363.471279392019,
+    "repair_inference_seconds": 572.3471063959878,
+    "total_llm_seconds": 9677.946067817044
+  }
+}

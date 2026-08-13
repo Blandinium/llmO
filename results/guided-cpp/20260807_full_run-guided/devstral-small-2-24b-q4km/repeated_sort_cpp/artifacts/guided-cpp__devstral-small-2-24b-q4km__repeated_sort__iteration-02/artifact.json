@@ -1,0 +1,56 @@
+{
+  "artifact_id": "guided-cpp__devstral-small-2-24b-q4km__repeated_sort__iteration-02",
+  "benchmark_name": "repeated_sort",
+  "comparison_vs_previous_best": {
+    "baseline_artifact_id": "guided-cpp__devstral-small-2-24b-q4km__repeated_sort__iteration-01",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 18268.9,
+      "mean_calls_per_second": 18236.566666666666,
+      "median_absolute_deviation": 11.80000000000291,
+      "median_calls_per_second": 18257.1,
+      "minimum_calls_per_second": 18183.7,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "guided-cpp__devstral-small-2-24b-q4km__repeated_sort__iteration-02",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 18279,
+      "mean_calls_per_second": 18207.133333333335,
+      "median_absolute_deviation": 56.599999999998545,
+      "median_calls_per_second": 18222.4,
+      "minimum_calls_per_second": 18120,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "unchanged_within_noise",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": -0.19006304396644097,
+    "sequence": [
+      "guided-cpp__devstral-small-2-24b-q4km__repeated_sort__iteration-02",
+      "guided-cpp__devstral-small-2-24b-q4km__repeated_sort__iteration-01",
+      "guided-cpp__devstral-small-2-24b-q4km__repeated_sort__iteration-02",
+      "guided-cpp__devstral-small-2-24b-q4km__repeated_sort__iteration-01",
+      "guided-cpp__devstral-small-2-24b-q4km__repeated_sort__iteration-01",
+      "guided-cpp__devstral-small-2-24b-q4km__repeated_sort__iteration-02"
+    ]
+  },
+  "confirmation_status": "not-run",
+  "confirmed_improvement": false,
+  "experiment_type": "guided-cpp",
+  "model_id": "devstral-small-2-24b-q4km",
+  "parent_artifact_id": "guided-cpp__devstral-small-2-24b-q4km__repeated_sort__iteration-01",
+  "paths": {
+    "libsut": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/repeated_sort_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__repeated_sort__iteration-02/libSUT.so",
+    "source": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/repeated_sort_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__repeated_sort__iteration-02/source_output.cpp"
+  },
+  "pipeline_id": "cpp-llm-iterative-pass-02__clang-o3",
+  "run_id": "20260807_full_run-guided",
+  "schema_version": 2,
+  "selection_status": "unchanged_within_noise",
+  "timing": {
+    "llm_inference_seconds": 5728.1681618609,
+    "optimization_pipeline_seconds": 6133.736778509105,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 5728.1681618609
+  }
+}

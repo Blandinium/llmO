@@ -1,0 +1,56 @@
+{
+  "artifact_id": "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline",
+  "artifact_role": "baseline",
+  "benchmark_name": "repeated_sort",
+  "comparison": {
+    "baseline_artifact_id": "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 6940.29,
+      "mean_calls_per_second": 6894.3,
+      "median_absolute_deviation": 26.199999999999818,
+      "median_calls_per_second": 6914.09,
+      "minimum_calls_per_second": 6828.52,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 6871.78,
+      "mean_calls_per_second": 6863.526666666667,
+      "median_absolute_deviation": 1.699999999999818,
+      "median_calls_per_second": 6870.08,
+      "minimum_calls_per_second": 6848.72,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "unchanged_within_noise",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": -0.6365262818389725,
+    "sequence": [
+      "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline",
+      "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline",
+      "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__candidate",
+      "extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline"
+    ]
+  },
+  "experiment_type": "extracted-ir",
+  "is_final_artifact": true,
+  "logical_artifact_id": "extracted-ir/20260807_full_run-extracted-ir/devstral-small-2-24b-q4km/repeated_sort/extracted-ir-o1_backend-o0/extracted-ir_devstral-small-2-24b-q4km_repeated_sort_extracted-ir-o1_backend-o0_baseline",
+  "model_id": "devstral-small-2-24b-q4km",
+  "paths": {
+    "canonical_libsut": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline/libSUT.so",
+    "ir": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline/input.ll",
+    "libsut": "/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/artifacts/extracted-ir__devstral-small-2-24b-q4km__repeated_sort__extracted-ir-o1_backend-o0__baseline/libSUT.so"
+  },
+  "pipeline_id": "extracted-ir-o1__backend-O0",
+  "run_id": "20260807_full_run-extracted-ir",
+  "schema_version": 2,
+  "timing": {
+    "llm_inference_seconds": 0.0,
+    "optimization_pipeline_seconds": 0.0,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 0.0
+  }
+}

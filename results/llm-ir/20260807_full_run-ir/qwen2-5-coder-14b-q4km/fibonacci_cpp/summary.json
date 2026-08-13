@@ -1,0 +1,115 @@
+{
+  "benchmark_name": "fibonacci",
+  "configured_max_output_tokens": 16384,
+  "experiment_type": "llm-ir",
+  "extracted_module_sha256": "a9b7ede0bbb675e4048455916f28a619db7c76881ea1d8236561306e1ce5834f",
+  "initial_verifier_error_excerpt": "Instruction does not dominate all uses!\n  %accumulator.tr = phi i64 [ 0, %entry ], [ %add, %tailrecurse ]\n  %accumulator.ret.tr = add i64 %accumulator.tr, %n.tr\nInstruction does not dominate all uses!\n  %n.tr = phi i64 [ %n, %entry ], [ %sub1, %tailrecurse ]\n  %accumulator.ret.tr = add i64 %accumulator.tr, %n.tr\nopt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen2-5-coder-14b-q4km/fibonacci_cpp/extracted.ll: error: input module is broken!\n",
+  "initial_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen2-5-coder-14b-q4km/fibonacci_cpp/verify/verify_ir_stderr.txt",
+  "input_file": "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+  "input_ir_sha256": "6b897c6e2e85e019e3fab701e1b3caa278c26f9052a9764073f5c60d746caff9",
+  "input_sha256": "0795375344b3458e2fdc3f3d076875d4e80e56d82f1825893476aa2037984ce1",
+  "llm_result": {
+    "completion_tokens": 656,
+    "duration_seconds": 215.19785198802128,
+    "finish_reason": "stop",
+    "prompt_tokens": 949,
+    "request_finished_at": "2026-08-09T17:34:18.728522",
+    "request_started_at": "2026-08-09T17:30:43.530659",
+    "requested_max_tokens": 16384,
+    "total_tokens": 1605
+  },
+  "min_output_tokens": 4096,
+  "model_id": "qwen2-5-coder-14b-q4km",
+  "optimization_inference_seconds": 215.19785198802128,
+  "preflight_validation": {
+    "errors": [],
+    "preflight_passed": true
+  },
+  "prompt_sha256": "f38c0a3c861ec1d8fd50a487597d2b2f85d8438292c4bc4e55818e1cc60cd91d",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "d75c90a631f7a980e9f296d00cd3058f9884c89510383e9782c28c24155b2218",
+  "repair_inference_seconds": 214.5811734169256,
+  "repair_module_changed": false,
+  "repair_module_sha256": "a9b7ede0bbb675e4048455916f28a619db7c76881ea1d8236561306e1ce5834f",
+  "repair_raw_response_file": "repair_response.json",
+  "repair_response_sha256": "60f3b47787592fd41576a8ba290ecd7739c8387a4b89cb698e27230e1bbd0342",
+  "repair_result": {
+    "completion_tokens": 660,
+    "duration_seconds": 214.5811734169256,
+    "finish_reason": "stop",
+    "prompt_tokens": 924,
+    "request_finished_at": "2026-08-09T17:37:53.328364",
+    "request_started_at": "2026-08-09T17:34:18.747179",
+    "requested_max_tokens": 16384,
+    "total_tokens": 1584
+  },
+  "repair_token_budget": {
+    "available_output_tokens": 30783,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": true,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 961,
+    "requested_max_tokens": 16384
+  },
+  "repair_verifier_error_excerpt": "Instruction does not dominate all uses!\n  %accumulator.tr = phi i64 [ 0, %entry ], [ %add, %tailrecurse ]\n  %accumulator.ret.tr = add i64 %accumulator.tr, %n.tr\nInstruction does not dominate all uses!\n  %n.tr = phi i64 [ %n, %entry ], [ %sub1, %tailrecurse ]\n  %accumulator.ret.tr = add i64 %accumulator.tr, %n.tr\nopt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen2-5-coder-14b-q4km/fibonacci_cpp/repaired.ll: error: input module is broken!\n",
+  "repair_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen2-5-coder-14b-q4km/fibonacci_cpp/repair_verify/verify_ir_stderr.txt",
+  "run_id": "20260807_full_run-ir",
+  "status": "repair_unchanged_invalid",
+  "timing": {
+    "llm_inference_seconds": 215.19785198802128,
+    "optimization_pipeline_seconds": 429.83977783308364,
+    "repair_inference_seconds": 214.5811734169256,
+    "total_llm_seconds": 429.7790254049469
+  },
+  "token_budget": {
+    "available_output_tokens": 30758,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": true,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 986,
+    "requested_max_tokens": 16384
+  },
+  "total_inference_seconds": 429.7790254049469,
+  "total_task_seconds": 429.8397703380324,
+  "validation": {
+    "initial_verification_passed": false,
+    "module_extracted": true,
+    "preflight_passed": true,
+    "repair_attempted": true,
+    "repair_module_extracted": true,
+    "repair_preflight_passed": true,
+    "repair_response_complete": true,
+    "repair_response_received": true,
+    "repair_verification_passed": false,
+    "response_complete": true,
+    "response_received": true
+  },
+  "verify_first_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen2-5-coder-14b-q4km/fibonacci_cpp/extracted.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.015815790044143796,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen2-5-coder-14b-q4km/fibonacci_cpp/verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen2-5-coder-14b-q4km/fibonacci_cpp/verify/verify_ir_stdout.txt"
+  },
+  "verify_repair_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen2-5-coder-14b-q4km/fibonacci_cpp/repaired.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.015812941826879978,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen2-5-coder-14b-q4km/fibonacci_cpp/repair_verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/qwen2-5-coder-14b-q4km/fibonacci_cpp/repair_verify/verify_ir_stdout.txt"
+  }
+}

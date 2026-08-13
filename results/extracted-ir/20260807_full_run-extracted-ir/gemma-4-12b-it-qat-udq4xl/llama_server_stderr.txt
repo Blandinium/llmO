@@ -1,0 +1,41 @@
+0.00.581.928 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.00.582.065 I srv          init: The UI is disabled
+0.00.582.066 I srv          init: Use --ui/--no-ui (or deprecated --webui/--no-webui) to enable/disable
+0.00.583.575 I srv    load_model: loading model 'unsloth/gemma-4-12B-it-qat-GGUF:UD-Q4_K_XL'
+0.01.297.276 W load: control-looking token:    212 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.01.297.486 W load: control-looking token:     50 '<|tool_response>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.01.307.572 W load: special_eog_ids contains '<|tool_response>', removing '</s>' token from EOG list
+0.04.038.066 W init_audio: audio input is in experimental stage and may have reduced quality:
+    https://github.com/ggml-org/llama.cpp/discussions/13759
+0.04.038.072 I srv    load_model: loaded multimodal model, '/home/tijl/.cache/huggingface/hub/models--unsloth--gemma-4-12B-it-qat-GGUF/snapshots/980b060c40a8539ac159e0501a3e0f66a6365af3/mmproj-BF16.gguf'
+0.04.369.953 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 32768, kv_unified = 'false'
+0.04.375.166 I srv  llama_server: model loaded
+0.04.375.172 I srv  llama_server: listening on http://127.0.0.1:8001
+0.05.000.732 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1
+0.05.000.760 I slot launch_slot_: id  0 | task 1 | processing task, is_child = 0
+0.26.336.664 I slot print_timing: id  0 | task 1 | n_decoded =    100, tg =   4.95 t/s, tg_3s =   4.95 t/s
+0.29.415.967 I slot print_timing: id  0 | task 1 | n_decoded =    115, tg =   4.94 t/s, tg_3s =   4.87 t/s
+0.32.508.852 I slot print_timing: id  0 | task 1 | n_decoded =    130, tg =   4.93 t/s, tg_3s =   4.85 t/s
+0.35.609.957 I slot print_timing: id  0 | task 1 | n_decoded =    145, tg =   4.92 t/s, tg_3s =   4.84 t/s
+0.38.710.833 I slot print_timing: id  0 | task 1 | n_decoded =    160, tg =   4.91 t/s, tg_3s =   4.84 t/s
+0.41.831.861 I slot print_timing: id  0 | task 1 | n_decoded =    175, tg =   4.90 t/s, tg_3s =   4.81 t/s
+0.44.950.149 I slot print_timing: id  0 | task 1 | n_decoded =    190, tg =   4.90 t/s, tg_3s =   4.81 t/s
+0.48.060.182 I slot print_timing: id  0 | task 1 | n_decoded =    205, tg =   4.89 t/s, tg_3s =   4.82 t/s
+0.51.153.477 I slot print_timing: id  0 | task 1 | n_decoded =    220, tg =   4.89 t/s, tg_3s =   4.85 t/s
+0.54.248.564 I slot print_timing: id  0 | task 1 | n_decoded =    235, tg =   4.89 t/s, tg_3s =   4.85 t/s
+0.57.345.398 I slot print_timing: id  0 | task 1 | n_decoded =    250, tg =   4.88 t/s, tg_3s =   4.84 t/s
+1.00.449.627 I slot print_timing: id  0 | task 1 | n_decoded =    265, tg =   4.88 t/s, tg_3s =   4.83 t/s
+1.03.556.304 I slot print_timing: id  0 | task 1 | n_decoded =    280, tg =   4.88 t/s, tg_3s =   4.83 t/s
+1.06.656.767 I slot print_timing: id  0 | task 1 | n_decoded =    295, tg =   4.88 t/s, tg_3s =   4.84 t/s
+1.09.762.678 I slot print_timing: id  0 | task 1 | n_decoded =    310, tg =   4.87 t/s, tg_3s =   4.83 t/s
+1.12.871.744 I slot print_timing: id  0 | task 1 | n_decoded =    325, tg =   4.87 t/s, tg_3s =   4.82 t/s
+1.15.985.779 I slot print_timing: id  0 | task 1 | n_decoded =    340, tg =   4.87 t/s, tg_3s =   4.82 t/s
+1.19.096.902 I slot print_timing: id  0 | task 1 | n_decoded =    355, tg =   4.87 t/s, tg_3s =   4.82 t/s
+1.22.206.884 I slot print_timing: id  0 | task 1 | n_decoded =    370, tg =   4.86 t/s, tg_3s =   4.82 t/s
+1.25.321.098 I slot print_timing: id  0 | task 1 | n_decoded =    385, tg =   4.86 t/s, tg_3s =   4.82 t/s
+1.25.735.837 I slot print_timing: id  0 | task 1 | prompt eval time =    1144.77 ms /    57 tokens (   20.08 ms per token,    49.79 tokens per second)
+1.25.735.846 I slot print_timing: id  0 | task 1 |        eval time =   79590.28 ms /   387 tokens (  205.66 ms per token,     4.86 tokens per second)
+1.25.735.846 I slot print_timing: id  0 | task 1 |       total time =   80735.06 ms /   444 tokens
+1.25.735.850 I slot print_timing: id  0 | task 1 |    graphs reused =        385
+1.25.735.886 I slot      release: id  0 | task 1 | stop processing: n_tokens = 443, truncated = 0
+1.25.737.753 I srv    operator(): operator(): cleaning up before exit...

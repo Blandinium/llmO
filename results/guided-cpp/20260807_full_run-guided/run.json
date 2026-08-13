@@ -1,0 +1,82 @@
+{
+  "benchmark_protocol": {
+    "noise_threshold_percent": 2.0,
+    "ordering": "paired",
+    "repetitions": 3,
+    "require_all_repetitions": true,
+    "seed": 42
+  },
+  "clang_version": "clang version 20.1.8 (CentOS 20.1.8-9.el10_2)",
+  "cpu_architecture": "x86_64",
+  "experiment_type": "guided-cpp",
+  "git_commit": "5d2303cfcb2ec93473fe8a9efb350850fa9efe06",
+  "git_dirty": true,
+  "host_cpu": "AMD Ryzen 9 5950X 16-Core Processor",
+  "hostname": "griffin.vercaemer.net",
+  "kernel": "6.12.0-211.34.1.el10_2.x86_64",
+  "llama_server_version": "version: 9840 (8c146a836)",
+  "llama_server_version_details": {
+    "command_attempted": "/home/tijl/code/llama.cpp/build/bin/llama-server --version",
+    "returncode": 0,
+    "stderr": "version: 9840 (8c146a836)\nbuilt with GNU 14.3.1 for Linux x86_64\n",
+    "stdout": "",
+    "version": "version: 9840 (8c146a836)"
+  },
+  "llvm_as_version": "LLVM (http://llvm.org/):",
+  "logical_cpu_count": 32,
+  "models": {
+    "devstral-small-2-24b-q4km": {
+      "alias": "devstral-small-2-24b-q4km",
+      "effective_context_size": 32768,
+      "hf_repo": "unsloth/Devstral-Small-2-24B-Instruct-2512-GGUF:Q4_K_M",
+      "model_name": "devstral-small-2-24b-q4km"
+    },
+    "gemma-4-12b-it-qat-udq4xl": {
+      "alias": "gemma-4-12b-it-qat-udq4xl",
+      "effective_context_size": 32768,
+      "hf_repo": "unsloth/gemma-4-12B-it-qat-GGUF:UD-Q4_K_XL",
+      "model_name": "gemma-4-12b-it-qat-udq4xl"
+    },
+    "gpt-oss-20b-mxfp4": {
+      "alias": "gpt-oss-20b-mxfp4",
+      "effective_context_size": 32768,
+      "hf_repo": "ggml-org/gpt-oss-20b-GGUF:MXFP4",
+      "model_name": "gpt-oss-20b-mxfp4"
+    },
+    "llm-compiler-13b-q4km": {
+      "alias": "llm-compiler-13b-q4km",
+      "effective_context_size": 16384,
+      "hf_repo": "second-state/llm-compiler-13b-GGUF:Q4_K_M",
+      "model_name": "llm-compiler-13b-q4km"
+    },
+    "llm-compiler-7b-q4km": {
+      "alias": "llm-compiler-7b-q4km",
+      "effective_context_size": 16384,
+      "hf_repo": "second-state/llm-compiler-7b-GGUF:Q4_K_M",
+      "model_name": "llm-compiler-7b-q4km"
+    },
+    "ministral-3-14b-instruct-q4km": {
+      "alias": "ministral-3-14b-instruct-q4km",
+      "effective_context_size": 32768,
+      "hf_repo": "mistralai/Ministral-3-14B-Instruct-2512-GGUF:Q4_K_M",
+      "model_name": "ministral-3-14b-instruct-q4km"
+    },
+    "qwen2.5-coder-14b-q4km": {
+      "alias": "qwen2.5-coder-14b-q4km",
+      "effective_context_size": 32768,
+      "hf_repo": "Qwen/Qwen2.5-Coder-14B-Instruct-GGUF:Q4_K_M",
+      "model_name": "qwen2.5-coder-14b-q4km"
+    },
+    "qwen3-14b-q4km": {
+      "alias": "qwen3-14b-q4km",
+      "effective_context_size": 32768,
+      "hf_repo": "Qwen/Qwen3-14B-GGUF:Q4_K_M",
+      "model_name": "qwen3-14b-q4km"
+    }
+  },
+  "opt_version": "LLVM (http://llvm.org/):",
+  "physical_core_count": 16,
+  "python_version": "3.12.13 (main, Jul 10 2026, 00:00:00) [GCC 14.3.1 20251022 (Red Hat 14.3.1-4)]",
+  "run_id": "20260807_full_run-guided",
+  "start_time": "2026-08-08T01:22:05.692092"
+}

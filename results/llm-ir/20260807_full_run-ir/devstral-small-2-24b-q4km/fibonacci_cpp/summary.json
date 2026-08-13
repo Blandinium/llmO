@@ -1,0 +1,115 @@
+{
+  "benchmark_name": "fibonacci",
+  "configured_max_output_tokens": 16384,
+  "experiment_type": "llm-ir",
+  "extracted_module_sha256": "2eae6dce000948802b69bf79ec703606d2fa8e06b84b0a2acb008e9911ba7031",
+  "initial_verifier_error_excerpt": "opt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/devstral-small-2-24b-q4km/fibonacci_cpp/extracted.ll:14:3: error: multiple definition of local value named 'n'\n  %n = add i64 %n, -1\n  ^\n",
+  "initial_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/devstral-small-2-24b-q4km/fibonacci_cpp/verify/verify_ir_stderr.txt",
+  "input_file": "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+  "input_ir_sha256": "6b897c6e2e85e019e3fab701e1b3caa278c26f9052a9764073f5c60d746caff9",
+  "input_sha256": "0795375344b3458e2fdc3f3d076875d4e80e56d82f1825893476aa2037984ce1",
+  "llm_result": {
+    "completion_tokens": 561,
+    "duration_seconds": 312.12750740302727,
+    "finish_reason": "stop",
+    "prompt_tokens": 978,
+    "request_finished_at": "2026-08-10T03:03:37.824024",
+    "request_started_at": "2026-08-10T02:58:25.696506",
+    "requested_max_tokens": 16384,
+    "total_tokens": 1539
+  },
+  "min_output_tokens": 4096,
+  "model_id": "devstral-small-2-24b-q4km",
+  "optimization_inference_seconds": 312.12750740302727,
+  "preflight_validation": {
+    "errors": [],
+    "preflight_passed": true
+  },
+  "prompt_sha256": "f38c0a3c861ec1d8fd50a487597d2b2f85d8438292c4bc4e55818e1cc60cd91d",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "38cc94cb48d67d157975f88601ea7502fe032478a39d90139beb06745571101b",
+  "repair_inference_seconds": 292.08521060296334,
+  "repair_module_changed": true,
+  "repair_module_sha256": "f7a8284f656ad9f52509c2353c38ffd3e9b75a220b5159c17d82a58babd8fced",
+  "repair_raw_response_file": "repair_response.json",
+  "repair_response_sha256": "d48a06fe695db033119bea97d5f6e88c3cc1d0cdc84a0ee03d9ac432a87593ff",
+  "repair_result": {
+    "completion_tokens": 563,
+    "duration_seconds": 292.08521060296334,
+    "finish_reason": "stop",
+    "prompt_tokens": 751,
+    "request_finished_at": "2026-08-10T03:08:29.928170",
+    "request_started_at": "2026-08-10T03:03:37.842949",
+    "requested_max_tokens": 16384,
+    "total_tokens": 1314
+  },
+  "repair_token_budget": {
+    "available_output_tokens": 30948,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": true,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 796,
+    "requested_max_tokens": 16384
+  },
+  "repair_verifier_error_excerpt": "opt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/devstral-small-2-24b-q4km/fibonacci_cpp/repaired.ll:16:3: error: multiple definition of local value named 'cmp'\n  %cmp = icmp ult i64 %n, 2\n  ^\n",
+  "repair_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/devstral-small-2-24b-q4km/fibonacci_cpp/repair_verify/verify_ir_stderr.txt",
+  "run_id": "20260807_full_run-ir",
+  "status": "invalid_after_repair",
+  "timing": {
+    "llm_inference_seconds": 312.12750740302727,
+    "optimization_pipeline_seconds": 604.2745404690504,
+    "repair_inference_seconds": 292.08521060296334,
+    "total_llm_seconds": 604.2127180059906
+  },
+  "token_budget": {
+    "available_output_tokens": 30721,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": true,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 1023,
+    "requested_max_tokens": 16384
+  },
+  "total_inference_seconds": 604.2127180059906,
+  "total_task_seconds": 604.2745324338321,
+  "validation": {
+    "initial_verification_passed": false,
+    "module_extracted": true,
+    "preflight_passed": true,
+    "repair_attempted": true,
+    "repair_module_extracted": true,
+    "repair_preflight_passed": true,
+    "repair_response_complete": true,
+    "repair_response_received": true,
+    "repair_verification_passed": false,
+    "response_complete": true,
+    "response_received": true
+  },
+  "verify_first_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/devstral-small-2-24b-q4km/fibonacci_cpp/extracted.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.01588264317251742,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/devstral-small-2-24b-q4km/fibonacci_cpp/verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/devstral-small-2-24b-q4km/fibonacci_cpp/verify/verify_ir_stdout.txt"
+  },
+  "verify_repair_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/devstral-small-2-24b-q4km/fibonacci_cpp/repaired.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.015857856953516603,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/devstral-small-2-24b-q4km/fibonacci_cpp/repair_verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/devstral-small-2-24b-q4km/fibonacci_cpp/repair_verify/verify_ir_stdout.txt"
+  }
+}

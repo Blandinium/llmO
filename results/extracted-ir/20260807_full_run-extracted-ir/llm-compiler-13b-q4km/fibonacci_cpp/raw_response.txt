@@ -1,0 +1,52 @@
+You are an LLVM IR performance engineer.
+
+The supplied input is a valid reduced LLVM module produced by llvm-extract. It
+contains the target function and declarations and module infrastructure needed
+for context. External functions may intentionally only be declarations.
+
+Optimize only the target function. Preserve externally observable behavior and
+the ABI: the exact function name, linkage, calling convention, parameter types,
+return type, and required function-level attributes, unless changing an
+attribute is necessary and valid. Do not invent implementations for declarations.
+Do not return the entire module or a diff.
+
+Only rewrite the function when you identify a concrete optimization that is
+unlikely to be recovered automatically by LLVM -O3. Prioritize algorithmic
+improvements, better data structures, reduced allocation or copying, removal of
+unnecessary library/runtime work, and safe specialization based only on
+guaranteed semantics. De-emphasize ordinary common-subexpression elimination,
+branch simplification, dead-code elimination, trivial inlining, and simple loop
+cleanup. Do not manually expand standard-library implementations without a
+concrete algorithmic or allocation advantage.
+
+Environment:
+- LLVM/Clang version 20.1.8
+- Input generated from C++ at -O1
+- x86-64 target
+- The target triple and datalayout must remain unchanged
+- The exported ABI must remain unchanged
+
+If no worthwhile optimization is found, return exactly:
+NO_CHANGE
+
+Otherwise return exactly:
+BEGIN_REPLACEMENT_FUNCTION
+<one complete replacement definition of the target function>
+END_REPLACEMENT_FUNCTION
+
+Return raw text with no Markdown and no prose before or after it. This compact
+protocol avoids reproducing unchanged module declarations and metadata.
+
+Input reduced LLVM module:
+; ModuleID = '/home/tijl/code/llmO/results/extracted-ir/20260807_full_run-extracted-ir/llm-compiler-13b-q4km/fibonacci_cpp/input_extraction/assemble/input.bc'
+source_filename = "/home/tijl/code/llmO/SUT/fibonacci.cpp"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-redhat-linux-gnu"
+
+; Function Attrs: mustprogress nofree nosync nounwind willreturn memory(none) uwtable
+define i64 @fibonacci(i64 noundef %n) local_unnamed_addr #0 {
+entry:
+   br label %tailrecurse
+
+tailrecurse:                                      ; preds = %if.end, %entry
+  %accumulator.tr = phi i64 [ 0

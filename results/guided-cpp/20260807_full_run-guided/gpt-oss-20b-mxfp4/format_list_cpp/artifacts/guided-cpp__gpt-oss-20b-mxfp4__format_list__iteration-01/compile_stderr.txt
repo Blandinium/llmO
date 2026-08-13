@@ -1,0 +1,4 @@
+/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/gpt-oss-20b-mxfp4/format_list_cpp/artifacts/guided-cpp__gpt-oss-20b-mxfp4__format_list__iteration-01/source_output.cpp:51:14: error: no member named 'memcpy' in namespace 'std'
+   51 |         std::memcpy(p, tmp, len);
+      |         ~~~~~^
+1 error generated.

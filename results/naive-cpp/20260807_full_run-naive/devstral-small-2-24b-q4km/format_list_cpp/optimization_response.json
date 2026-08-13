@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```\n#include \"library.h\"\n#include \"sut_common.h\"\n\n#include <string>\n#include <cstdio>\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    try {\n        // Pre-calculate the required buffer size\n        size_t buffer_size = 2; // for \"[]\"\n        for (size_t i = 0; i < input_length; ++i) {\n            // Estimate space needed for each number (up to 20 digits for 64-bit int)\n            // plus 2 characters for \", \" (except first element)\n            buffer_size += i > 0 ? 3 : 0;\n            int num = input[i];\n            if (num == 0) {\n                buffer_size += 1;\n            } else {\n                int temp = num;\n                if (temp < 0) {\n                    buffer_size += 1; // for '-'\n                    temp = -temp;\n                }\n                while (temp > 0) {\n                    buffer_size += 1;\n                    temp /= 10;\n                }\n            }\n        }\n\n        // Allocate buffer with exact size\n        char* buffer = new char[buffer_size];\n        char* ptr = buffer;\n\n        // Write the opening bracket\n        *ptr++ = '[';\n\n        // Write each number\n        for (size_t i = 0; i < input_length; ++i) {\n            if (i > 0) {\n                *ptr++ = ',';\n                *ptr++ = ' ';\n            }\n\n            int num = input[i];\n            if (num == 0) {\n                *ptr++ = '0';\n            } else {\n                if (num < 0) {\n                    *ptr++ = '-';\n                    num = -num;\n                }\n                char temp[20];\n                char* tptr = temp + sizeof(temp) - 1;\n                *tptr = '\\0';\n                while (num > 0) {\n                    *--tptr = '0' + (num % 10);\n                    num /= 10;\n                }\n                while (*tptr) {\n                    *ptr++ = *tptr++;\n                }\n            }\n        }\n\n        // Write the closing bracket\n        *ptr++ = ']';\n        *ptr = '\\0';\n\n        return buffer;\n    } catch (...) {\n        return nullptr;\n    }\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786149541,
+  "id": "chatcmpl-o0VszVrVHd7HTnOwC5DWhKHsXBkUKHU0",
+  "model": "devstral-small-2-24b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 39,
+    "predicted_ms": 213907.374,
+    "predicted_n": 522,
+    "predicted_per_second": 2.4403085795443404,
+    "predicted_per_token_ms": 409.78424137931034,
+    "prompt_ms": 49091.948,
+    "prompt_n": 599,
+    "prompt_per_second": 12.201593629977774,
+    "prompt_per_token_ms": 81.95650751252086
+  },
+  "usage": {
+    "completion_tokens": 522,
+    "prompt_tokens": 638,
+    "prompt_tokens_details": {
+      "cached_tokens": 39
+    },
+    "total_tokens": 1160
+  }
+}

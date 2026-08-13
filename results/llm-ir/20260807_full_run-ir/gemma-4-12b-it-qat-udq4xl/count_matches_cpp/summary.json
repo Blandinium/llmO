@@ -1,0 +1,54 @@
+{
+  "benchmark_name": "count_matches",
+  "configured_max_output_tokens": 16384,
+  "experiment_type": "llm-ir",
+  "input_file": "/home/tijl/code/llmO/SUT/count_matches.cpp",
+  "input_ir_sha256": "d7008d2aa32d6ef3df28b264d658edeb3c05a1c8d8b39ef77db13a7b2069244d",
+  "input_sha256": "d363d77d6af71a295ba7506375e16f5c4120a38a05a4bd1c93c451de36fd77f1",
+  "llm_result": {
+    "completion_tokens": 16384,
+    "duration_seconds": 3963.377866705181,
+    "finish_reason": "length",
+    "prompt_tokens": 2295,
+    "request_finished_at": "2026-08-09T20:07:17.382461",
+    "request_started_at": "2026-08-09T19:01:14.004580",
+    "requested_max_tokens": 16384,
+    "total_tokens": 18679
+  },
+  "min_output_tokens": 4096,
+  "model_id": "gemma-4-12b-it-qat-udq4xl",
+  "optimization_inference_seconds": 3963.377866705181,
+  "prompt_sha256": "9e0d3f0945d55681973977c14884f6ff31f0cc6b39b4d4e7ab92fec84090bb93",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "run_id": "20260807_full_run-ir",
+  "status": "response_truncated",
+  "timing": {
+    "llm_inference_seconds": 3963.377866705181,
+    "optimization_pipeline_seconds": 3963.503010436194,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 3963.377866705181
+  },
+  "token_budget": {
+    "available_output_tokens": 29414,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": true,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 2330,
+    "requested_max_tokens": 16384
+  },
+  "validation": {
+    "initial_verification_passed": false,
+    "module_extracted": false,
+    "preflight_passed": false,
+    "repair_attempted": false,
+    "repair_module_extracted": false,
+    "repair_preflight_passed": false,
+    "repair_response_complete": false,
+    "repair_response_received": false,
+    "repair_verification_passed": false,
+    "response_complete": false,
+    "response_received": true
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "artifact_id": "naive-cpp__devstral-small-2-24b-q4km__top_words_from_file__candidate",
+  "artifact_role": "candidate",
+  "benchmark_name": "top_words_from_file",
+  "confirmation_status": "not-required",
+  "confirmed_improvement": false,
+  "experiment_type": "naive-cpp",
+  "input_file": "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+  "input_sha256": "06237774d082fbd14278e9cda5ef61b4f862e5e9876ea92decb0620c7467f18d",
+  "is_final_artifact": true,
+  "llm_result": {
+    "completion_tokens": 1699,
+    "duration_seconds": 939.3998871059157,
+    "finish_reason": "stop",
+    "prompt_tokens": 2345,
+    "request_finished_at": "2026-08-08T01:20:27.867510",
+    "request_started_at": "2026-08-08T01:04:48.467613",
+    "total_tokens": 4044
+  },
+  "model_id": "devstral-small-2-24b-q4km",
+  "optimization_inference_seconds": 939.3998871059157,
+  "paths": {
+    "libsut": "/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/devstral-small-2-24b-q4km/top_words_from_file_cpp/candidate/libSUT.so",
+    "source": "/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/devstral-small-2-24b-q4km/top_words_from_file_cpp/optimized.cpp"
+  },
+  "prompt_sha256": "a65a3803134c4f0c025ef1e0000407660d83f992fa67c55db265f12ea709de3d",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "ded88046a91b19558b22b0f43b64b6d4a828da19d195707468276a28b1d99bc6",
+  "run_id": "20260807_full_run-naive",
+  "selection_comparison": {
+    "baseline_artifact_id": "naive-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 2418.04,
+      "mean_calls_per_second": 2410.81,
+      "median_absolute_deviation": 0.17000000000007276,
+      "median_calls_per_second": 2407.28,
+      "minimum_calls_per_second": 2407.11,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "naive-cpp__devstral-small-2-24b-q4km__top_words_from_file__candidate",
+    "candidate_statistics": {
+      "maximum_calls_per_second": null,
+      "mean_calls_per_second": null,
+      "median_absolute_deviation": null,
+      "median_calls_per_second": null,
+      "minimum_calls_per_second": null,
+      "requested_repetitions": 3,
+      "successful_repetitions": 0
+    },
+    "classification": "benchmark_failed",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": null,
+    "sequence": [
+      "naive-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline",
+      "naive-cpp__devstral-small-2-24b-q4km__top_words_from_file__candidate",
+      "naive-cpp__devstral-small-2-24b-q4km__top_words_from_file__candidate",
+      "naive-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline",
+      "naive-cpp__devstral-small-2-24b-q4km__top_words_from_file__candidate",
+      "naive-cpp__devstral-small-2-24b-q4km__top_words_from_file__baseline"
+    ]
+  },
+  "selection_status": "benchmark_failed",
+  "status": "candidate_benchmark_failed",
+  "timing": {
+    "llm_inference_seconds": 939.3998871059157,
+    "optimization_pipeline_seconds": 1039.0955304410309,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 939.3998871059157
+  },
+  "total_inference_seconds": 939.3998871059157,
+  "total_task_seconds": 1039.0955210630782
+}

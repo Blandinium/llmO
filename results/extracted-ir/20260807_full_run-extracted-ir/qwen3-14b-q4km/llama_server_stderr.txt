@@ -1,0 +1,36 @@
+0.00.319.543 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.00.319.636 I srv          init: The UI is disabled
+0.00.319.638 I srv          init: Use --ui/--no-ui (or deprecated --webui/--no-webui) to enable/disable
+0.00.321.060 I srv    load_model: loading model 'Qwen/Qwen3-14B-GGUF:Q4_K_M'
+0.00.565.223 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.06.490.056 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 32768, kv_unified = 'false'
+0.06.494.880 I srv  llama_server: model loaded
+0.06.494.886 I srv  llama_server: listening on http://127.0.0.1:8001
+0.07.014.831 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1
+0.07.014.867 I slot launch_slot_: id  0 | task 1 | processing task, is_child = 0
+0.34.721.413 I slot print_timing: id  0 | task 1 | n_decoded =    100, tg =   4.01 t/s, tg_3s =   4.01 t/s
+0.37.750.354 I slot print_timing: id  0 | task 1 | n_decoded =    112, tg =   4.01 t/s, tg_3s =   3.96 t/s
+0.40.781.272 I slot print_timing: id  0 | task 1 | n_decoded =    124, tg =   4.00 t/s, tg_3s =   3.96 t/s
+0.43.813.853 I slot print_timing: id  0 | task 1 | n_decoded =    136, tg =   4.00 t/s, tg_3s =   3.96 t/s
+0.46.850.980 I slot print_timing: id  0 | task 1 | n_decoded =    148, tg =   4.00 t/s, tg_3s =   3.95 t/s
+0.49.885.706 I slot print_timing: id  0 | task 1 | n_decoded =    160, tg =   3.99 t/s, tg_3s =   3.95 t/s
+0.52.941.784 I slot print_timing: id  0 | task 1 | n_decoded =    172, tg =   3.99 t/s, tg_3s =   3.93 t/s
+0.56.046.729 I slot print_timing: id  0 | task 1 | n_decoded =    184, tg =   3.98 t/s, tg_3s =   3.86 t/s
+0.59.148.920 I slot print_timing: id  0 | task 1 | n_decoded =    196, tg =   3.97 t/s, tg_3s =   3.87 t/s
+1.02.202.637 I slot print_timing: id  0 | task 1 | n_decoded =    208, tg =   3.97 t/s, tg_3s =   3.93 t/s
+1.05.259.415 I slot print_timing: id  0 | task 1 | n_decoded =    220, tg =   3.97 t/s, tg_3s =   3.93 t/s
+1.08.315.934 I slot print_timing: id  0 | task 1 | n_decoded =    232, tg =   3.97 t/s, tg_3s =   3.93 t/s
+1.11.370.540 I slot print_timing: id  0 | task 1 | n_decoded =    244, tg =   3.96 t/s, tg_3s =   3.93 t/s
+1.14.413.647 I slot print_timing: id  0 | task 1 | n_decoded =    256, tg =   3.96 t/s, tg_3s =   3.94 t/s
+1.17.461.138 I slot print_timing: id  0 | task 1 | n_decoded =    268, tg =   3.96 t/s, tg_3s =   3.94 t/s
+1.20.514.294 I slot print_timing: id  0 | task 1 | n_decoded =    280, tg =   3.96 t/s, tg_3s =   3.93 t/s
+1.23.560.004 I slot print_timing: id  0 | task 1 | n_decoded =    292, tg =   3.96 t/s, tg_3s =   3.94 t/s
+1.26.604.544 I slot print_timing: id  0 | task 1 | n_decoded =    304, tg =   3.96 t/s, tg_3s =   3.94 t/s
+1.29.655.050 I slot print_timing: id  0 | task 1 | n_decoded =    316, tg =   3.96 t/s, tg_3s =   3.93 t/s
+1.32.698.908 I slot print_timing: id  0 | task 1 | n_decoded =    328, tg =   3.96 t/s, tg_3s =   3.94 t/s
+1.33.206.395 I slot print_timing: id  0 | task 1 | prompt eval time =    2799.08 ms /    54 tokens (   51.83 ms per token,    19.29 tokens per second)
+1.33.206.400 I slot print_timing: id  0 | task 1 |        eval time =   83392.42 ms /   330 tokens (  252.70 ms per token,     3.96 tokens per second)
+1.33.206.401 I slot print_timing: id  0 | task 1 |       total time =   86191.50 ms /   384 tokens
+1.33.206.404 I slot print_timing: id  0 | task 1 |    graphs reused =        328
+1.33.206.436 I slot      release: id  0 | task 1 | stop processing: n_tokens = 383, truncated = 0
+1.33.208.485 I srv    operator(): operator(): cleaning up before exit...

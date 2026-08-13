@@ -1,0 +1,10 @@
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/llm-compiler-7b-q4km/fibonacci_cpp/optimized.cpp:14:1: error: expected unqualified-id
+   14 | <|im_end|>
+      | ^
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/llm-compiler-7b-q4km/fibonacci_cpp/optimized.cpp:29:1: error: expected unqualified-id
+   29 | <|im_end|>
+      | ^
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/llm-compiler-7b-q4km/fibonacci_cpp/optimized.cpp:44:1: error: expected unqualified-id
+   44 | <|im_end|>
+      | ^
+3 errors generated.

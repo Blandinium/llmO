@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```cpp\n#include \"library.h\"\n\n#include <algorithm>\n#include <cstddef>\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    // Early exit if no queries or no allowed values\n    if (queries_length == 0 || allowed_length == 0) {\n        return 0;\n    }\n\n    // Sort and unique the allowed values for faster lookup\n    const int* allowed_end = allowed + allowed_length;\n    std::sort(allowed, allowed_end);\n    const int* last = std::unique(allowed, allowed_end);\n    allowed_length = last - allowed;\n\n    size_t matches = 0;\n    const int* query_end = queries + queries_length;\n\n    // Use binary search for O(log n) lookups in sorted allowed values\n    for (const int* query = queries; query != query_end; ++query) {\n        if (std::binary_search(allowed, allowed + allowed_length, *query)) {\n            ++matches;\n        }\n    }\n\n    return matches;\n}\n\n}\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786239765,
+  "id": "chatcmpl-q7QQQI7tLLZ49QOcjarel6LT12YgelgB",
+  "model": "ministral-3-14b-instruct-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 29,
+    "predicted_ms": 95464.076,
+    "predicted_n": 272,
+    "predicted_per_second": 2.849239330614796,
+    "predicted_per_token_ms": 350.9708676470588,
+    "prompt_ms": 526445.26,
+    "prompt_n": 10772,
+    "prompt_per_second": 20.46176652820466,
+    "prompt_per_token_ms": 48.87163572224285
+  },
+  "usage": {
+    "completion_tokens": 272,
+    "prompt_tokens": 10801,
+    "prompt_tokens_details": {
+      "cached_tokens": 29
+    },
+    "total_tokens": 11073
+  }
+}

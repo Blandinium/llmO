@@ -1,0 +1,167 @@
+You are an expert C++23 build-fix and performance engineer.
+
+Task: fix this optimized format_list.cpp so the whole SUT shared library compiles successfully.
+The immediate goal is to restore a valid build.
+
+Hard requirements:
+- Return one complete replacement for format_list.cpp.
+- Preserve the public C ABI exactly as declared in library.h.
+- Do not change any exported function name, parameter type, return type, struct layout, ownership rule, or allocation/freeing convention visible in library.h.
+- Do not add implementations for unrelated exported functions from library.h.
+- Preserve the intended optimized behavior and runtime-performance focus as much as possible.
+- Do not modify library.h or sut_common.h.
+- Return raw C++ only.
+- No Markdown, explanation, notes, or code fences.
+
+Headers:
+// library.h
+#ifndef SUT_LIBRARY_H
+#define SUT_LIBRARY_H
+
+#include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct WordCount {
+    char* word;
+    uint64_t count;
+} WordCount;
+
+uint64_t fibonacci(uint64_t n);
+char* format_list(const int* input, size_t input_length);
+int64_t repeated_sort(const int* input, size_t input_length, int rounds);
+size_t count_matches(
+    const int* allowed,
+    size_t allowed_length,
+    const int* queries,
+    size_t queries_length
+);
+WordCount* top_words_from_file(
+    const char* path,
+    const char* const* ignore_words,
+    size_t ignore_words_length,
+    size_t max_results,
+    size_t* result_length
+);
+void free_string(char* value);
+void free_word_counts(WordCount* values, size_t length);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // SUT_LIBRARY_H
+
+
+// sut_common.h
+#ifndef SUT_COMMON_H
+#define SUT_COMMON_H
+
+#include <string>
+
+char* copy_to_c_string(const std::string& value);
+bool is_word_char(char c);
+char normalize_char(char c);
+
+#endif // SUT_COMMON_H
+
+
+Failed format_list.cpp:
+#include "library.h"
+#include "sut_common.h"
+
+#include <string>
+#include <vector>
+
+extern "C" {
+
+char* format_list(const int* input, size_t input_length) {
+    if (input == nullptr && input_length != 0) {
+        return nullptr;
+    }
+
+    try {
+        // Pre-calculate the total size needed for the output string
+        size_t total_size = 2; // for "[]"
+        for (size_t i = 0; i < input_length; ++i) {
+            // Estimate size for each number (up to 20 digits for 64-bit int)
+            // Plus 2 for ", " (except for the first element)
+            total_size += i > 0 ? 3 : 0;
+            int num = input[i];
+            if (num == 0) {
+                total_size += 1;
+            } else {
+                // Count digits
+                int temp = num;
+                if (temp < 0) temp = -temp;
+                while (temp > 0) {
+                    total_size++;
+                    temp /= 10;
+                }
+            }
+        }
+
+        // Allocate the string buffer directly
+        std::vector<char> buffer(total_size);
+        char* ptr = buffer.data();
+
+        // Write the opening bracket
+        *ptr++ = '[';
+
+        // Write each number
+        for (size_t i = 0; i < input_length; ++i) {
+            if (i > 0) {
+                *ptr++ = ',';
+                *ptr++ = ' ';
+            }
+
+            int num = input[i];
+            if (num == 0) {
+                *ptr++ = '0';
+            } else {
+                // Handle negative numbers
+                if (num < 0) {
+                    *ptr++ = '-';
+                    num = -num;
+                }
+
+                // Convert digits
+                char* start = ptr;
+                while (num > 0) {
+                    *ptr++ = '0' + (num % 10);
+                    num /= 10;
+                }
+
+                // Reverse the digits
+                std::reverse(start, ptr);
+            }
+        }
+
+        // Write the closing bracket
+        *ptr++ = ']';
+
+        // Null-terminate the string
+        *ptr = '\0';
+
+        // Copy to C string (copy_to_c_string will handle allocation)
+        return copy_to_c_string(std::string(buffer.data(), ptr - buffer.data()));
+    } catch (...) {
+        return nullptr;
+    }
+}
+
+}
+
+
+Diagnostics:
+Compiler/linker diagnostics:
+
+STDERR:
+/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/devstral-small-2-24b-q4km/format_list_cpp/artifacts/guided-cpp__devstral-small-2-24b-q4km__format_list__iteration-03/source_output.cpp:67:22: error: no member named 'reverse' in namespace 'std'
+   67 |                 std::reverse(start, ptr);
+      |                 ~~~~~^
+1 error generated.
+

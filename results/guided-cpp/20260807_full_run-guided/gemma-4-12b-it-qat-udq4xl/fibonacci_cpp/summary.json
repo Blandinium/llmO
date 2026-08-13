@@ -1,0 +1,46 @@
+{
+  "accepted_remarks": [],
+  "best_is_baseline": true,
+  "best_iteration": 0,
+  "completed_optimization_passes": 0,
+  "confirmation_seed": null,
+  "confirmation_status": "not-required",
+  "confirmed_improvement": false,
+  "experiment_type": "guided-cpp",
+  "final_artifact_id": "guided-cpp__gemma-4-12b-it-qat-udq4xl__fibonacci__baseline",
+  "final_confirmation_id": "guided-cpp__gemma-4-12b-it-qat-udq4xl__fibonacci__final",
+  "iterations": [
+    {
+      "abi_result": null,
+      "accepted_remarks": null,
+      "compile_result": null,
+      "iteration": 1,
+      "metadata": {
+        "duration_seconds": 1041.9479319050442,
+        "error": "response_truncated",
+        "raw_response_file": "optimization_01_response.json"
+      },
+      "remarks_file": null,
+      "shown_remarks": null,
+      "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/gemma-4-12b-it-qat-udq4xl/fibonacci_cpp/artifacts/guided-cpp__gemma-4-12b-it-qat-udq4xl__fibonacci__baseline/fibonacci.cpp",
+      "success": false,
+      "type": "optimization"
+    }
+  ],
+  "llm_duration_seconds": 1041.9479319050442,
+  "model": "gemma-4-12b-it-qat-udq4xl",
+  "repair_attempts": 0,
+  "requested_optimization_passes": 3,
+  "run_id": "20260807_full_run-guided",
+  "selection_status": "unchanged_within_noise",
+  "shown_remarks": [],
+  "stopped_reason": "optimization_failed_pass_1",
+  "target": "fibonacci.cpp",
+  "timing": {
+    "llm_inference_seconds": 1041.9479319050442,
+    "optimization_pipeline_seconds": 1075.141817998141,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 1041.9479319050442
+  },
+  "total_duration_seconds": 1075.141817998141
+}

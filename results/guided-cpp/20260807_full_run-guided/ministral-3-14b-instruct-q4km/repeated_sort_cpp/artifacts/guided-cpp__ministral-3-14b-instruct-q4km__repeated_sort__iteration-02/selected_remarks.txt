@@ -1,0 +1,1505 @@
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 241, Column: 31 }
+Function:        _ZSt11__make_heapIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SC_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1593, Column: 7 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          ''''
+  - Callee:          _ZSt11__make_heapIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SC_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 342, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1592, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '320'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 241, Column: 31 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 241, Column: 31 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 241, Column: 31 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 241, Column: 31 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 241, Column: 31 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                       Line: 129, Column: 11 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                       Line: 129, Column: 11 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 241, Column: 31 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 241, Column: 29 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 241, Column: 29 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 241, Column: 31 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 142, Column: 29 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 263, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1593, Column: 7 }
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 241, Column: 31 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 36 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 241, Column: 31 }
+Function:        _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt11__sort_heapIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SC_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt11__sort_heapIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SC_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt11__sort_heapIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SC_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt11__sort_heapIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SC_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt11__sort_heapIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SC_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1868, Column: 7 }
+Function:        _ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          ''''
+  - Callee:          _ZSt13__heap_selectIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1592, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1867, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '395'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1868, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1868, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 146, Column: 32 }
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                   Line: 263, Column: 19 }
+Function:        _ZSt14__partial_sortIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+Function:        _ZSt21__unguarded_partitionIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+Function:        _ZSt21__unguarded_partitionIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt21__unguarded_partitionIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt21__unguarded_partitionIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt21__unguarded_partitionIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt21__unguarded_partitionIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 235, Column: 11 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+Function:        _ZSt21__unguarded_partitionIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 235, Column: 11 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 235, Column: 11 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 235, Column: 11 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 235, Column: 11 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/ranges_cmp.h', 
+                   Line: 129, Column: 11 }
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 235, Column: 11 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/move.h', 
+                       Line: 236, Column: 11 }
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+Function:        _ZSt27__unguarded_partition_pivotIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEES9_S9_S9_SB_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            inline
+Name:            NeverInline
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1890, Column: 4 }
+Function:        _ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_
+Args:
+  - String:          ''''
+  - Callee:          _ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1879, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1879, Column: 0 }
+  - String:          ''' because it should never be inlined '
+  - String:          '(cost=never)'
+  - String:          ': '
+  - Reason:          recursive
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                   Line: 1593, Column: 7 }
+Function:        _ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_
+Args:
+  - String:          ''''
+  - Callee:          _ZSt11__make_heapIPiN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SC_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_heap.h', 
+                       Line: 342, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_algo.h', 
+                       Line: 1879, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '320'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+Function:        _ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressInvalidated
+Function:        _ZSt16__introsort_loopIPilN9__gnu_cxx5__ops15_Iter_comp_iterIZNSt6ranges8__detail16__make_comp_projINS4_4lessESt8identityEEDaRT_RT0_EUlOS9_OSB_E_EEEvS9_S9_SB_T1_
+Args:
+  - String:          failed to move load with loop-invariant address because the loop may invalidate its value
+...

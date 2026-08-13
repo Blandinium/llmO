@@ -1,0 +1,56 @@
+{
+  "artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__top_words_from_file__iteration-02",
+  "benchmark_name": "top_words_from_file",
+  "comparison_vs_previous_best": {
+    "baseline_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__top_words_from_file__baseline",
+    "baseline_statistics": {
+      "maximum_calls_per_second": 2439.91,
+      "mean_calls_per_second": 2402.043333333333,
+      "median_absolute_deviation": 22.40000000000009,
+      "median_calls_per_second": 2394.31,
+      "minimum_calls_per_second": 2371.91,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "candidate_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__top_words_from_file__iteration-02",
+    "candidate_statistics": {
+      "maximum_calls_per_second": 5271.16,
+      "mean_calls_per_second": 5213.496666666667,
+      "median_absolute_deviation": 43.029999999999745,
+      "median_calls_per_second": 5228.13,
+      "minimum_calls_per_second": 5141.2,
+      "requested_repetitions": 3,
+      "successful_repetitions": 3
+    },
+    "classification": "improved",
+    "noise_threshold_percent": 2.0,
+    "relative_change_percent": 118.35643671872064,
+    "sequence": [
+      "guided-cpp__ministral-3-14b-instruct-q4km__top_words_from_file__iteration-02",
+      "guided-cpp__ministral-3-14b-instruct-q4km__top_words_from_file__baseline",
+      "guided-cpp__ministral-3-14b-instruct-q4km__top_words_from_file__iteration-02",
+      "guided-cpp__ministral-3-14b-instruct-q4km__top_words_from_file__baseline",
+      "guided-cpp__ministral-3-14b-instruct-q4km__top_words_from_file__baseline",
+      "guided-cpp__ministral-3-14b-instruct-q4km__top_words_from_file__iteration-02"
+    ]
+  },
+  "confirmation_status": "not-run",
+  "confirmed_improvement": false,
+  "experiment_type": "guided-cpp",
+  "model_id": "ministral-3-14b-instruct-q4km",
+  "parent_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__top_words_from_file__baseline",
+  "paths": {
+    "libsut": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/top_words_from_file_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__top_words_from_file__iteration-02/libSUT.so",
+    "source": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/top_words_from_file_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__top_words_from_file__iteration-02/source_output.cpp"
+  },
+  "pipeline_id": "cpp-llm-iterative-pass-02__clang-o3",
+  "run_id": "20260807_full_run-guided",
+  "schema_version": 2,
+  "selection_status": "improved",
+  "timing": {
+    "llm_inference_seconds": 4980.865697150817,
+    "optimization_pipeline_seconds": 5305.79084986588,
+    "repair_inference_seconds": 0.0,
+    "total_llm_seconds": 4980.865697150817
+  }
+}

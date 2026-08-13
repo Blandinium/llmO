@@ -1,0 +1,115 @@
+{
+  "benchmark_name": "count_matches",
+  "configured_max_output_tokens": 16384,
+  "experiment_type": "llm-ir",
+  "extracted_module_sha256": "8529712c1fdb4516f02c2db68174ce7a87143c9e79e2df4ae3735dfc3cfe6cfa",
+  "initial_verifier_error_excerpt": "PHI node entries do not match predecessors!\n  %i.018 = phi i64 [ 0, %for.body.lr.ph ], [ %inc8, %for.body.i ]\nlabel %for.body.i\nlabel %found\nInstruction does not dominate all uses!\n  %inc8 = add nuw i64 %i.018, 1\n  %i.018 = phi i64 [ 0, %for.body.lr.ph ], [ %inc8, %for.body.i ]\nPHINode should have one entry for each predecessor of its parent basic block!\n  %retval.0 = phi i64 [ 0, %lor.lhs.false ], [ 0, %entry ], [ 1, %found ], [ 0, %for.body ]\nopt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/ministral-3-14b-instruct-q4km/count_matches_cpp/extracted.ll: error: input module is broken!\n",
+  "initial_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/ministral-3-14b-instruct-q4km/count_matches_cpp/verify/verify_ir_stderr.txt",
+  "input_file": "/home/tijl/code/llmO/SUT/count_matches.cpp",
+  "input_ir_sha256": "d7008d2aa32d6ef3df28b264d658edeb3c05a1c8d8b39ef77db13a7b2069244d",
+  "input_sha256": "d363d77d6af71a295ba7506375e16f5c4120a38a05a4bd1c93c451de36fd77f1",
+  "llm_result": {
+    "completion_tokens": 1349,
+    "duration_seconds": 432.89403212605976,
+    "finish_reason": "stop",
+    "prompt_tokens": 2170,
+    "request_finished_at": "2026-08-10T01:08:58.509198",
+    "request_started_at": "2026-08-10T01:01:45.615157",
+    "requested_max_tokens": 16384,
+    "total_tokens": 3519
+  },
+  "min_output_tokens": 4096,
+  "model_id": "ministral-3-14b-instruct-q4km",
+  "optimization_inference_seconds": 432.89403212605976,
+  "preflight_validation": {
+    "errors": [],
+    "preflight_passed": true
+  },
+  "prompt_sha256": "9e0d3f0945d55681973977c14884f6ff31f0cc6b39b4d4e7ab92fec84090bb93",
+  "raw_response_file": "optimization_response.json",
+  "raw_response_sha256": "82b4c7fadcd7ea2fec57da6556c3e68751e7d694b21705fc45b506fba414fe04",
+  "repair_inference_seconds": 445.8640636189375,
+  "repair_module_changed": true,
+  "repair_module_sha256": "d7a9c61b0d8658b3f4d41751ffc29654f1090da83eeb3601500bdb81483124df",
+  "repair_raw_response_file": "repair_response.json",
+  "repair_response_sha256": "0309badd1f1e37abebba1d466de48347318be7ad5302dc22eed416b6646bd097",
+  "repair_result": {
+    "completion_tokens": 1465,
+    "duration_seconds": 445.8640636189375,
+    "finish_reason": "stop",
+    "prompt_tokens": 1688,
+    "request_finished_at": "2026-08-10T01:16:24.393860",
+    "request_started_at": "2026-08-10T01:08:58.529787",
+    "requested_max_tokens": 16384,
+    "total_tokens": 3153
+  },
+  "repair_token_budget": {
+    "available_output_tokens": 30011,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": true,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 1733,
+    "requested_max_tokens": 16384
+  },
+  "repair_verifier_error_excerpt": "opt: /home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/ministral-3-14b-instruct-q4km/count_matches_cpp/repaired.ll:46:3: error: multiple definition of local value named 'i.018'\n  %i.018 = phi i64 [ %inc8, %found ]\n  ^\n",
+  "repair_verifier_stderr_path": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/ministral-3-14b-instruct-q4km/count_matches_cpp/repair_verify/verify_ir_stderr.txt",
+  "run_id": "20260807_full_run-ir",
+  "status": "invalid_after_repair",
+  "timing": {
+    "llm_inference_seconds": 432.89403212605976,
+    "optimization_pipeline_seconds": 878.9224048198666,
+    "repair_inference_seconds": 445.8640636189375,
+    "total_llm_seconds": 878.7580957449973
+  },
+  "token_budget": {
+    "available_output_tokens": 29529,
+    "can_fit_minimum_expected_output": true,
+    "can_fit_requested_maximum": true,
+    "effective_context_size": 32768,
+    "minimum_expected_output_tokens": 4096,
+    "prompt_tokens": 2215,
+    "requested_max_tokens": 16384
+  },
+  "total_inference_seconds": 878.7580957449973,
+  "total_task_seconds": 878.9223972258624,
+  "validation": {
+    "initial_verification_passed": false,
+    "module_extracted": true,
+    "preflight_passed": true,
+    "repair_attempted": true,
+    "repair_module_extracted": true,
+    "repair_preflight_passed": true,
+    "repair_response_complete": true,
+    "repair_response_received": true,
+    "repair_verification_passed": false,
+    "response_complete": true,
+    "response_received": true
+  },
+  "verify_first_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/ministral-3-14b-instruct-q4km/count_matches_cpp/extracted.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.015810046810656786,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/ministral-3-14b-instruct-q4km/count_matches_cpp/verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/ministral-3-14b-instruct-q4km/count_matches_cpp/verify/verify_ir_stdout.txt"
+  },
+  "verify_repair_attempt": {
+    "command": [
+      "opt",
+      "-passes=verify",
+      "-disable-output",
+      "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/ministral-3-14b-instruct-q4km/count_matches_cpp/repaired.ll"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 0.016368997050449252,
+    "returncode": 1,
+    "stderr_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/ministral-3-14b-instruct-q4km/count_matches_cpp/repair_verify/verify_ir_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/llm-ir/20260807_full_run-ir/ministral-3-14b-instruct-q4km/count_matches_cpp/repair_verify/verify_ir_stdout.txt"
+  }
+}

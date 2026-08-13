@@ -1,0 +1,2192 @@
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 935, Column: 11 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_St17integral_constantIbLb1EE
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE16_M_insert_uniqueIRKiSF_NS1_10_AllocNodeISaINS1_10_Hash_nodeIiLb0EEEEEEEESt4pairINS1_14_Node_iteratorIiLb1ELb0EEEbEOT_OT0_RKT1_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 2310, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_St17integral_constantIbLb1EE
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 1266, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '435'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 1247, Column: 25 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_St17integral_constantIbLb1EE
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     store
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 393, Column: 19 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     invoke
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 1246, Column: 43 }
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 576, Column: 4 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_St17integral_constantIbLb1EE
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 1266, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 578, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '330'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 576, Column: 4 }
+Function:        _ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEEC2IPKiEET_S9_mRKS1_RKS3_RKS4_
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_St17integral_constantIbLb1EE
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 1266, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          _ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEEC2IPKiEET_S9_mRKS1_RKS3_RKS4_
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unordered_set.h', 
+                       Line: 179, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '330'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 353, Column: 47 }
+Function:        _ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEED2Ev
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 172, Column: 2 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2577, Column: 24 }
+Function:        _ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEED2Ev
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 172, Column: 2 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2578, Column: 10 }
+Function:        _ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEED2Ev
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 172, Column: 2 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 461, Column: 31 }
+Function:        _ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEED2Ev
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 2577, Column: 24 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 2577, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 461, Column: 43 }
+Function:        _ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEED2Ev
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 2578, Column: 10 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 2577, Column: 7 }
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_function.h', 
+                   Line: 375, Column: 16 }
+Function:        _ZNKSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE4findERKi
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                   Line: 33, Column: 1 }
+Function:        count_matches
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEED2Ev
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/unordered_set.h', 
+                       Line: 104, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          count_matches
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                       Line: 11, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '45'
+  - String:          ', threshold='
+  - Threshold:       '45'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            inline
+Name:            TooCostly
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 576, Column: 4 }
+Function:        count_matches
+Args:
+  - String:          ''''
+  - Callee:          _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_St17integral_constantIbLb1EE
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 1266, Column: 0 }
+  - String:          ''' not inlined into '''
+  - Caller:          count_matches
+    DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                       Line: 11, Column: 0 }
+  - String:          ''' because too costly to inline '
+  - String:          '(cost='
+  - Cost:            '330'
+  - String:          ', threshold='
+  - Threshold:       '250'
+  - String:          ')'
+...
+---
+!Missed
+Pass:            licm
+Name:            LoadWithLoopInvariantAddressCondExecuted
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2059, Column: 34 }
+Function:        count_matches
+Args:
+  - String:          failed to hoist load with loop-invariant address because load is conditionally executed
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 1379, Column: 19 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 1745, Column: 0 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 474, Column: 56 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 353, Column: 47 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 172, Column: 2 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2577, Column: 24 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2577, Column: 24 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 172, Column: 2 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2578, Column: 10 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 172, Column: 2 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2578, Column: 10 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 461, Column: 31 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 2577, Column: 24 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 2577, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 461, Column: 43 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 2578, Column: 10 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 2577, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 1379, Column: 19 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i32
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 1745, Column: 0 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 474, Column: 56 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 353, Column: 47 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 172, Column: 2 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2577, Column: 24 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2577, Column: 24 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 172, Column: 2 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2578, Column: 10 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/new_allocator.h', 
+                       Line: 172, Column: 2 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2578, Column: 10 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 576, Column: 4 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 461, Column: 31 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            ptr
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 2577, Column: 24 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 2577, Column: 7 }
+...
+---
+!Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 461, Column: 43 }
+Function:        count_matches
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 2578, Column: 10 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                       Line: 2577, Column: 7 }
+...
+---
+!Missed
+Pass:            loop-vectorize
+Name:            MissedDetails
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2063, Column: 7 }
+Function:        count_matches
+Args:
+  - String:          loop not vectorized
+...
+---
+!Missed
+Pass:            loop-vectorize
+Name:            MissedDetails
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 1745, Column: 4 }
+Function:        count_matches
+Args:
+  - String:          loop not vectorized
+...
+---
+!Missed
+Pass:            loop-vectorize
+Name:            MissedDetails
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 2106, Column: 7 }
+Function:        count_matches
+Args:
+  - String:          loop not vectorized
+...
+---
+!Missed
+Pass:            slp-vectorizer
+Name:            NotBeneficial
+Function:        count_matches
+Args:
+  - String:          'List vectorization was possible but not beneficial with cost '
+  - Cost:            '0'
+  - String:          ' >= '
+  - Treshold:        '0'
+...
+---
+!Missed
+Pass:            slp-vectorizer
+Name:            NotBeneficial
+Function:        count_matches
+Args:
+  - String:          'List vectorization was possible but not beneficial with cost '
+  - Cost:            '0'
+  - String:          ' >= '
+  - Treshold:        '0'
+...
+---
+!Missed
+Pass:            loop-vectorize
+Name:            MissedDetails
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 2106, Column: 7 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEED2Ev
+Args:
+  - String:          loop not vectorized
+...
+---
+!Missed
+Pass:            loop-vectorize
+Name:            MissedDetails
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 1062, Column: 2 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_St17integral_constantIbLb1EE
+Args:
+  - String:          loop not vectorized
+...
+---
+!Missed
+Pass:            loop-vectorize
+Name:            MissedDetails
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2093, Column: 2 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE16_M_insert_uniqueIRKiSF_NS1_10_AllocNodeISaINS1_10_Hash_nodeIiLb0EEEEEEEESt4pairINS1_14_Node_iteratorIiLb1ELb0EEEbEOT_OT0_RKT1_
+Args:
+  - String:          loop not vectorized
+...
+---
+!Missed
+Pass:            loop-vectorize
+Name:            MissedDetails
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2313, Column: 4 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE16_M_insert_uniqueIRKiSF_NS1_10_AllocNodeISaINS1_10_Hash_nodeIiLb0EEEEEEEESt4pairINS1_14_Node_iteratorIiLb1ELb0EEEbEOT_OT0_RKT1_
+Args:
+  - String:          loop not vectorized
+...
+---
+!Missed
+Pass:            loop-vectorize
+Name:            MissedDetails
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2619, Column: 7 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE9_M_rehashEmSt17integral_constantIbLb1EE
+Args:
+  - String:          loop not vectorized
+...
+---
+!Missed
+Pass:            regalloc
+Name:            LoopSpillReloadCopies
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 2106, Column: 7 }
+Function:        count_matches
+Args:
+  - NumVRCopies:     '1'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '5.000000e+00'
+  - String:          ' total copies cost '
+  - String:          generated in loop
+...
+---
+!Missed
+Pass:            regalloc
+Name:            LoopSpillReloadCopies
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                   Line: 26, Column: 5 }
+Function:        count_matches
+Args:
+  - NumVRCopies:     '2'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '1.875000e+00'
+  - String:          ' total copies cost '
+  - String:          generated in loop
+...
+---
+!Missed
+Pass:            regalloc
+Name:            LoopSpillReloadCopies
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2069, Column: 21 }
+Function:        count_matches
+Args:
+  - NumVRCopies:     '3'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '2.082634e+01'
+  - String:          ' total copies cost '
+  - String:          generated in loop
+...
+---
+!Missed
+Pass:            regalloc
+Name:            LoopSpillReloadCopies
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                   Line: 26, Column: 5 }
+Function:        count_matches
+Args:
+  - NumVRCopies:     '8'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '3.020134e+01'
+  - String:          ' total copies cost '
+  - String:          generated in loop
+...
+---
+!Missed
+Pass:            regalloc
+Name:            SpillReloadCopies
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                   Line: 6, Column: 1 }
+Function:        count_matches
+Args:
+  - NumVRCopies:     '18'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '4.010563e+01'
+  - String:          ' total copies cost '
+  - String:          generated in function
+...
+---
+!Missed
+Pass:            regalloc
+Name:            LoopSpillReloadCopies
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 2106, Column: 7 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEED2Ev
+Args:
+  - NumVRCopies:     '1'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '2.000000e+01'
+  - String:          ' total copies cost '
+  - String:          generated in loop
+...
+---
+!Missed
+Pass:            regalloc
+Name:            SpillReloadCopies
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 1648, Column: 1 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEED2Ev
+Args:
+  - NumVRCopies:     '2'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '2.100000e+01'
+  - String:          ' total copies cost '
+  - String:          generated in function
+...
+---
+!Missed
+Pass:            regalloc
+Name:            LoopSpillReloadCopies
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 1062, Column: 2 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_St17integral_constantIbLb1EE
+Args:
+  - NumVRCopies:     '4'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '7.997754e+01'
+  - String:          ' total copies cost '
+  - String:          generated in loop
+...
+---
+!Missed
+Pass:            regalloc
+Name:            SpillReloadCopies
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 1261, Column: 1 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_St17integral_constantIbLb1EE
+Args:
+  - NumVRCopies:     '20'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '8.797559e+01'
+  - String:          ' total copies cost '
+  - String:          generated in function
+...
+---
+!Missed
+Pass:            regalloc
+Name:            LoopSpillReloadCopies
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2099, Column: 23 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE16_M_insert_uniqueIRKiSF_NS1_10_AllocNodeISaINS1_10_Hash_nodeIiLb0EEEEEEEESt4pairINS1_14_Node_iteratorIiLb1ELb0EEEbEOT_OT0_RKT1_
+Args:
+  - NumVRCopies:     '3'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '4.165267e+00'
+  - String:          ' total copies cost '
+  - String:          generated in loop
+...
+---
+!Missed
+Pass:            regalloc
+Name:            SpillReloadCopies
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2307, Column: 1 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE16_M_insert_uniqueIRKiSF_NS1_10_AllocNodeISaINS1_10_Hash_nodeIiLb0EEEEEEEESt4pairINS1_14_Node_iteratorIiLb1ELb0EEEbEOT_OT0_RKT1_
+Args:
+  - NumSpills:       '6'
+  - String:          ' spills '
+  - TotalSpillsCost: '1.372591e+00'
+  - String:          ' total spills cost '
+  - NumReloads:      '3'
+  - String:          ' reloads '
+  - TotalReloadsCost: '9.662459e-01'
+  - String:          ' total reloads cost '
+  - NumVRCopies:     '28'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '1.124929e+01'
+  - String:          ' total copies cost '
+  - String:          generated in function
+...
+---
+!Missed
+Pass:            regalloc
+Name:            LoopSpillReloadCopies
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2619, Column: 7 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE9_M_rehashEmSt17integral_constantIbLb1EE
+Args:
+  - NumVRCopies:     '4'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '7.246378e+01'
+  - String:          ' total copies cost '
+  - String:          generated in loop
+...
+---
+!Missed
+Pass:            regalloc
+Name:            SpillReloadCopies
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2613, Column: 1 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE9_M_rehashEmSt17integral_constantIbLb1EE
+Args:
+  - NumVRCopies:     '11'
+  - String:          ' virtual registers copies '
+  - TotalCopiesCost: '7.945929e+01'
+  - String:          ' total copies cost '
+  - String:          generated in function
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            NonReductionValueUsedOutsideLoop
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2063, Column: 7 }
+Function:        count_matches
+Args:
+  - String:          'loop not vectorized: '
+  - String:          value that could not be identified as reduction is used outside the loop
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            TooManyUncountableEarlyExits
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2063, Column: 7 }
+Function:        count_matches
+Args:
+  - String:          'loop not vectorized: '
+  - String:          Cannot vectorize early exit loop with more than one early exit
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            CantComputeNumberOfIterations
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2063, Column: 7 }
+Function:        count_matches
+Args:
+  - String:          'loop not vectorized: '
+  - String:          could not determine number of loop iterations
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            NonReductionValueUsedOutsideLoop
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 1745, Column: 4 }
+Function:        count_matches
+Args:
+  - String:          'loop not vectorized: '
+  - String:          value that could not be identified as reduction is used outside the loop
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            TooManyUncountableEarlyExits
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 1745, Column: 4 }
+Function:        count_matches
+Args:
+  - String:          'loop not vectorized: '
+  - String:          Cannot vectorize early exit loop with more than one early exit
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            CantComputeNumberOfIterations
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 1745, Column: 4 }
+Function:        count_matches
+Args:
+  - String:          'loop not vectorized: '
+  - String:          could not determine number of loop iterations
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            NonReductionValueUsedOutsideLoop
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 2106, Column: 7 }
+Function:        count_matches
+Args:
+  - String:          'loop not vectorized: '
+  - String:          value that could not be identified as reduction is used outside the loop
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            UnsupportedUncountableLoop
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 2106, Column: 7 }
+Function:        count_matches
+Args:
+  - String:          'loop not vectorized: '
+  - String:          Cannot vectorize uncountable loop
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            CantComputeNumberOfIterations
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 2106, Column: 7 }
+Function:        count_matches
+Args:
+  - String:          'loop not vectorized: '
+  - String:          could not determine number of loop iterations
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            NonReductionValueUsedOutsideLoop
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 2106, Column: 7 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEED2Ev
+Args:
+  - String:          'loop not vectorized: '
+  - String:          value that could not be identified as reduction is used outside the loop
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            UnsupportedUncountableLoop
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 2106, Column: 7 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEED2Ev
+Args:
+  - String:          'loop not vectorized: '
+  - String:          Cannot vectorize uncountable loop
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            CantComputeNumberOfIterations
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 2106, Column: 7 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEED2Ev
+Args:
+  - String:          'loop not vectorized: '
+  - String:          could not determine number of loop iterations
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            LoopContainsUnsupportedTerminator
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 935, Column: 11 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_St17integral_constantIbLb1EE
+Args:
+  - String:          'loop not vectorized: '
+  - String:          Loop contains an unsupported terminator
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            CantVectorizeInstructionReturnType
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 935, Column: 11 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_St17integral_constantIbLb1EE
+Args:
+  - String:          'loop not vectorized: '
+  - String:          instruction return type cannot be vectorized
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            WritesInEarlyExitLoop
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 1062, Column: 2 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_St17integral_constantIbLb1EE
+Args:
+  - String:          'loop not vectorized: '
+  - String:          Cannot vectorize early exit loop with writes to memory
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            CantVectorizeInstruction
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 1062, Column: 2 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEEC2IPKiEET_SG_mRKS6_RKS4_RKS0_St17integral_constantIbLb1EE
+Args:
+  - String:          'loop not vectorized: '
+  - String:          instruction cannot be vectorized
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            NonReductionValueUsedOutsideLoop
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2093, Column: 2 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE16_M_insert_uniqueIRKiSF_NS1_10_AllocNodeISaINS1_10_Hash_nodeIiLb0EEEEEEEESt4pairINS1_14_Node_iteratorIiLb1ELb0EEEbEOT_OT0_RKT1_
+Args:
+  - String:          'loop not vectorized: '
+  - String:          value that could not be identified as reduction is used outside the loop
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            TooManyUncountableEarlyExits
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2093, Column: 2 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE16_M_insert_uniqueIRKiSF_NS1_10_AllocNodeISaINS1_10_Hash_nodeIiLb0EEEEEEEESt4pairINS1_14_Node_iteratorIiLb1ELb0EEEbEOT_OT0_RKT1_
+Args:
+  - String:          'loop not vectorized: '
+  - String:          Cannot vectorize early exit loop with more than one early exit
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            CantComputeNumberOfIterations
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2093, Column: 2 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE16_M_insert_uniqueIRKiSF_NS1_10_AllocNodeISaINS1_10_Hash_nodeIiLb0EEEEEEEESt4pairINS1_14_Node_iteratorIiLb1ELb0EEEbEOT_OT0_RKT1_
+Args:
+  - String:          'loop not vectorized: '
+  - String:          could not determine number of loop iterations
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            NonReductionValueUsedOutsideLoop
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2313, Column: 4 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE16_M_insert_uniqueIRKiSF_NS1_10_AllocNodeISaINS1_10_Hash_nodeIiLb0EEEEEEEESt4pairINS1_14_Node_iteratorIiLb1ELb0EEEbEOT_OT0_RKT1_
+Args:
+  - String:          'loop not vectorized: '
+  - String:          value that could not be identified as reduction is used outside the loop
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            TooManyUncountableEarlyExits
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2313, Column: 4 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE16_M_insert_uniqueIRKiSF_NS1_10_AllocNodeISaINS1_10_Hash_nodeIiLb0EEEEEEEESt4pairINS1_14_Node_iteratorIiLb1ELb0EEEbEOT_OT0_RKT1_
+Args:
+  - String:          'loop not vectorized: '
+  - String:          Cannot vectorize early exit loop with more than one early exit
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            CantComputeNumberOfIterations
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2313, Column: 4 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE16_M_insert_uniqueIRKiSF_NS1_10_AllocNodeISaINS1_10_Hash_nodeIiLb0EEEEEEEESt4pairINS1_14_Node_iteratorIiLb1ELb0EEEbEOT_OT0_RKT1_
+Args:
+  - String:          'loop not vectorized: '
+  - String:          could not determine number of loop iterations
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            NonReductionValueUsedOutsideLoop
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2619, Column: 7 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE9_M_rehashEmSt17integral_constantIbLb1EE
+Args:
+  - String:          'loop not vectorized: '
+  - String:          value that could not be identified as reduction is used outside the loop
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            UnsupportedUncountableLoop
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2619, Column: 7 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE9_M_rehashEmSt17integral_constantIbLb1EE
+Args:
+  - String:          'loop not vectorized: '
+  - String:          Cannot vectorize uncountable loop
+...
+---
+!Analysis
+Pass:            loop-vectorize
+Name:            CantComputeNumberOfIterations
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2619, Column: 7 }
+Function:        _ZNSt10_HashtableIiiSaIiENSt8__detail9_IdentityESt8equal_toIiESt4hashIiENS1_18_Mod_range_hashingENS1_20_Default_ranged_hashENS1_20_Prime_rehash_policyENS1_17_Hashtable_traitsILb0ELb1ELb1EEEE9_M_rehashEmSt17integral_constantIbLb1EE
+Args:
+  - String:          'loop not vectorized: '
+  - String:          could not determine number of loop iterations
+...
+---
+!Analysis
+Pass:            prologepilog
+Name:            StackSize
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                   Line: 11, Column: 0 }
+Function:        count_matches
+Args:
+  - NumStackBytes:   '104'
+  - String:          ' stack bytes in function '''
+  - Function:        count_matches
+  - String:          ''''
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          PUSH64r
+  - String:          ': '
+  - INST_PUSH64r:    '3'
+  - String:          "\n"
+  - String:          SETCCr
+  - String:          ': '
+  - INST_SETCCr:     '2'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '2'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+  - String:          SUB64ri32
+  - String:          ': '
+  - INST_SUB64ri32:  '1'
+  - String:          "\n"
+  - String:          TEST8rr
+  - String:          ': '
+  - INST_TEST8rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                   Line: 13, Column: 18 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          SETCCr
+  - String:          ': '
+  - INST_SETCCr:     '2'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '2'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          TEST8rr
+  - String:          ': '
+  - INST_TEST8rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                   Line: 33, Column: 1 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          POP64r
+  - String:          ': '
+  - INST_POP64r:     '3'
+  - String:          "\n"
+  - String:          ADD64ri32
+  - String:          ': '
+  - INST_ADD64ri32:  '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+  - String:          RET64
+  - String:          ': '
+  - INST_RET64:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                   Line: 22, Column: 68 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          LEA64r
+  - String:          ': '
+  - INST_LEA64r:     '5'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '3'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '2'
+  - String:          "\n"
+  - String:          CALL64pcrel32
+  - String:          ': '
+  - INST_CALL64pcrel32: '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64mr
+  - String:          ': '
+  - INST_MOV64mr:    '1'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64mi32
+  - String:          ': '
+  - INST_CMP64mi32:  '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOV64rm
+  - String:          ': '
+  - INST_MOV64rm:    '2'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '2'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                   Line: 27, Column: 13 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64ri32
+  - String:          ': '
+  - INST_CMP64ri32:  '1'
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '1'
+  - String:          "\n"
+  - String:          INC64r
+  - String:          ': '
+  - INST_INC64r:     '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          SBB64ri32
+  - String:          ': '
+  - INST_SBB64ri32:  '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 1379, Column: 19 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+  - String:          MOVSX64rm32
+  - String:          ': '
+  - INST_MOVSX64rm32: '1'
+  - String:          "\n"
+  - String:          OR64rr
+  - String:          ': '
+  - INST_OR64rr:     '1'
+  - String:          "\n"
+  - String:          SHR64ri
+  - String:          ': '
+  - INST_SHR64ri:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 576, Column: 20 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '2'
+  - String:          "\n"
+  - String:          DIV64r
+  - String:          ': '
+  - INST_DIV64r:     '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rm
+  - String:          ': '
+  - INST_MOV64rm:    '1'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 576, Column: 20 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOV32rr
+  - String:          ': '
+  - INST_MOV32rr:    '2'
+  - String:          "\n"
+  - String:          DIV32r
+  - String:          ': '
+  - INST_DIV32r:     '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rm
+  - String:          ': '
+  - INST_MOV64rm:    '1'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2063, Column: 63 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32rm
+  - String:          ': '
+  - INST_CMP32rm:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rm
+  - String:          ': '
+  - INST_MOV64rm:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2069, Column: 14 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rm
+  - String:          ': '
+  - INST_MOV64rm:    '1'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 1379, Column: 19 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+  - String:          MOVSX64rm32
+  - String:          ': '
+  - INST_MOVSX64rm32: '1'
+  - String:          "\n"
+  - String:          OR64rr
+  - String:          ': '
+  - INST_OR64rr:     '1'
+  - String:          "\n"
+  - String:          SHR64ri
+  - String:          ': '
+  - INST_SHR64ri:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 576, Column: 20 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '1'
+  - String:          "\n"
+  - String:          DIV64r
+  - String:          ': '
+  - INST_DIV64r:     '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 576, Column: 20 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '1'
+  - String:          "\n"
+  - String:          DIV32r
+  - String:          ': '
+  - INST_DIV32r:     '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV32rr
+  - String:          ': '
+  - INST_MOV32rr:    '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_function.h', 
+                   Line: 375, Column: 20 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32rr
+  - String:          ': '
+  - INST_CMP32rr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64ri32
+  - String:          ': '
+  - INST_CMP64ri32:  '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          LEA64r
+  - String:          ': '
+  - INST_LEA64r:     '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '2'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 1745, Column: 9 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          TEST8ri
+  - String:          ': '
+  - INST_TEST8ri:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOV32rm
+  - String:          ': '
+  - INST_MOV32rm:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 1745, Column: 0 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rm
+  - String:          ': '
+  - INST_MOV64rm:    '1'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_function.h', 
+                   Line: 375, Column: 20 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32rm
+  - String:          ': '
+  - INST_CMP32rm:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                   Line: 27, Column: 13 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP64ri32
+  - String:          ': '
+  - INST_CMP64ri32:  '1'
+  - String:          "\n"
+  - String:          SBB64ri32
+  - String:          ': '
+  - INST_SBB64ri32:  '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 474, Column: 40 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          LEA64r
+  - String:          ': '
+  - INST_LEA64r:     '1'
+  - String:          "\n"
+  - String:          MOV64rm
+  - String:          ': '
+  - INST_MOV64rm:    '1'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable_policy.h', 
+                   Line: 353, Column: 47 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CALL64pcrel32
+  - String:          ': '
+  - INST_CALL64pcrel32: '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV32ri
+  - String:          ': '
+  - INST_MOV32ri:    '1'
+  - String:          "\n"
+  - String:          MOV64rm
+  - String:          ': '
+  - INST_MOV64rm:    '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 2577, Column: 24 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOV64rm
+  - String:          ': '
+  - INST_MOV64rm:    '3'
+  - String:          "\n"
+  - String:          CALL64pcrel32
+  - String:          ': '
+  - INST_CALL64pcrel32: '1'
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          LEA64r
+  - String:          ': '
+  - INST_LEA64r:     '1'
+  - String:          "\n"
+  - String:          MOVUPSmr
+  - String:          ': '
+  - INST_MOVUPSmr:   '1'
+  - String:          "\n"
+  - String:          SHL64ri
+  - String:          ': '
+  - INST_SHL64ri:    '1'
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '1'
+  - String:          "\n"
+  - String:          XORPSrr
+  - String:          ': '
+  - INST_XORPSrr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 461, Column: 43 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CALL64pcrel32
+  - String:          ': '
+  - INST_CALL64pcrel32: '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rm
+  - String:          ': '
+  - INST_MOV64rm:    '1'
+  - String:          "\n"
+  - String:          SHL64ri
+  - String:          ': '
+  - INST_SHL64ri:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                   Line: 26, Column: 5 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          XOR32rr
+  - String:          ': '
+  - INST_XOR32rr:    '2'
+  - String:          "\n"
+  - String:          AND64ri32
+  - String:          ': '
+  - INST_AND64ri32:  '1'
+  - String:          "\n"
+  - String:          JMP_1
+  - String:          ': '
+  - INST_JMP_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: 'results/guided-cpp/20260807_full_run-guided/qwen3-14b-q4km/count_matches_cpp/artifacts/guided-cpp__qwen3-14b-q4km__count_matches__iteration-01/repair_01/source_output.cpp', 
+                   Line: 27, Column: 13 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          ADD64ri32
+  - String:          ': '
+  - INST_ADD64ri32:  '1'
+  - String:          "\n"
+  - String:          CMP64ri32
+  - String:          ': '
+  - INST_CMP64ri32:  '1'
+  - String:          "\n"
+  - String:          CMP64rr
+  - String:          ': '
+  - INST_CMP64rr:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          SBB64ri32
+  - String:          ': '
+  - INST_SBB64ri32:  '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          MOV32rm
+  - String:          ': '
+  - INST_MOV32rm:    '1'
+  - String:          "\n"
+  - String:          MOV64rr
+  - String:          ': '
+  - INST_MOV64rr:    '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/hashtable.h', 
+                   Line: 1745, Column: 0 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+  - String:          MOV64rm
+  - String:          ': '
+  - INST_MOV64rm:    '1'
+  - String:          "\n"
+  - String:          TEST64rr
+  - String:          ': '
+  - INST_TEST64rr:   '1'
+  - String:          "\n"
+...
+---
+!Analysis
+Pass:            asm-printer
+Name:            InstructionMix
+DebugLoc:        { File: '/usr/lib/gcc/x86_64-redhat-linux/14/../../../../include/c++/14/bits/stl_function.h', 
+                   Line: 375, Column: 20 }
+Function:        count_matches
+Args:
+  - String:          'BasicBlock: '
+  - BasicBlock:      ''
+  - String:          "\n"
+  - String:          CMP32rm
+  - String:          ': '
+  - INST_CMP32rm:    '1'
+  - String:          "\n"
+  - String:          JCC_1
+  - String:          ': '
+  - INST_JCC_1:      '1'
+  - String:          "\n"
+...

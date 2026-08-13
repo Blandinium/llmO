@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n#include <algorithm>\n#include <cstddef>\n#include <cstring>\n#include <array>\n#include <vector>\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    if (queries_length == 0 || allowed_length == 0) {\n        return 0;\n    }\n\n    constexpr size_t small_threshold = 16;\n    std::array<int, small_threshold> small_allowed;\n    bool use_small_array = (allowed_length <= small_threshold);\n\n    if (use_small_array) {\n        std::memcpy(small_allowed.data(), allowed, allowed_length * sizeof(int));\n        std::sort(small_allowed.begin(), small_allowed.begin() + allowed_length);\n        auto last = std::unique(small_allowed.begin(), small_allowed.begin() + allowed_length);\n        allowed_length = std::distance(small_allowed.begin(), last);\n    } else {\n        std::vector<int> allowed_copy(allowed, allowed + allowed_length);\n        std::sort(allowed_copy.begin(), allowed_copy.end());\n        auto last = std::unique(allowed_copy.begin(), allowed_copy.end());\n        allowed_copy.erase(last, allowed_copy.end());\n        const int* allowed_data = allowed_copy.data();\n        size_t new_length = allowed_copy.size();\n\n        size_t matches = 0;\n        const int* query_end = queries + queries_length;\n\n        for (const int* query = queries; query != query_end; ++query) {\n            if (std::binary_search(allowed_data, allowed_data + new_length, *query)) {\n                ++matches;\n            }\n        }\n        return matches;\n    }\n\n    size_t matches = 0;\n    const int* query_end = queries + queries_length;\n\n    for (const int* query = queries; query != query_end; ++query) {\n        if (use_small_array) {\n            if (std::binary_search(small_allowed.begin(), small_allowed.begin() + allowed_length, *query)) {\n                ++matches;\n            }\n        } else {\n            if (std::binary_search(allowed, allowed + allowed_length, *query)) {\n                ++matches;\n            }\n        }\n    }\n\n    return matches;\n}\n\n}",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786244905,
+  "id": "chatcmpl-SsTJYs01i1Yhb9aCoiUEBwikWd79ptqZ",
+  "model": "ministral-3-14b-instruct-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 29,
+    "predicted_ms": 132224.184,
+    "predicted_n": 515,
+    "predicted_per_second": 3.89490019465728,
+    "predicted_per_token_ms": 256.74598834951456,
+    "prompt_ms": 96272.419,
+    "prompt_n": 2165,
+    "prompt_per_second": 22.488268420885944,
+    "prompt_per_token_ms": 44.467630023094685
+  },
+  "usage": {
+    "completion_tokens": 515,
+    "prompt_tokens": 2194,
+    "prompt_tokens_details": {
+      "cached_tokens": 29
+    },
+    "total_tokens": 2709
+  }
+}

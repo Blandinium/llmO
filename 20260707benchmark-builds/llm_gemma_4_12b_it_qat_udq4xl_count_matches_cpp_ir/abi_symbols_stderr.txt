@@ -1,2 +1,0 @@
-
-Missing required ABI symbols: count_matches

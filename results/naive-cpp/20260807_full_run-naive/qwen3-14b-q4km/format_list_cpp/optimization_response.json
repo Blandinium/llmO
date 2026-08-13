@@ -1,0 +1,36 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "#include \"library.h\"\n#include \"sut_common.h\"\n\nextern \"C\" {\n\nchar* format_list(const int* input, size_t input_length) {\n    if (input == nullptr && input_length != 0) {\n        return nullptr;\n    }\n\n    // Pre-allocate buffer with maximum possible size\n    size_t buffer_size = 1; // [\n    for (size_t i = 0; i < input_length; ++i) {\n        // Each integer can be up to 20 digits (for 64-bit integers)\n        // Plus commas, spaces, and brackets\n        buffer_size += 20 + 2 + 1; // 20 digits + \", \" + 1 for safety\n    }\n    buffer_size += 1; // ]\n\n    char* buffer = static_cast<char*>(malloc(buffer_size));\n    if (!buffer) return nullptr;\n\n    char* ptr = buffer;\n    *ptr++ = '[';\n\n    for (size_t i = 0; i < input_length; ++i) {\n        if (i > 0) {\n            *ptr++ = ',';\n            *ptr++ = ' ';\n        }\n\n        // Convert integer to string manually\n        char num_buffer[20];\n        size_t num_len = 0;\n        int value = input[i];\n        if (value < 0) {\n            *ptr++ = '-';\n            value = -value;\n        }\n\n        // Handle special case for 0\n        if (value == 0) {\n            *ptr++ = '0';\n            continue;\n        }\n\n        // Convert to string manually\n        char* num_ptr = num_buffer + sizeof(num_buffer);\n        *--num_ptr = '\\0';\n        while (value > 0) {\n            *--num_ptr = '0' + (value % 10);\n            value /= 10;\n        }\n\n        num_len = num_buffer + sizeof(num_buffer) - num_ptr;\n        memcpy(ptr, num_ptr, num_len);\n        ptr += num_len;\n    }\n\n    *ptr++ = ']';\n    *ptr = '\\0';\n\n    return buffer;\n}\n\n}",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1786124302,
+  "id": "chatcmpl-GkKO3j049sjON3qY4R0kQTCTezRjIzuB",
+  "model": "qwen3-14b-q4km",
+  "object": "chat.completion",
+  "system_fingerprint": "b9840-8c146a836",
+  "timings": {
+    "cache_n": 43,
+    "predicted_ms": 115190.772,
+    "predicted_n": 448,
+    "predicted_per_second": 3.8892004300483376,
+    "predicted_per_token_ms": 257.1222589285714,
+    "prompt_ms": 26458.049,
+    "prompt_n": 580,
+    "prompt_per_second": 21.921495420920873,
+    "prompt_per_token_ms": 45.61732586206897
+  },
+  "usage": {
+    "completion_tokens": 448,
+    "prompt_tokens": 623,
+    "prompt_tokens_details": {
+      "cached_tokens": 43
+    },
+    "total_tokens": 1071
+  }
+}

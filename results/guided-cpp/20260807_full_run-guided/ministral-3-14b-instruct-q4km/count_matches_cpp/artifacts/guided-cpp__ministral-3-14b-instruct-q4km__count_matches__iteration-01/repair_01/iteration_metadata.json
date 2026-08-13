@@ -1,0 +1,133 @@
+{
+  "abi_result": {
+    "command": [
+      "nm",
+      "-D",
+      "--defined-only",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/count_matches_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01/repair_01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/count_matches_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01/repair_01",
+    "duration_seconds": 0.008566950913518667,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/count_matches_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01/repair_01/abi_symbols_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/count_matches_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01/repair_01/abi_symbols_stdout.txt"
+  },
+  "accepted_remarks": null,
+  "compile_result": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-shared",
+      "-fPIC",
+      "-I",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/count_matches_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01/repair_01",
+      "-I",
+      "/home/tijl/code/llmO/SUT",
+      "-I",
+      "/home/tijl/code/llmO",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/count_matches_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01/repair_01/source_output.cpp",
+      "/home/tijl/code/llmO/SUT/fibonacci.cpp",
+      "/home/tijl/code/llmO/SUT/format_list.cpp",
+      "/home/tijl/code/llmO/SUT/free_functions.cpp",
+      "/home/tijl/code/llmO/SUT/repeated_sort.cpp",
+      "/home/tijl/code/llmO/SUT/sut_common.cpp",
+      "/home/tijl/code/llmO/SUT/top_words_from_file.cpp",
+      "-o",
+      "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/count_matches_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01/repair_01/libSUT.so"
+    ],
+    "cwd": "/home/tijl/code/llmO",
+    "duration_seconds": 2.418998752022162,
+    "returncode": 0,
+    "stderr_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/count_matches_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01/repair_01/compile_stderr.txt",
+    "stdout_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/count_matches_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01/repair_01/compile_stdout.txt"
+  },
+  "iteration": 1,
+  "metadata": {
+    "abi_error": null,
+    "accepted_as_best": true,
+    "benchmark_comparison": {
+      "baseline_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__count_matches__baseline",
+      "baseline_statistics": {
+        "maximum_calls_per_second": 59.3598,
+        "mean_calls_per_second": 59.1427,
+        "median_absolute_deviation": 0.12530000000000285,
+        "median_calls_per_second": 59.2345,
+        "minimum_calls_per_second": 58.8338,
+        "requested_repetitions": 3,
+        "successful_repetitions": 3
+      },
+      "candidate_artifact_id": "guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01",
+      "candidate_statistics": {
+        "maximum_calls_per_second": 2689.56,
+        "mean_calls_per_second": 2678.06,
+        "median_absolute_deviation": 7.139999999999873,
+        "median_calls_per_second": 2682.42,
+        "minimum_calls_per_second": 2662.2,
+        "requested_repetitions": 3,
+        "successful_repetitions": 3
+      },
+      "classification": "improved",
+      "noise_threshold_percent": 2.0,
+      "relative_change_percent": 4428.475803796774,
+      "sequence": [
+        "guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01",
+        "guided-cpp__ministral-3-14b-instruct-q4km__count_matches__baseline",
+        "guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01",
+        "guided-cpp__ministral-3-14b-instruct-q4km__count_matches__baseline",
+        "guided-cpp__ministral-3-14b-instruct-q4km__count_matches__baseline",
+        "guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01"
+      ]
+    },
+    "duration_seconds": 674.6608058449347,
+    "llm_result": {
+      "completion_tokens": 288,
+      "content": "```cpp\n#include \"library.h\"\n#include <algorithm>\n#include <cstddef>\n#include <vector>\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    // Early exit if no queries or no allowed values\n    if (queries_length == 0 || allowed_length == 0) {\n        return 0;\n    }\n\n    // Create a copy of allowed values to sort and unique\n    std::vector<int> allowed_copy(allowed, allowed + allowed_length);\n    std::sort(allowed_copy.begin(), allowed_copy.end());\n    auto last = std::unique(allowed_copy.begin(), allowed_copy.end());\n    allowed_copy.erase(last, allowed_copy.end());\n\n    size_t matches = 0;\n    const int* query_end = queries + queries_length;\n\n    // Use binary search for O(log n) lookups in sorted allowed values\n    for (const int* query = queries; query != query_end; ++query) {\n        if (std::binary_search(allowed_copy.begin(), allowed_copy.end(), *query)) {\n            ++matches;\n        }\n    }\n\n    return matches;\n}\n\n}\n```",
+      "finish_reason": "stop",
+      "prompt_tokens": 11503,
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "```cpp\n#include \"library.h\"\n#include <algorithm>\n#include <cstddef>\n#include <vector>\n\nextern \"C\" {\n\nsize_t count_matches(\n    const int* allowed,\n    size_t allowed_length,\n    const int* queries,\n    size_t queries_length\n) {\n    if ((allowed == nullptr && allowed_length != 0) ||\n        (queries == nullptr && queries_length != 0)) {\n        return 0;\n    }\n\n    // Early exit if no queries or no allowed values\n    if (queries_length == 0 || allowed_length == 0) {\n        return 0;\n    }\n\n    // Create a copy of allowed values to sort and unique\n    std::vector<int> allowed_copy(allowed, allowed + allowed_length);\n    std::sort(allowed_copy.begin(), allowed_copy.end());\n    auto last = std::unique(allowed_copy.begin(), allowed_copy.end());\n    allowed_copy.erase(last, allowed_copy.end());\n\n    size_t matches = 0;\n    const int* query_end = queries + queries_length;\n\n    // Use binary search for O(log n) lookups in sorted allowed values\n    for (const int* query = queries; query != query_end; ++query) {\n        if (std::binary_search(allowed_copy.begin(), allowed_copy.end(), *query)) {\n            ++matches;\n        }\n    }\n\n    return matches;\n}\n\n}\n```",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786240442,
+        "id": "chatcmpl-dX0mSCSKgMe1baWbWpchHyvow2p0pWyh",
+        "model": "ministral-3-14b-instruct-q4km",
+        "object": "chat.completion",
+        "system_fingerprint": "b9840-8c146a836",
+        "timings": {
+          "cache_n": 29,
+          "predicted_ms": 103621.912,
+          "predicted_n": 288,
+          "predicted_per_second": 2.7793349344876015,
+          "predicted_per_token_ms": 359.79830555555554,
+          "prompt_ms": 570633.88,
+          "prompt_n": 11474,
+          "prompt_per_second": 20.107463650773767,
+          "prompt_per_token_ms": 49.73277671256754
+        },
+        "usage": {
+          "completion_tokens": 288,
+          "prompt_tokens": 11503,
+          "prompt_tokens_details": {
+            "cached_tokens": 29
+          },
+          "total_tokens": 11791
+        }
+      },
+      "total_tokens": 11791
+    }
+  },
+  "remarks_file": null,
+  "shown_remarks": null,
+  "source_file": "/home/tijl/code/llmO/results/guided-cpp/20260807_full_run-guided/ministral-3-14b-instruct-q4km/count_matches_cpp/artifacts/guided-cpp__ministral-3-14b-instruct-q4km__count_matches__iteration-01/repair_01/source_output.cpp",
+  "success": true,
+  "type": "repair_01"
+}

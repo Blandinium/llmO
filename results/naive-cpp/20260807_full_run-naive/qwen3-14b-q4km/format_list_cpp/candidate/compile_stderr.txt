@@ -1,0 +1,14 @@
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/qwen3-14b-q4km/format_list_cpp/optimized.cpp:56:9: error: use of undeclared identifier 'memcpy'; did you mean 'wmemcpy'?
+   56 |         memcpy(ptr, num_ptr, num_len);
+      |         ^~~~~~
+      |         wmemcpy
+/usr/include/wchar.h:287:17: note: 'wmemcpy' declared here
+  287 | extern wchar_t *wmemcpy (wchar_t *__restrict __s1,
+      |                 ^
+/home/tijl/code/llmO/results/naive-cpp/20260807_full_run-naive/qwen3-14b-q4km/format_list_cpp/optimized.cpp:56:16: error: cannot initialize a parameter of type 'wchar_t *' with an lvalue of type 'char *'
+   56 |         memcpy(ptr, num_ptr, num_len);
+      |                ^~~
+/usr/include/wchar.h:287:46: note: passing argument to parameter '__s1' here
+  287 | extern wchar_t *wmemcpy (wchar_t *__restrict __s1,
+      |                                              ^
+2 errors generated.
