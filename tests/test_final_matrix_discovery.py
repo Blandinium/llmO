@@ -8,6 +8,7 @@ import run_final_benchmark_matrix as final_matrix
 from run_final_benchmark_matrix import (
     ArtifactConflictError,
     ArtifactDefinition,
+    aggregate_extracted_ir_outcomes,
     build_benchmark_report,
     discover_artifacts,
     discover_selected_runs,
@@ -35,6 +36,81 @@ def test_discovers_nested_guided_artifact(tmp_path: Path):
     assert artifacts[0].artifact_id == "guided__final"
     assert artifacts[0].benchmark_name == "fibonacci"
     assert artifacts[0].library_path == artifact_dir / "libSUT.so"
+
+
+@pytest.mark.parametrize("validation_outcome", ["valid_code", "repaired_code"])
+def test_extracted_ir_validation_metadata_is_preserved_in_reports(tmp_path: Path, validation_outcome):
+    artifact_dir = _write_artifact(
+        tmp_path, f"extracted-{validation_outcome}",
+        artifact_id=f"extracted-ir__{validation_outcome}",
+        experiment_type="extracted-ir",
+    )
+    metadata_path = artifact_dir / "artifact.json"
+    metadata = json.loads(metadata_path.read_text())
+    metadata.update({
+        "validation_skipped": False,
+        "validation_outcome": validation_outcome,
+        "response_mode": "replacement_function",
+        "extracted_ir_bytes": 12000,
+        "estimated_target_function_tokens": 800,
+    })
+    metadata_path.write_text(json.dumps(metadata))
+
+    artifact = discover_artifacts(tmp_path)[0]
+    identity = artifact.report_identity()
+    assert identity["validation_skipped"] is False
+    assert identity["validation_outcome"] == validation_outcome
+    assert identity["response_mode"] == "replacement_function"
+    assert identity["extracted_ir_bytes"] == 12000
+    assert identity["estimated_target_function_tokens"] == 800
+
+
+def test_missing_validation_metadata_is_none_and_skipped_is_not_failure(tmp_path: Path):
+    old_library = tmp_path / "old.so"
+    skipped_library = tmp_path / "skipped.so"
+    old_library.write_bytes(b"old")
+    skipped_library.write_bytes(b"skipped")
+    old = ArtifactDefinition("llvm-old", "llvm", "fib", old_library)
+    skipped = ArtifactDefinition(
+        "extracted-skipped", "extracted-ir", "fib", skipped_library,
+        metadata={
+            "validation": {"validation_skipped": True},
+            "validation_outcome": "no_change",
+            "response_mode": "no_change",
+        },
+    )
+    old_identity = old.report_identity()
+    assert old_identity["validation_skipped"] is None
+    assert old_identity["validation_outcome"] is None
+    assert old_identity["response_mode"] is None
+
+    stats = {
+        old.matrix_key: BenchmarkStatistics(1, 1, 100, 100, 100, 100, 0),
+        skipped.matrix_key: BenchmarkStatistics(1, 1, 100, 100, 100, 100, 0),
+    }
+    report = build_benchmark_report("fib", [old, skipped], stats, old.matrix_key)
+    reported = {item["artifact_id"]: item for item in report["artifacts"]}
+    assert reported["extracted-skipped"]["validation_skipped"] is True
+    assert reported["extracted-skipped"]["median_calls_per_second"] == 100
+
+
+def test_aggregates_explicit_extracted_ir_outcomes(tmp_path: Path):
+    run = tmp_path / "extracted-ir-run"
+    run.mkdir()
+    (run / "attempt_summary.json").write_text(json.dumps({"attempts": [
+        {"mode": "extracted-ir", "status": "no_change", "validation_outcome": "no_change"},
+        {"mode": "extracted-ir", "status": "invalid_after_repair", "validation_outcome": "invalid_code"},
+        {"mode": "extracted-ir", "status": "completed", "validation_outcome": "repaired_code"},
+        {"mode": "extracted-ir", "status": "context_insufficient", "validation_outcome": "context_insufficient"},
+        {"mode": "ir", "status": "invalid_after_repair", "validation_outcome": "invalid_code"},
+    ]}))
+
+    assert aggregate_extracted_ir_outcomes([run]) == {
+        "no_change": 1,
+        "invalid_code": 1,
+        "repaired_code": 1,
+        "context_insufficient": 1,
+    }
 
 
 def _write_artifact(root: Path, location: str, *, artifact_id: str = "guided__final",

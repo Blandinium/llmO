@@ -20,18 +20,21 @@ llvm_run_id="${run_id}-llvm"
 naive_run_id="${run_id}-naive"
 guided_run_id="${run_id}-guided"
 ir_run_id="${run_id}-ir"
+extracted_ir_run_id="${run_id}-extracted-ir"
 matrix_run_id="${run_id}-matrix"
 
 ./run_builds.py --run-id "$llvm_run_id"
 ./run_naive_cpp_optimization.py --run-id "$naive_run_id"
 ./run_iterative_cpp_optimization.py --run-id "$guided_run_id"
 ./run_ir_optimization.py --run-id "$ir_run_id" --backend-opt-level both
+./run_ir_optimization.py --mode extracted-ir --run-id "$extracted_ir_run_id" --backend-opt-level both
 
 ./run_final_benchmark_matrix.py \
     --run-id "$matrix_run_id" \
     --source-run "results/llvm/$llvm_run_id" \
     --source-run "results/naive-cpp/$naive_run_id" \
     --source-run "results/guided-cpp/$guided_run_id" \
-    --source-run "results/llm-ir/$ir_run_id"
+    --source-run "results/llm-ir/$ir_run_id" \
+    --source-run "results/extracted-ir/$extracted_ir_run_id"
 
 echo "Definitive matrix written to results/final-matrix/$matrix_run_id/summary.json"

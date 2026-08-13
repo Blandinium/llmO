@@ -67,6 +67,10 @@ class ArtifactDefinition:
         return f"{self.artifact_id}__source-{digest}"
 
     def report_identity(self) -> Dict[str, Any]:
+        metadata = self.metadata or {}
+        validation = metadata.get("validation") or {}
+        if not isinstance(validation, dict):
+            validation = {}
         return {
             "matrix_key": self.matrix_key,
             "logical_artifact_id": self.logical_artifact_id,
@@ -79,9 +83,18 @@ class ArtifactDefinition:
             "artifact_metadata_path": str(self.artifact_metadata_path.resolve()) if self.artifact_metadata_path else None,
             "library_path": str(self.library_path.resolve()),
             "alias_paths": [str(path.resolve()) for path in self.alias_paths],
-            "source_artifact_id": (self.metadata or {}).get("final_artifact_id"),
-            "source_provenance": (self.metadata or {}).get("source_provenance"),
-            "confirmation_result": (self.metadata or {}).get("final_comparison_vs_original"),
+            "source_artifact_id": metadata.get("final_artifact_id"),
+            "source_provenance": metadata.get("source_provenance"),
+            "confirmation_result": metadata.get("final_comparison_vs_original"),
+            "validation_skipped": metadata.get("validation_skipped", validation.get("validation_skipped")),
+            "validation_outcome": metadata.get("validation_outcome"),
+            "response_mode": metadata.get("response_mode"),
+            "original_ir_bytes": metadata.get("original_ir_bytes"),
+            "extracted_ir_bytes": metadata.get("extracted_ir_bytes"),
+            "original_estimated_input_tokens": metadata.get("original_estimated_input_tokens"),
+            "extracted_estimated_input_tokens": metadata.get("extracted_estimated_input_tokens"),
+            "estimated_target_function_tokens": metadata.get("estimated_target_function_tokens"),
+            "configured_max_output_tokens": metadata.get("configured_max_output_tokens"),
         }
 
 
@@ -373,6 +386,29 @@ def discover_selected_runs(run_paths: List[Path], include_intermediate: bool = F
     return deduplicate_artifacts(artifacts)
 
 
+def aggregate_extracted_ir_outcomes(run_paths: List[Path]) -> Dict[str, int]:
+    """Count explicit optimizer outcomes from selected extracted-IR runs."""
+    counts: Dict[str, int] = {}
+    for run_path in run_paths:
+        attempt_summary = run_path.resolve() / "attempt_summary.json"
+        if not attempt_summary.is_file():
+            continue
+        try:
+            metadata = json.loads(attempt_summary.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        attempts = metadata.get("attempts", []) if isinstance(metadata, dict) else []
+        for attempt in attempts:
+            if not isinstance(attempt, dict) or attempt.get("mode") != "extracted-ir":
+                continue
+            outcome = attempt.get("validation_outcome")
+            if outcome is None:
+                outcome = attempt.get("status")
+            if outcome is not None:
+                counts[str(outcome)] = counts.get(str(outcome), 0) + 1
+    return counts
+
+
 def _median(stats: Any) -> Optional[float]:
     return stats.median_calls_per_second if stats else None
 
@@ -548,6 +584,11 @@ def main():
         "manifest_path": str(args.artifact_manifest.resolve()) if args.artifact_manifest else None,
         "source_run_paths": selected_source_runs,
     }
+    extracted_ir_outcomes = aggregate_extracted_ir_outcomes(
+        [Path(path) for path in selected_source_runs]
+    )
+    if extracted_ir_outcomes:
+        run_meta["extracted_ir_outcomes"] = extracted_ir_outcomes
     write_json_atomic(run_dir / "run.json", run_meta)
     
 

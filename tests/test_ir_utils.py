@@ -1,4 +1,5 @@
 import pytest
+import json
 import llmo.llama
 from pathlib import Path
 from llmo.llama import ChatCompletionResult
@@ -6,7 +7,7 @@ from llmo.source import extract_code_block, validate_llvm_ir_module
 from llmo.benchmark import calculate_benchmark_statistics, compare_benchmarks, parse_key_value_lines
 from llmo.benchmark_protocol import BenchmarkMeasurement, BenchmarkStatistics
 from llmo.project import source_function_name
-from run_ir_optimization import require_preserved_target_configuration
+from run_ir_optimization import require_preserved_target_configuration, write_run_attempt_summary
 
 def test_completion_metadata_parsing():
     # Mock result
@@ -133,3 +134,31 @@ checksum=42
     assert parsed["wall_us"] == 1000000
     assert parsed["calls_per_second"] == 1234.5
     assert parsed["checksum"] == 42
+
+
+def test_attempt_summary_does_not_count_no_change_as_invalid_code(tmp_path):
+    no_change_dir = tmp_path / "model" / "no_change"
+    invalid_dir = tmp_path / "model" / "invalid"
+    no_change_dir.mkdir(parents=True)
+    invalid_dir.mkdir(parents=True)
+    (no_change_dir / "summary.json").write_text(json.dumps({
+        "status": "no_change",
+        "response_mode": "no_change",
+        "validation": {"validation_skipped": True},
+    }))
+    (invalid_dir / "summary.json").write_text(json.dumps({
+        "status": "invalid_after_repair",
+        "response_mode": "replacement_function",
+        "validation": {
+            "validation_skipped": False,
+            "initial_verification_passed": False,
+            "repair_verification_passed": False,
+        },
+    }))
+
+    write_run_attempt_summary(tmp_path)
+    aggregate = json.loads((tmp_path / "attempt_summary.json").read_text())
+    assert aggregate["validation_outcome_counts"] == {
+        "invalid_code": 1,
+        "no_change": 1,
+    }

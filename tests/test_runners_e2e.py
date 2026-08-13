@@ -116,6 +116,9 @@ def test_ir_runner_mocked(mock_env, monkeypatch):
     candidate_id = summary["backend_results"]["-O3"]["artifact_id"]
     artifact = json.loads((tmp_path / "llm-ir" / "test-run" / "artifacts" / candidate_id / "artifact.json").read_text())
     assert artifact["timing"]["total_llm_seconds"] == summary["timing"]["total_llm_seconds"]
+    assert "validation_skipped" not in artifact
+    assert "validation_outcome" not in artifact
+    assert "response_mode" not in artifact
 
 def test_extracted_ir_uses_reduced_context_and_distinct_metadata(mock_env, monkeypatch):
     tmp_path = mock_env
@@ -194,10 +197,19 @@ def test_extracted_ir_uses_reduced_context_and_distinct_metadata(mock_env, monke
     )
     assert summary["optimized_extracted_ir_sha256"] != summary["extracted_module_sha256"]
     assert summary["reconstructed_ir_sha256"] == get_file_sha256(reconstructed)
+    assert summary["response_mode"] == "replacement_function"
+    assert summary["validation"]["validation_skipped"] is False
+    assert summary["validation"]["initial_verification_passed"] is False
+    assert summary["validation"]["repair_verification_passed"] is True
+    assert summary["validation"]["final_verification_passed"] is True
     artifact_id = summary["backend_results"]["-O3"]["artifact_id"]
     assert artifact_id.startswith("extracted-ir__")
     artifact = json.loads((tmp_path / "extracted-ir" / "extracted-test" / "artifacts" / artifact_id / "artifact.json").read_text())
     assert artifact["experiment_type"] == "extracted-ir"
+    assert artifact["response_mode"] == "replacement_function"
+    assert artifact["validation_skipped"] is False
+    assert artifact["validation_outcome"] == "repaired_code"
+    assert artifact["validation"]["repair_verification_passed"] is True
 
 
 def test_extracted_ir_large_module_no_change_is_tiny_and_skips_repair(mock_env, monkeypatch):
@@ -232,12 +244,201 @@ def test_extracted_ir_large_module_no_change_is_tiny_and_skips_repair(mock_env, 
 
     task_dir = tmp_path / "extracted-ir" / "format-list-regression" / "test-model" / "fibonacci_cpp"
     summary = json.loads((task_dir / "summary.json").read_text())
-    assert summary["status"] == summary["response_mode"] == "no_change"
+    assert summary["status"] == "completed"
+    assert summary["response_mode"] == "no_change"
+    assert "-O3" in summary["backend_results"]
+    assert summary["validation"]["validation_skipped"] is True
+    assert summary["validation"]["preflight_passed"] is None
+    assert summary["validation"]["initial_verification_passed"] is None
+    assert summary["validation"]["final_verification_passed"] is None
+    assert summary["validation"]["repair_attempted"] is False
     assert summary["actual_completion_tokens"] == 2
     assert (task_dir / "raw_response.txt").read_text() == "NO_CHANGE"
     assert not (task_dir / "replacement.ll").exists()
     assert validate.call_count == 1  # extracted input only; no output validation or repair
     assert call.call_count == 1
+
+
+@pytest.mark.parametrize("verification_results, expected_status, expected_initial, expected_repair, expected_final", [
+    ([True], "completed", True, None, True),
+    ([False, False], "invalid_after_repair", False, False, False),
+])
+def test_extracted_ir_replacement_validation_metadata(
+    mock_env, monkeypatch, verification_results, expected_status,
+    expected_initial, expected_repair, expected_final,
+):
+    from llmo.command import CommandResult
+    from llmo.llvm import IrOperationResult
+    from llmo.llama import ChatCompletionResult
+
+    ok = CommandResult([], ".", 0, 0.1, "out", "err")
+    error_file = mock_env / "llvm-error.txt"
+    error_file.write_text("invalid LLVM IR")
+    failed = CommandResult([], ".", 1, 0.1, "out", str(error_file))
+    full_ir = mock_env / "validation_full.ll"
+    extracted_ir = mock_env / "validation_extracted.ll"
+    module = ('target triple = "x86_64"\ntarget datalayout = "e"\n'
+              'define i32 @fibonacci() { ret i32 0 }\n')
+    full_ir.write_text(module)
+    extracted_ir.write_text(module)
+    initial = "define i32 @fibonacci() { ret i32 1 }\n"
+    repaired = "define i32 @fibonacci() { ret i32 2 }\n"
+    responses = [initial] if verification_results == [True] else [initial, repaired]
+    llm_results = [ChatCompletionResult(
+        content=f"BEGIN_REPLACEMENT_FUNCTION\n{function}END_REPLACEMENT_FUNCTION",
+        finish_reason="stop", prompt_tokens=10, completion_tokens=10,
+        total_tokens=20, raw_response={},
+    ) for function in responses]
+
+    monkeypatch.setattr("run_ir_optimization.shutil.which", MagicMock(return_value="/mock/llvm-tool"))
+    monkeypatch.setattr("run_ir_optimization.generate_llvm_ir", MagicMock(return_value=IrOperationResult(ok, full_ir)))
+    monkeypatch.setattr("run_ir_optimization.llvm_ir_defines_symbol", MagicMock(return_value=True))
+    monkeypatch.setattr("run_ir_optimization.extract_llvm_function", MagicMock(return_value=IrOperationResult(ok, extracted_ir)))
+    validations = [IrOperationResult(ok, mock_env / "input.bc")]
+    validations.extend(IrOperationResult(ok if passed else failed, mock_env / "valid.bc" if passed else None)
+                       for passed in verification_results)
+    monkeypatch.setattr("run_ir_optimization.validate_llvm_ir_with_assembler", MagicMock(side_effect=validations))
+    monkeypatch.setattr("run_ir_optimization.call_llm", MagicMock(side_effect=llm_results))
+
+    if verification_results == [True]:
+        reconstructed = mock_env / "validation_reconstructed.ll"
+        reconstructed.write_text(module)
+        monkeypatch.setattr("run_ir_optimization.reintegrate_llvm_function", MagicMock(return_value=IrOperationResult(ok, reconstructed)))
+        library = mock_env / "validation.so"
+        library.touch()
+        monkeypatch.setattr("run_ir_optimization.compile_llvm_ir_to_lib", MagicMock(return_value=IrOperationResult(ok, library)))
+        def mock_abi(build_dir, library_path, required_symbols=None):
+            build_dir.mkdir(parents=True, exist_ok=True)
+            (build_dir / "abi_symbols.json").write_text('{"success": true}')
+            return ok
+        monkeypatch.setattr("run_ir_optimization.run_abi_symbol_check", mock_abi)
+        monkeypatch.setattr("run_ir_optimization.run_benchmarks_paired", MagicMock(return_value=_mock_comparison()))
+
+    run_id = "replacement-valid" if verification_results == [True] else "replacement-invalid"
+    argv = ["run_ir_optimization.py", "--mode", "extracted-ir", "--model", "test-model",
+            "--only", "fibonacci", "--output-root", str(mock_env), "--backend-opt-level", "O3",
+            "--benchmark-repetitions", "1", "--run-id", run_id]
+    with patch("sys.argv", argv):
+        run_ir_optimization.main()
+
+    summary = json.loads((mock_env / "extracted-ir" / run_id / "test-model" /
+                          "fibonacci_cpp" / "summary.json").read_text())
+    assert summary["status"] == expected_status
+    assert summary["response_mode"] == "replacement_function"
+    assert summary["validation"]["validation_skipped"] is False
+    assert summary["validation"]["initial_verification_passed"] is expected_initial
+    assert summary["validation"]["repair_verification_passed"] is expected_repair
+    assert summary["validation"]["final_verification_passed"] is expected_final
+    if verification_results == [True]:
+        candidate_id = summary["backend_results"]["-O3"]["artifact_id"]
+        baseline_id = summary["backend_results"]["-O3"]["baseline_artifact_id"]
+        artifacts_dir = mock_env / "extracted-ir" / run_id / "artifacts"
+        candidate_metadata = json.loads((artifacts_dir / candidate_id / "artifact.json").read_text())
+        baseline_metadata = json.loads((artifacts_dir / baseline_id / "artifact.json").read_text())
+        assert candidate_metadata["response_mode"] == "replacement_function"
+        assert candidate_metadata["validation_skipped"] is False
+        assert candidate_metadata["validation_outcome"] == "valid_code"
+        assert candidate_metadata["actual_completion_tokens"] == 10
+        assert "validation_skipped" not in baseline_metadata
+        assert "validation_outcome" not in baseline_metadata
+
+        from run_final_benchmark_matrix import discover_artifacts
+        discovered = next(
+            artifact for artifact in discover_artifacts(mock_env / "extracted-ir" / run_id)
+            if artifact.artifact_id == candidate_id
+        )
+        identity = discovered.report_identity()
+        assert identity["response_mode"] == "replacement_function"
+        assert identity["validation_skipped"] is False
+        assert identity["validation_outcome"] == "valid_code"
+
+
+@pytest.mark.parametrize("backend_option,expected_levels", [
+    ("O0", {"-O0"}), ("O3", {"-O3"}), ("both", {"-O0", "-O3"}),
+])
+def test_extracted_ir_backend_variants_and_resume_are_idempotent(
+    mock_env, monkeypatch, backend_option, expected_levels,
+):
+    from llmo.command import CommandResult
+    from llmo.llvm import IrOperationResult
+
+    ok = CommandResult([], ".", 0, 0.1, "out", "err")
+    full_ir = mock_env / "resume-full.ll"
+    full_ir.write_text('target triple = "x86_64"\ntarget datalayout = "e"\n'
+                       'define i32 @fibonacci() { ret i32 0 }\n')
+    run_id = f"resume-{backend_option.lower()}"
+    task_dir = mock_env / "extracted-ir" / run_id / "test-model" / "fibonacci_cpp"
+    task_dir.mkdir(parents=True)
+    reconstructed = task_dir / "reconstructed_full.ll"
+    reconstructed.write_text(full_ir.read_text())
+    (task_dir / "optimized_extracted.ll").write_text(full_ir.read_text())
+    (task_dir / "summary.json").write_text(json.dumps({
+        "run_id": run_id, "experiment_type": "extracted-ir",
+        "model_id": "test-model", "benchmark_name": "fibonacci",
+        "optimization_mode": "extracted-ir", "response_mode": "replacement_function",
+        "status": "valid_on_first_attempt",
+        "validation": {"initial_verification_passed": True},
+    }))
+
+    monkeypatch.setattr("run_ir_optimization.shutil.which", MagicMock(return_value="/mock/tool"))
+    monkeypatch.setattr("run_ir_optimization.generate_llvm_ir",
+                        MagicMock(return_value=IrOperationResult(ok, full_ir)))
+    call_llm = MagicMock(side_effect=AssertionError("resume must not call the LLM"))
+    monkeypatch.setattr("run_ir_optimization.call_llm", call_llm)
+    library = mock_env / "resume-lib.so"
+    library.touch()
+    compile_mock = MagicMock(return_value=IrOperationResult(ok, library))
+    monkeypatch.setattr("run_ir_optimization.compile_llvm_ir_to_lib", compile_mock)
+    def mock_abi(build_dir, library_path, required_symbols=None):
+        build_dir.mkdir(parents=True, exist_ok=True)
+        (build_dir / "abi_symbols.json").write_text('{"success": true}')
+        return ok
+    monkeypatch.setattr("run_ir_optimization.run_abi_symbol_check", mock_abi)
+    benchmark_mock = MagicMock(return_value=_mock_comparison())
+    monkeypatch.setattr("run_ir_optimization.run_benchmarks_paired", benchmark_mock)
+
+    argv = ["run_ir_optimization.py", "--mode", "extracted-ir", "--model", "test-model",
+            "--only", "fibonacci", "--output-root", str(mock_env),
+            "--backend-opt-level", backend_option, "--run-id", run_id, "--resume"]
+    with patch("sys.argv", argv):
+        run_ir_optimization.main()
+    summary = json.loads((task_dir / "summary.json").read_text())
+    assert set(summary["backend_results"]) == expected_levels
+    assert benchmark_mock.call_count == len(expected_levels)
+    assert call_llm.call_count == 0
+    for result in summary["backend_results"].values():
+        artifact = (mock_env / "extracted-ir" / run_id / "artifacts" /
+                    result["artifact_id"] / "artifact.json")
+        assert artifact.is_file()
+
+    compile_count = compile_mock.call_count
+    benchmark_count = benchmark_mock.call_count
+    with patch("sys.argv", argv):
+        run_ir_optimization.main()
+    assert compile_mock.call_count == compile_count
+    assert benchmark_mock.call_count == benchmark_count
+
+
+def test_extracted_ir_resume_keeps_invalid_candidate_terminal(mock_env, monkeypatch):
+    run_id = "resume-invalid"
+    task_dir = mock_env / "extracted-ir" / run_id / "test-model" / "fibonacci_cpp"
+    task_dir.mkdir(parents=True)
+    (task_dir / "summary.json").write_text(json.dumps({
+        "optimization_mode": "extracted-ir", "status": "invalid_after_repair",
+        "validation": {"final_verification_passed": False},
+    }))
+    monkeypatch.setattr("run_ir_optimization.shutil.which", MagicMock(return_value="/mock/tool"))
+    generate = MagicMock(side_effect=AssertionError("terminal invalid result must be skipped"))
+    call_llm = MagicMock(side_effect=AssertionError("terminal invalid result must not call LLM"))
+    monkeypatch.setattr("run_ir_optimization.generate_llvm_ir", generate)
+    monkeypatch.setattr("run_ir_optimization.call_llm", call_llm)
+    argv = ["run_ir_optimization.py", "--mode", "extracted-ir", "--model", "test-model",
+            "--only", "fibonacci", "--output-root", str(mock_env),
+            "--backend-opt-level", "both", "--run-id", run_id, "--resume"]
+    with patch("sys.argv", argv):
+        run_ir_optimization.main()
+    assert generate.call_count == call_llm.call_count == 0
+    assert not (mock_env / "extracted-ir" / run_id / "artifacts").exists()
 
 
 def _configure_constrained_extracted_ir(mock_env, monkeypatch, available_output_tokens):
@@ -282,7 +483,8 @@ def test_extracted_ir_calls_llm_when_only_compact_minimum_fits(mock_env, monkeyp
 
     summary = json.loads((mock_env / "extracted-ir" / "compact-context-fits" / "test-model" /
                           "fibonacci_cpp" / "summary.json").read_text())
-    assert summary["status"] == summary["response_mode"] == "no_change"
+    assert summary["status"] == "completed"
+    assert summary["response_mode"] == "no_change"
     assert summary["estimated_target_function_tokens"] == 2000
     assert summary["min_output_tokens"] == 512
     assert summary["estimated_available_output_tokens"] == 700

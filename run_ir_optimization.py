@@ -51,6 +51,20 @@ def write_target_summary(path: Path, metadata: Dict[str, Any], pipeline_start: f
     write_json_atomic(path, metadata)
 
 
+def validation_outcome(metadata: Dict[str, Any]) -> Optional[str]:
+    """Classify one optimization result from its explicit validation state."""
+    validation = metadata.get("validation", {})
+    if validation.get("validation_skipped") is True:
+        return "no_change"
+    if validation.get("repair_verification_passed") is True:
+        return "repaired_code"
+    if validation.get("initial_verification_passed") is True:
+        return "valid_code"
+    if validation.get("validation_skipped") is False:
+        return "invalid_code"
+    return metadata.get("status")
+
+
 def write_run_attempt_summary(run_dir: Path) -> None:
     """Write a compact, queryable outcome table for IR context experiments."""
     attempts = []
@@ -69,6 +83,7 @@ def write_run_attempt_summary(run_dir: Path) -> None:
             outcome = "benchmark_failed"
         elif status in {"completed", "completed_with_errors"}:
             outcome = "improved" if any(c.get("classification") == "improved" for c in comparisons) else "valid_not_improved"
+        validation_category = validation_outcome(summary)
         attempts.append({
             "model_id": summary.get("model_id"),
             "benchmark_name": summary.get("benchmark_name"),
@@ -86,11 +101,20 @@ def write_run_attempt_summary(run_dir: Path) -> None:
             "configured_max_output_tokens": summary.get("configured_max_output_tokens"),
             "actual_completion_tokens": summary.get("actual_completion_tokens"),
             "response_mode": summary.get("response_mode"),
+            "validation_outcome": validation_category,
         })
     counts: Dict[str, int] = {}
     for attempt in attempts:
         counts[attempt["outcome"]] = counts.get(attempt["outcome"], 0) + 1
-    write_json_atomic(run_dir / "attempt_summary.json", {"attempts": attempts, "outcome_counts": counts})
+    validation_counts: Dict[str, int] = {}
+    for attempt in attempts:
+        category = attempt["validation_outcome"]
+        validation_counts[category] = validation_counts.get(category, 0) + 1
+    write_json_atomic(run_dir / "attempt_summary.json", {
+        "attempts": attempts,
+        "outcome_counts": counts,
+        "validation_outcome_counts": validation_counts,
+    })
 
 
 def publish_ir_backend_artifact(
@@ -107,6 +131,7 @@ def publish_ir_backend_artifact(
     comparison: Optional[Dict[str, Any]] = None,
     timing: Optional[Dict[str, float]] = None,
     experiment_type: str = "llm-ir",
+    optimization_metadata: Optional[Dict[str, Any]] = None,
 ) -> Path:
     """Publish one canonical, independently discoverable IR artifact."""
     artifact_dir = get_standard_path(output_root, experiment_type, run_id, artifact_id)
@@ -138,6 +163,21 @@ def publish_ir_backend_artifact(
         metadata["comparison"] = comparison
     if timing is not None:
         metadata["timing"] = timing
+    if experiment_type == "extracted-ir" and role == "candidate" and optimization_metadata:
+        validation = optimization_metadata.get("validation", {})
+        metadata.update({
+            "response_mode": optimization_metadata.get("response_mode"),
+            "validation_skipped": validation.get("validation_skipped"),
+            "validation_outcome": validation_outcome(optimization_metadata),
+            "original_ir_bytes": optimization_metadata.get("original_ir_bytes"),
+            "extracted_ir_bytes": optimization_metadata.get("extracted_ir_bytes"),
+            "original_estimated_input_tokens": optimization_metadata.get("original_estimated_input_tokens"),
+            "extracted_estimated_input_tokens": optimization_metadata.get("extracted_estimated_input_tokens"),
+            "estimated_target_function_tokens": optimization_metadata.get("estimated_target_function_tokens"),
+            "configured_max_output_tokens": optimization_metadata.get("configured_max_output_tokens"),
+            "actual_completion_tokens": optimization_metadata.get("actual_completion_tokens"),
+            "validation": validation,
+        })
     write_json_atomic(artifact_dir / "artifact.json", metadata)
     return artifact_dir
 
@@ -290,7 +330,7 @@ def is_terminal_summary(summary: Dict[str, Any], requested_backend_levels: List[
     if status not in terminal_statuses:
         return False
     
-    if status == "completed":
+    if status in {"completed", "completed_with_errors", "no_change"}:
         backend_results = summary.get("backend_results", {})
         for lvl in requested_backend_levels:
             if lvl not in backend_results:
@@ -300,6 +340,134 @@ def is_terminal_summary(summary: Dict[str, Any], requested_backend_levels: List[
             if "error" not in res and "comparison" not in res:
                 return False
     return True
+
+
+def backend_result_is_complete(
+    result: Dict[str, Any], output_root: Path, experiment_type: str, run_id: str
+) -> bool:
+    """A benchmark result is reusable only when its normalized exports still exist."""
+    if not result or ("comparison" not in result and "error" not in result):
+        return False
+    if "comparison" not in result:
+        return True
+    for key in ("baseline_artifact_id", "artifact_id"):
+        artifact_id = result.get(key)
+        if not artifact_id:
+            return False
+        artifact_json = get_standard_path(
+            output_root, experiment_type, run_id, artifact_id
+        ) / "artifact.json"
+        if not artifact_json.is_file():
+            return False
+    return True
+
+
+def run_ir_backend_pipeline(
+    *, args: argparse.Namespace, protocol: BenchmarkProtocol, run_id: str,
+    experiment_type: str, model_id: str, target_source: Path, target_dir: Path,
+    original_ir_path: Path, candidate_ir_path: Path, target_meta: Dict[str, Any],
+    task_start_time: float,
+) -> Dict[str, Any]:
+    """Compile, check, benchmark, and export any missing IR backend variants."""
+    levels = ["-O0", "-O3"] if args.backend_opt_level == "both" else [
+        args.backend_opt_level if args.backend_opt_level.startswith("-")
+        else "-" + args.backend_opt_level
+    ]
+    backend_results = dict(target_meta.get("backend_results") or {})
+    other_sources = other_sources_for_replacement(target_source.name)
+    for opt_level in levels:
+        existing = backend_results.get(opt_level, {})
+        if args.resume and backend_result_is_complete(
+            existing, args.output_root, experiment_type, run_id
+        ):
+            print(f"  Skipping {opt_level} benchmark (already complete)")
+            continue
+
+        print(f"  Benchmarking with {opt_level}...")
+        pipeline_prefix = "extracted-ir-o1" if experiment_type == "extracted-ir" else "ir-o1"
+        pipeline_id = f"{pipeline_prefix}__backend-{sanitize_name(opt_level)}"
+        level_dir = target_dir / f"backend_{sanitize_name(opt_level)}"
+        base_aid = make_artifact_id(
+            experiment_type, target_source.stem, model_id,
+            pipeline_id=pipeline_id, suffix="baseline")
+        cand_aid = make_artifact_id(
+            experiment_type, target_source.stem, model_id,
+            pipeline_id=pipeline_id, suffix="candidate")
+        baseline_dir = level_dir / "baseline"
+        candidate_dir = level_dir / "candidate"
+        baseline = compile_llvm_ir_to_lib(
+            baseline_dir, original_ir_path, other_sources, opt_level=opt_level)
+        candidate = compile_llvm_ir_to_lib(
+            candidate_dir, candidate_ir_path, other_sources, opt_level=opt_level)
+        if not baseline.output_path or not candidate.output_path:
+            backend_results[opt_level] = {
+                "error": "compilation_failed",
+                "baseline_comp": asdict(baseline.command_result),
+                "candidate_comp": asdict(candidate.command_result),
+            }
+            continue
+
+        baseline_abi_cmd = run_abi_symbol_check(baseline_dir, baseline.output_path)
+        candidate_abi_cmd = run_abi_symbol_check(candidate_dir, candidate.output_path)
+        baseline_abi = load_abi_check_outcome(baseline_dir, baseline_abi_cmd)
+        candidate_abi = load_abi_check_outcome(candidate_dir, candidate_abi_cmd)
+        if not baseline_abi.success or not candidate_abi.success:
+            backend_results[opt_level] = {
+                "error": "abi_check_failed",
+                "baseline_abi_ok": baseline_abi.success,
+                "candidate_abi_ok": candidate_abi.success,
+                "baseline_abi_error": baseline_abi.error,
+                "candidate_abi_error": candidate_abi.error,
+                "baseline_abi_res": asdict(baseline_abi.command_result),
+                "candidate_abi_res": asdict(candidate_abi.command_result),
+            }
+            continue
+
+        comparison = run_benchmarks_paired(
+            candidate.output_path, baseline.output_path, target_source.stem,
+            protocol=protocol, candidate_id=cand_aid, baseline_id=base_aid)
+        comparison_dict = asdict(comparison)
+        publish_ir_backend_artifact(
+            args.output_root, run_id, base_aid, model_id=model_id,
+            benchmark_name=target_source.stem, pipeline_id=pipeline_id,
+            role="baseline", library_path=baseline.output_path,
+            ir_path=original_ir_path, comparison=comparison_dict,
+            timing=normalized_timing(), experiment_type=experiment_type)
+        publish_ir_backend_artifact(
+            args.output_root, run_id, cand_aid, model_id=model_id,
+            benchmark_name=target_source.stem, pipeline_id=pipeline_id,
+            role="candidate", library_path=candidate.output_path,
+            ir_path=candidate_ir_path, comparison=comparison_dict,
+            timing=normalized_timing(
+                target_meta.get("optimization_inference_seconds", 0),
+                target_meta.get("repair_inference_seconds", 0),
+                time.perf_counter() - task_start_time),
+            experiment_type=experiment_type,
+            optimization_metadata=target_meta if experiment_type == "extracted-ir" else None)
+        backend_results[opt_level] = {
+            "baseline_artifact_id": base_aid, "artifact_id": cand_aid,
+            "pipeline_id": pipeline_id, "comparison": comparison_dict,
+        }
+        if comparison.classification == "benchmark_incomplete":
+            backend_results[opt_level]["status"] = "benchmark_incomplete"
+        if comparison.relative_change_percent and (
+            args.full_regression_check or
+            comparison.relative_change_percent > args.full_regression_threshold_percent
+        ):
+            full_res = run_benchmarks_for_lib(
+                candidate_dir, candidate.output_path, run_all=True)
+            backend_results[opt_level]["full_regression_measurements"] = [
+                asdict(measurement) for measurement in full_res]
+
+    target_meta["backend_results"] = backend_results
+    selected = [backend_results.get(level, {}) for level in levels]
+    if any(result.get("error") for result in selected):
+        target_meta["status"] = (
+            "completed_with_errors" if any("comparison" in result for result in selected)
+            else "failed")
+    else:
+        target_meta["status"] = "completed"
+    return target_meta
 
 
 def main():
@@ -398,7 +566,16 @@ def main():
                 if args.resume and (target_dir / "summary.json").exists():
                     try:
                         existing_summary = json.loads((target_dir / "summary.json").read_text())
-                        if is_terminal_summary(existing_summary, backend_levels):
+                        summary_terminal = is_terminal_summary(existing_summary, backend_levels)
+                        exports_complete = all(
+                            backend_result_is_complete(
+                                (existing_summary.get("backend_results") or {}).get(level, {}),
+                                args.output_root, experiment_type, run_id,
+                            )
+                            for level in backend_levels
+                        )
+                        has_reusable_module = (target_dir / "reconstructed_full.ll").is_file()
+                        if summary_terminal and (not has_reusable_module or exports_complete):
                             print(f"Skipping {target_source.name} for {model_name} (already completed)")
                             continue
                     except Exception:
@@ -429,6 +606,40 @@ def main():
                 target_symbol = source_function_name(target_source)
                 original_ir_content = original_ir_path.read_text(encoding="utf-8")
                 original_ir_tokens = count_tokens(original_ir_content)
+
+                # Optimization and benchmarking are separate resumable stages.  Old
+                # extracted-IR runs may already have a verified/reconstructed module
+                # but no backend directories or normalized artifacts.
+                if args.resume and args.mode == "extracted-ir":
+                    summary_path = target_dir / "summary.json"
+                    reconstructed_path = target_dir / "reconstructed_full.ll"
+                    if summary_path.is_file() and reconstructed_path.is_file():
+                        try:
+                            resumed_meta = json.loads(summary_path.read_text(encoding="utf-8"))
+                        except (OSError, json.JSONDecodeError):
+                            resumed_meta = {}
+                        reusable_statuses = {
+                            "no_change", "valid_on_first_attempt", "valid_after_repair",
+                            "completed", "completed_with_errors", "failed",
+                        }
+                        if resumed_meta.get("status") in reusable_statuses:
+                            print(f"  Reusing reconstructed IR for {target_source.name}")
+                            resumed_meta.setdefault("run_id", run_id)
+                            resumed_meta.setdefault("experiment_type", experiment_type)
+                            resumed_meta.setdefault("model_id", model_id)
+                            resumed_meta.setdefault("benchmark_name", target_source.stem)
+                            resumed_meta["resume_reused_candidate"] = True
+                            resumed_meta = run_ir_backend_pipeline(
+                                args=args, protocol=protocol, run_id=run_id,
+                                experiment_type=experiment_type, model_id=model_id,
+                                target_source=target_source, target_dir=target_dir,
+                                original_ir_path=original_ir_path,
+                                candidate_ir_path=reconstructed_path,
+                                target_meta=resumed_meta,
+                                task_start_time=task_start_time,
+                            )
+                            write_target_summary(summary_path, resumed_meta, task_start_time)
+                            continue
 
                 if args.mode == "extracted-ir":
                     if not llvm_ir_defines_symbol(original_ir_path, target_symbol):
@@ -596,12 +807,36 @@ def main():
                         target_meta["optimized_extracted_ir_sha256"] = get_file_sha256(target_dir / "optimized_extracted.ll")
                         target_meta["reconstructed_ir_path"] = str(target_dir / "reconstructed_full.ll")
                         target_meta["reconstructed_ir_sha256"] = get_file_sha256(target_dir / "reconstructed_full.ll")
+                        validation_state.update({
+                            "validation_skipped": True,
+                            "preflight_passed": None,
+                            "initial_verification_passed": None,
+                            "repair_preflight_passed": None,
+                            "repair_verification_passed": None,
+                            "final_verification_passed": None,
+                        })
                         target_meta["validation"] = validation_state
                         target_meta["total_inference_seconds"] = llm_call_duration
+                        target_meta = run_ir_backend_pipeline(
+                            args=args, protocol=protocol, run_id=run_id,
+                            experiment_type=experiment_type, model_id=model_id,
+                            target_source=target_source, target_dir=target_dir,
+                            original_ir_path=original_ir_path,
+                            candidate_ir_path=target_dir / "reconstructed_full.ll",
+                            target_meta=target_meta, task_start_time=task_start_time,
+                        )
                         write_target_summary(target_dir / "summary.json", target_meta, task_start_time)
                         continue
                     replacement_function = parsed_response.replacement
                     assert replacement_function is not None
+                    validation_state.update({
+                        "validation_skipped": False,
+                        "preflight_passed": None,
+                        "initial_verification_passed": None,
+                        "repair_preflight_passed": None,
+                        "repair_verification_passed": None,
+                        "final_verification_passed": None,
+                    })
                     (target_dir / "replacement.ll").write_text(replacement_function, encoding="utf-8")
                     extracted_ir = reconstruct_extracted_module(ir_content, replacement_function, target_symbol)
                 else:
@@ -628,8 +863,7 @@ def main():
                     except ValueError as exc:
                         val_res.errors.append(str(exc))
                         val_res.preflight_passed = False
-                if val_res.preflight_passed:
-                    validation_state["preflight_passed"] = True
+                validation_state["preflight_passed"] = val_res.preflight_passed
 
                 target_meta["preflight_validation"] = {
                     "preflight_passed": val_res.preflight_passed,
@@ -648,9 +882,10 @@ def main():
                         verify_res = verify_llvm_ir(target_dir / "verify", extracted_ir_path)
                     target_meta["verify_first_attempt"] = asdict(verify_res)
                     target_meta["initial_verifier_stderr_path"] = verify_res.stderr_file
+                    validation_state["initial_verification_passed"] = verify_res.returncode == 0
+                    validation_state["final_verification_passed"] = verify_res.returncode == 0
                     
                     if verify_res.returncode == 0:
-                        validation_state["initial_verification_passed"] = True
                         status = "valid_on_first_attempt"
                         if extracted_ir_path != optimized_ir_path:
                             shutil.copy2(extracted_ir_path, optimized_ir_path)
@@ -731,8 +966,8 @@ def main():
                                         except ValueError as exc:
                                             repair_val.errors.append(str(exc))
                                             repair_val.preflight_passed = False
+                                    validation_state["repair_preflight_passed"] = repair_val.preflight_passed
                                     if repair_val.preflight_passed:
-                                        validation_state["repair_preflight_passed"] = True
                                         
                                         if args.mode == "extracted-ir":
                                             repair_verify = validate_llvm_ir_with_assembler(
@@ -742,9 +977,10 @@ def main():
                                             repair_verify = verify_llvm_ir(target_dir / "repair_verify", repaired_ir_path)
                                         target_meta["verify_repair_attempt"] = asdict(repair_verify)
                                         target_meta["repair_verifier_stderr_path"] = repair_verify.stderr_file
+                                        validation_state["repair_verification_passed"] = repair_verify.returncode == 0
+                                        validation_state["final_verification_passed"] = repair_verify.returncode == 0
                                         
                                         if repair_verify.returncode == 0:
-                                            validation_state["repair_verification_passed"] = True
                                             status = "valid_after_repair"
                                             shutil.copy2(repaired_ir_path, optimized_ir_path)
                                         else:
@@ -787,113 +1023,14 @@ def main():
                         shutil.copy2(benchmark_ir_path, target_dir / "reconstructed_full.ll")
                         target_meta["reconstructed_ir_path"] = str(benchmark_ir_path)
                         target_meta["reconstructed_ir_sha256"] = get_file_sha256(benchmark_ir_path)
-                    other_sources = other_sources_for_replacement(target_source.name)
-                    
-                    backend_results = {}
-                    for opt_level in backend_levels:
-                        print(f"  Benchmarking with {opt_level}...")
-                        pipeline_prefix = "extracted-ir-o1" if args.mode == "extracted-ir" else "ir-o1"
-                        pipeline_id = f"{pipeline_prefix}__backend-{sanitize_name(opt_level)}"
-                        level_dir = target_dir / f"backend_{sanitize_name(opt_level)}"
-                        
-                        # Artifact IDs
-                        base_aid = make_artifact_id(experiment_type, target_source.stem, model_id, pipeline_id=pipeline_id, suffix="baseline")
-                        cand_aid = make_artifact_id(experiment_type, target_source.stem, model_id, pipeline_id=pipeline_id, suffix="candidate")
-
-                        # Baseline build
-                        baseline_build_dir = level_dir / "baseline"
-                        baseline_comp = compile_llvm_ir_to_lib(baseline_build_dir, original_ir_path, other_sources, opt_level=opt_level)
-                        
-                        # Candidate build
-                        candidate_build_dir = level_dir / "candidate"
-                        candidate_comp = compile_llvm_ir_to_lib(candidate_build_dir, benchmark_ir_path, other_sources, opt_level=opt_level)
-                        
-                        if baseline_comp.output_path and candidate_comp.output_path:
-                            # ABI Check
-                            baseline_abi_cmd = run_abi_symbol_check(baseline_build_dir, baseline_comp.output_path)
-                            candidate_abi_cmd = run_abi_symbol_check(candidate_build_dir, candidate_comp.output_path)
-                            
-                            baseline_abi_outcome = load_abi_check_outcome(baseline_build_dir, baseline_abi_cmd)
-                            candidate_abi_outcome = load_abi_check_outcome(candidate_build_dir, candidate_abi_cmd)
-                            
-                            if baseline_abi_outcome.success and candidate_abi_outcome.success:
-                                comparison = run_benchmarks_paired(
-                                    candidate_comp.output_path, baseline_comp.output_path, target_source.stem, 
-                                    protocol=protocol,
-                                    candidate_id=cand_aid,
-                                    baseline_id=base_aid
-                                )
-                                
-                                comparison_dict = asdict(comparison)
-                                artifact_timing = normalized_timing(
-                                    target_meta.get("optimization_inference_seconds", 0),
-                                    target_meta.get("repair_inference_seconds", 0),
-                                    time.perf_counter() - task_start_time,
-                                )
-                                publish_ir_backend_artifact(
-                                    args.output_root, run_id, base_aid,
-                                    model_id=model_id,
-                                    benchmark_name=target_source.stem,
-                                    pipeline_id=pipeline_id,
-                                    role="baseline",
-                                    library_path=baseline_comp.output_path,
-                                    ir_path=original_ir_path,
-                                    comparison=comparison_dict,
-                                    timing=normalized_timing(),
-                                    experiment_type=experiment_type,
-                                )
-                                publish_ir_backend_artifact(
-                                    args.output_root, run_id, cand_aid,
-                                    model_id=model_id,
-                                    benchmark_name=target_source.stem,
-                                    pipeline_id=pipeline_id,
-                                    role="candidate",
-                                    library_path=candidate_comp.output_path,
-                                    ir_path=benchmark_ir_path,
-                                    comparison=comparison_dict,
-                                    timing=artifact_timing,
-                                    experiment_type=experiment_type,
-                                )
-                                backend_results[opt_level] = {
-                                    "baseline_artifact_id": base_aid,
-                                    "artifact_id": cand_aid,
-                                    "pipeline_id": pipeline_id,
-                                    "comparison": comparison_dict,
-                                }
-                                
-                                if comparison.classification == "benchmark_incomplete":
-                                    backend_results[opt_level]["status"] = "benchmark_incomplete"
-                                
-                                # Regression check
-                                if comparison.relative_change_percent and (args.full_regression_check or comparison.relative_change_percent > args.full_regression_threshold_percent):
-                                    print(f"  Running full regression check...")
-                                    full_res = run_benchmarks_for_lib(candidate_build_dir, candidate_comp.output_path, run_all=True)
-                                    backend_results[opt_level]["full_regression_measurements"] = [asdict(m) for m in full_res]
-                            else:
-                                backend_results[opt_level] = {
-                                    "error": "abi_check_failed",
-                                    "baseline_abi_ok": baseline_abi_outcome.success,
-                                    "candidate_abi_ok": candidate_abi_outcome.success,
-                                    "baseline_abi_error": baseline_abi_outcome.error,
-                                    "candidate_abi_error": candidate_abi_outcome.error,
-                                    "baseline_abi_res": asdict(baseline_abi_outcome.command_result),
-                                    "candidate_abi_res": asdict(candidate_abi_outcome.command_result)
-                                }
-                        else:
-                            backend_results[opt_level] = {
-                                "error": "compilation_failed",
-                                "baseline_comp": asdict(baseline_comp.command_result),
-                                "candidate_comp": asdict(candidate_comp.command_result)
-                            }
-                    
-                    target_meta["backend_results"] = backend_results
-                    if any(res.get("error") for res in backend_results.values()):
-                         if not any("comparison" in res for res in backend_results.values()):
-                             target_meta["status"] = "failed"
-                         else:
-                             target_meta["status"] = "completed_with_errors"
-                    else:
-                        target_meta["status"] = "completed"
+                    target_meta = run_ir_backend_pipeline(
+                        args=args, protocol=protocol, run_id=run_id,
+                        experiment_type=experiment_type, model_id=model_id,
+                        target_source=target_source, target_dir=target_dir,
+                        original_ir_path=original_ir_path,
+                        candidate_ir_path=benchmark_ir_path,
+                        target_meta=target_meta, task_start_time=task_start_time,
+                    )
                 
                 target_meta["total_inference_seconds"] = target_meta.get("optimization_inference_seconds", 0) + target_meta.get("repair_inference_seconds", 0)
                 target_meta["total_task_seconds"] = time.perf_counter() - task_start_time
